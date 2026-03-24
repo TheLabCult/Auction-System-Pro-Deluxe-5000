@@ -1,0 +1,34 @@
+package com.auction.model;
+
+public class Vehicle extends Item {
+    private String brand;
+    private int year, mileage;
+    public Vehicle(String name, String description, double startingPrice, String brand, int year, int mileage) {
+        super(name, description, startingPrice);
+        this.brand = brand;
+        this.year = year;
+        this.mileage = mileage;
+    }
+    public String getBrand() {
+        return brand;
+    }
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+    public int getYear() {
+        return year;
+    }
+    public void setYear(int year) {
+        this.year = year;
+    }
+    public int getMileage() {
+        return mileage;
+    }
+    public void setMileage(int mileage) {
+        this.mileage = mileage;
+    }
+    @Override
+    public String getDetails() {
+        return "[Vehicle] " + getName() + " | Brand: " + brand + " | Year: " + year + " | Odo: " + mileage + " | Description: " + getDescription();
+    }
+}
