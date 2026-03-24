@@ -24,9 +24,6 @@ class Product {
     // Đặt giá
     public synchronized boolean placeBid(String bidderName, double amount) {
             LocalDateTime now = LocalDateTime.now();
-            if (now.isAfter(auctionEndTime)) {
-                return false; // Đấu giá đã kết thúc
-            }
         if (!isClosed && amount > currentPrice) {
             this.currentPrice = amount;
             this.highestBidder = bidderName;
