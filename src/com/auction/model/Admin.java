@@ -1,7 +1,7 @@
 package com.auction.model;
 public class Admin extends User{
     private String department;
-    public Admin(SString username, String password, String email, String fullName, String department) {
+    public Admin(String username, String password, String email, String fullName, String department) {
         super(username, password, email, fullName);
         this.department = department;
     }
