@@ -1,14 +1,19 @@
 package com.auction.model;
 
 public abstract class Item extends Entity {
-    private String name, description;
+    private String name;
+    private String description;
     private double startingPrice;
+    private ItemStatus status;
     public Item(String name, String description, double startingPrice) {
         super();
         this.name = name;
         this.description = description;
         this.startingPrice = startingPrice;
+        this.status = ItemStatus.AVAILABLE;
     }
+    public void setStatus(ItemStatus status) { this.status = status; }
+    public ItemStatus get() { return status; }
     public String getName() {
         return name;
     }
