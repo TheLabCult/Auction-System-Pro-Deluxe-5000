@@ -11,9 +11,11 @@ public class Bidder extends User {
     public void displayRoleInfo() {
         System.out.println("Role: BIDDER | Username: " + getUsername() + " | Balance: " + balance);
     }
+    //getter
     public double getBalance() {
         return balance;
     }
+    //setter
     public void addBalance(double amount) {
         balance += amount;
     }

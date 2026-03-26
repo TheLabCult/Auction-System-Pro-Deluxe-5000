@@ -10,20 +10,22 @@ public class Vehicle extends Item {
         this.year = year;
         //this.mileage = mileage;
     }
-    public String getBrand() {
-        return brand;
+    //setter
+    public void setYear(int year) {
+        this.year = year;
     }
     public void setBrand(String brand) {
         this.brand = brand;
     }
+    //public int getMileage() { return mileage; }
+    //public void setMileage(int mileage) { this.mileage = mileage; }
+    //getter
+    public String getBrand() {
+        return brand;
+    }
     public int getYear() {
         return year;
     }
-    public void setYear(int year) {
-        this.year = year;
-    }
-    //public int getMileage() { return mileage; }
-    //public void setMileage(int mileage) { this.mileage = mileage; }
     @Override
     public String getDetails() {
         return "[Vehicle] " + getName() + " | Brand: " + brand + " | Year: " + year + " | Description: " + getDescription();

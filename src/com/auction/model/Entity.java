@@ -8,6 +8,7 @@ public abstract class Entity {
         this.id = UUID.randomUUID().toString();
         this.createdAt = LocalDateTime.now();
     }
+    //getter
     public String getId() {
         return this.id;
     }

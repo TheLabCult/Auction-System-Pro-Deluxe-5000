@@ -13,7 +13,7 @@ public abstract class Item extends Entity {
         this.status = ItemStatus.AVAILABLE;
     }
     public void setStatus(ItemStatus status) { this.status = status; }
-    public ItemStatus get() { return status; }
+    public ItemStatus getStatus() { return status; }
     public String getName() {
         return name;
     }

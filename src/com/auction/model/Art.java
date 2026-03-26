@@ -7,6 +7,7 @@ public class Art extends Item {
         this.artist = artist;
         this.genre = genre;
     }
+    //getter
     public String getArtist() {
         return artist;
     }

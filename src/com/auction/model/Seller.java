@@ -10,9 +10,7 @@ public class Seller extends User {
         this.shopName = shopName;
         this.myItems = new ArrayList<>();
     }
-    public String getShopName() {
-        return shopName;
-    }
+    //setter
     public void addItem(Item item) {
         myItems.add(item);
         System.out.println("Added " + item.getName());
@@ -24,12 +22,16 @@ public class Seller extends User {
         }
         return false;
     }
-    public List<Item> getMyItems() { //get list of items for displaying (GUI)
-        return myItems;
-    }
     public void addRevenue(double amount) {
         revenue += amount;
         System.out.println("Shop " + shopName + " received revenue of " + amount);
+    }
+    //getter
+    public String getShopName() {
+        return shopName;
+    }
+    public List<Item> getMyItems() { //get list of items for displaying (GUI)
+        return myItems;
     }
     @Override
     public void displayRoleInfo() {

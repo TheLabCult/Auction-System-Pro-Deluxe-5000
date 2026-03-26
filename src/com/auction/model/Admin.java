@@ -14,7 +14,9 @@ public class Admin extends User{
         user.setActive(false);
         System.out.println("Admin [" + this.getUsername() + "] banned user: " + user.getUsername() + ". Reason: " + reason);
     }
-    //public void cancelAuction(Auction auction, String reason) {}
+    public void cancelAuction(Auction auction, String reason) {
+
+    }
     @Override
     public void displayRoleInfo() {
         System.out.println("Role: ADMIN | Username: " + getUsername());

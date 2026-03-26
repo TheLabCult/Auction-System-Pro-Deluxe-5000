@@ -14,6 +14,7 @@ public abstract class User extends Entity {
         this.isActive = true;
     }
     public abstract void displayRoleInfo();
+    //getter
     public String getUsername() {
         return this.username;
     }
@@ -22,6 +23,19 @@ public abstract class User extends Entity {
     }
     public String getEmail() {
         return this.email;
+    }
+    //setter
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public boolean isActive() {
+        return isActive;
+    }
+    public void setActive(boolean state) {
+        isActive = state;
     }
     public boolean changePassword(String oldPassword, String newPassword) {
         if (oldPassword.equals(this.password)) {
@@ -36,17 +50,5 @@ public abstract class User extends Entity {
 //    public void setPassword(String password) {
 //        this.password = password;
 //    }
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    public boolean isActive() {
-        return isActive;
-    }
-    public void setActive(boolean state) {
-        isActive = state;
-    }
 }
 
