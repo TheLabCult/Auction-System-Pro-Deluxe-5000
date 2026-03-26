@@ -1,6 +1,9 @@
 package com.auction.service;
 
+import com.auction.model.Bidder;
+import com.auction.model.Seller;
 import com.auction.model.User;
+
 import java.util.HashMap;
 import java.util.Map;
 public class UserManager {
@@ -17,12 +20,19 @@ public class UserManager {
         return instance;
     }
     //REGISTRATION
-    public User registerUser(String username, String password, String email, String fullName, String shopName){
+    public Bidder registerBidder(String username, String password, String email, String fullName){
         if (userDatabase.containsKey(username)) throw new IllegalArgumentException("Username is already in use");
-        User user = new User(username, password, email, fullName, shopName);
-        userDatabase.put(username, user);
-        System.out.println("Successfully registered User: " + username);
-        return user;
+        Bidder bidder = new Bidder(username, password, email, fullName, 0.0);
+        userDatabase.put(username, bidder);
+        System.out.println("Successfully registered Bidder: " + username);
+        return bidder;
+    }
+    public Seller registerSeller(String username, String password, String email, String fullName, String shopName){
+        if  (userDatabase.containsKey(username)) throw new IllegalArgumentException("Username is already in use");
+        Seller seller = new Seller(username, password, email, fullName, shopName);
+        userDatabase.put(username, seller);
+        System.out.println("Successfully registered Seller: " + username);
+        return seller;
     }
     //LOGIN
     public User login(String username, String password){

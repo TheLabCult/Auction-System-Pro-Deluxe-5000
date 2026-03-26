@@ -5,18 +5,19 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 public class Auction extends Entity {
     //định danh, liên kết
+    private String auctionID;
     private Item item;
-    private Seller seller;
+    private User seller;
     //thời gian, trạng thái
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private AuctionStatus status;
     //thông tin đấu giá
     private BidTransaction highestBid; //lich su dat gia max
-    //CopyOnWriteArrayList đảm bảo thread-sàe khi có nhiều bid cùng lúc
+    //CopyOnWriteArrayList đảm bảo thread-safe khi có nhiều bid cùng lúc
     private final List<BidTransaction> bidHistory; //lich su dat gia an toan
 
-    public Auction(Item item, Seller seller, LocalDateTime startTime, LocalDateTime endTime) {
+    public Auction(Item item, User seller, LocalDateTime startTime, LocalDateTime endTime) {
         super();
         if (item.getStatus() != ItemStatus.IN_AUCTION) {
             throw new IllegalArgumentException("Item is in another auction or sold");
@@ -30,7 +31,7 @@ public class Auction extends Entity {
         this.bidHistory = new CopyOnWriteArrayList<>();
     }
     //đặt giá cốt lõi (thread-safe)
-    public synchronized boolean placeBid(Bidder bidder, double amount) {
+    public synchronized boolean placeBid(User bidder, double amount) {
         //kiem tra ngoai le (phien da dong hay chua?)
         if (this.status != AuctionStatus.RUNNING) {
             System.out.println("Refuse: Inactive Auction");
@@ -48,7 +49,7 @@ public class Auction extends Entity {
         }
         //logic hoan lai tien (unfrozen) cho nguoi top 1 hien tai
         if (highestBid != null) {
-            Bidder prevLeader = highestBid.getBidder();
+            User prevLeader = highestBid.getBidder();
             prevLeader.unfreezeMoney(highestBid.getBidAmount());
             System.out.println("Refund " + highestBid.getBidAmount() + " for " + prevLeader.getUsername());
         }
@@ -76,5 +77,9 @@ public class Auction extends Entity {
     //setter (for admin / auto)
     public void setStatus(AuctionStatus status) {
         this.status = status;
+    }
+    //Thông tin tổng quát của một phiên đấu giá
+    public void getDetails() {
+        System.out.println();
     }
 }
