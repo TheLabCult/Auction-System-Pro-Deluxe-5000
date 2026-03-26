@@ -5,8 +5,8 @@ public class Seller extends User {
     private String shopName;
     private List<Item> myItems; // các sản phẩm
     private double revenue;
-    public Seller(String username, String password, String email, String fullName, String shopName) {
-        super(username, password, email, fullName);
+    public Seller(String username, String password, String personalID, String email, String fullName, String shopName) {
+        super(username, password, personalID, email, fullName);
         this.shopName = shopName;
         this.myItems = new ArrayList<>();
     }
