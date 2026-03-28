@@ -1,0 +1,319 @@
+2026-03-27T03:36:18.847Z [INFO] ----------------------invoke appmod-report-event----------------------
+2026-03-27T03:36:18.849Z [INFO] [Tool.invoke]({name: appmod-report-event, input: {
+  "event": "precheckCompleted",
+  "phase": "precheck",
+  "projectPath": "c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app",
+  "status": "succeeded"
+}}).
+2026-03-27T03:36:18.856Z [INFO] [Tool.invoke] do invoke.
+2026-03-27T03:36:18.862Z [INFO] [Tool.invoke]({result: {
+  "message": "Event 'precheckCompleted' reported!\nSession ID: 20260327033618,\nSession Dir: c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app\\.github\\java-upgrade\\20260327033618"
+}}).
+2026-03-27T03:36:18.862Z [INFO] ----------------------invoked appmod-report-event----------------------
+2026-03-27T03:36:35.513Z [INFO] ---------------------prepare appmod-list-jdks----------------------
+2026-03-27T03:36:35.514Z [INFO] [Tool.prepareInvocation]({name: appmod-list-jdks, input: {
+  "sessionId": "20260327033618"
+}}).
+2026-03-27T03:36:35.514Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-03-27T03:36:35.515Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "List jdks"
+}}).
+2026-03-27T03:36:35.515Z [INFO] ----------------------prepared appmod-list-jdks----------------------
+2026-03-27T03:36:35.605Z [INFO] ----------------------invoke appmod-list-jdks----------------------
+2026-03-27T03:36:35.606Z [INFO] [Tool.invoke]({name: appmod-list-jdks, input: {
+  "sessionId": "20260327033618"
+}}).
+2026-03-27T03:36:35.607Z [INFO] [Tool.invoke] do invoke.
+2026-03-27T03:36:35.661Z [INFO] [Tool.invoke]({result: {
+  "message": "We found following jdks in your system:\n\n1. Java 25.0.2\n   📁 Path: F:\\Java\\bin\n   🏷️ Source: PATH,JAVA_HOME\n\nTotal: 1 JDK installation(s) found"
+}}).
+2026-03-27T03:36:35.662Z [INFO] ----------------------invoked appmod-list-jdks----------------------
+2026-03-27T03:36:36.726Z [INFO] ---------------------prepare appmod-list-mavens----------------------
+2026-03-27T03:36:36.726Z [INFO] [Tool.prepareInvocation]({name: appmod-list-mavens, input: {
+  "sessionId": "20260327033618"
+}}).
+2026-03-27T03:36:36.727Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-03-27T03:36:36.727Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "List mavens"
+}}).
+2026-03-27T03:36:36.727Z [INFO] ----------------------prepared appmod-list-mavens----------------------
+2026-03-27T03:36:36.767Z [INFO] ----------------------invoke appmod-list-mavens----------------------
+2026-03-27T03:36:36.768Z [INFO] [Tool.invoke]({name: appmod-list-mavens, input: {
+  "sessionId": "20260327033618"
+}}).
+2026-03-27T03:36:36.769Z [INFO] [Tool.invoke] do invoke.
+2026-03-27T03:36:36.772Z [INFO] [Tool.invoke]({result: {
+  "message": "No Maven installations found."
+}}).
+2026-03-27T03:36:36.772Z [INFO] ----------------------invoked appmod-list-mavens----------------------
+2026-03-27T03:37:56.640Z [INFO] ---------------------prepare appmod-report-event----------------------
+2026-03-27T03:37:56.640Z [INFO] [Tool.prepareInvocation]({name: appmod-report-event, input: {
+  "event": "planInitialized",
+  "phase": "plan",
+  "projectPath": "c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app",
+  "sessionId": "20260327033618",
+  "status": "succeeded"
+}}).
+2026-03-27T03:37:56.640Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-03-27T03:37:56.641Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "Report upgrade event"
+}}).
+2026-03-27T03:37:56.641Z [INFO] ----------------------prepared appmod-report-event----------------------
+2026-03-27T03:37:56.701Z [INFO] ----------------------invoke appmod-report-event----------------------
+2026-03-27T03:37:56.702Z [INFO] [Tool.invoke]({name: appmod-report-event, input: {
+  "event": "planInitialized",
+  "phase": "plan",
+  "projectPath": "c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app",
+  "sessionId": "20260327033618",
+  "status": "succeeded"
+}}).
+2026-03-27T03:37:56.702Z [INFO] [Tool.invoke] do invoke.
+2026-03-27T03:37:56.703Z [INFO] [Tool.invoke]({result: {
+  "message": "Event 'planInitialized' reported!\nSession ID: 20260327033618,\nSession Dir: c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app\\.github\\java-upgrade\\20260327033618"
+}}).
+2026-03-27T03:37:56.704Z [INFO] ----------------------invoked appmod-report-event----------------------
+2026-03-27T03:37:57.970Z [INFO] ---------------------prepare appmod-report-event----------------------
+2026-03-27T03:37:57.971Z [INFO] [Tool.prepareInvocation]({name: appmod-report-event, input: {
+  "event": "environmentAnalyzed",
+  "phase": "plan",
+  "projectPath": "c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app",
+  "sessionId": "20260327033618",
+  "status": "succeeded"
+}}).
+2026-03-27T03:37:57.971Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-03-27T03:37:57.971Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "Report upgrade event"
+}}).
+2026-03-27T03:37:57.972Z [INFO] ----------------------prepared appmod-report-event----------------------
+2026-03-27T03:37:58.023Z [INFO] ----------------------invoke appmod-report-event----------------------
+2026-03-27T03:37:58.024Z [INFO] [Tool.invoke]({name: appmod-report-event, input: {
+  "event": "environmentAnalyzed",
+  "phase": "plan",
+  "projectPath": "c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app",
+  "sessionId": "20260327033618",
+  "status": "succeeded"
+}}).
+2026-03-27T03:37:58.024Z [INFO] [Tool.invoke] do invoke.
+2026-03-27T03:37:58.025Z [INFO] [Tool.invoke]({result: {
+  "message": "Event 'environmentAnalyzed' reported!\nSession ID: 20260327033618,\nSession Dir: c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app\\.github\\java-upgrade\\20260327033618"
+}}).
+2026-03-27T03:37:58.025Z [INFO] ----------------------invoked appmod-report-event----------------------
+2026-03-27T03:37:59.297Z [INFO] ---------------------prepare appmod-report-event----------------------
+2026-03-27T03:37:59.297Z [INFO] [Tool.prepareInvocation]({name: appmod-report-event, input: {
+  "event": "dependenciesAnalyzed",
+  "phase": "plan",
+  "projectPath": "c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app",
+  "sessionId": "20260327033618",
+  "status": "succeeded"
+}}).
+2026-03-27T03:37:59.298Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-03-27T03:37:59.298Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "Report upgrade event"
+}}).
+2026-03-27T03:37:59.298Z [INFO] ----------------------prepared appmod-report-event----------------------
+2026-03-27T03:37:59.351Z [INFO] ----------------------invoke appmod-report-event----------------------
+2026-03-27T03:37:59.352Z [INFO] [Tool.invoke]({name: appmod-report-event, input: {
+  "event": "dependenciesAnalyzed",
+  "phase": "plan",
+  "projectPath": "c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app",
+  "sessionId": "20260327033618",
+  "status": "succeeded"
+}}).
+2026-03-27T03:37:59.352Z [INFO] [Tool.invoke] do invoke.
+2026-03-27T03:37:59.353Z [INFO] [Tool.invoke]({result: {
+  "message": "Event 'dependenciesAnalyzed' reported!\nSession ID: 20260327033618,\nSession Dir: c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app\\.github\\java-upgrade\\20260327033618"
+}}).
+2026-03-27T03:37:59.353Z [INFO] ----------------------invoked appmod-report-event----------------------
+2026-03-27T03:38:00.494Z [INFO] ---------------------prepare appmod-report-event----------------------
+2026-03-27T03:38:00.495Z [INFO] [Tool.prepareInvocation]({name: appmod-report-event, input: {
+  "event": "upgradePathDesigned",
+  "phase": "plan",
+  "projectPath": "c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app",
+  "sessionId": "20260327033618",
+  "status": "succeeded"
+}}).
+2026-03-27T03:38:00.496Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-03-27T03:38:00.497Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "Report upgrade event"
+}}).
+2026-03-27T03:38:00.498Z [INFO] ----------------------prepared appmod-report-event----------------------
+2026-03-27T03:38:00.572Z [INFO] ----------------------invoke appmod-report-event----------------------
+2026-03-27T03:38:00.573Z [INFO] [Tool.invoke]({name: appmod-report-event, input: {
+  "event": "upgradePathDesigned",
+  "phase": "plan",
+  "projectPath": "c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app",
+  "sessionId": "20260327033618",
+  "status": "succeeded"
+}}).
+2026-03-27T03:38:00.573Z [INFO] [Tool.invoke] do invoke.
+2026-03-27T03:38:00.574Z [INFO] [Tool.invoke]({result: {
+  "message": "Event 'upgradePathDesigned' reported!\nSession ID: 20260327033618,\nSession Dir: c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app\\.github\\java-upgrade\\20260327033618"
+}}).
+2026-03-27T03:38:00.575Z [INFO] ----------------------invoked appmod-report-event----------------------
+2026-03-27T03:38:01.710Z [INFO] ---------------------prepare appmod-report-event----------------------
+2026-03-27T03:38:01.711Z [INFO] [Tool.prepareInvocation]({name: appmod-report-event, input: {
+  "event": "planReviewed",
+  "phase": "plan",
+  "projectPath": "c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app",
+  "sessionId": "20260327033618",
+  "status": "succeeded"
+}}).
+2026-03-27T03:38:01.712Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-03-27T03:38:01.713Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "Report upgrade event"
+}}).
+2026-03-27T03:38:01.714Z [INFO] ----------------------prepared appmod-report-event----------------------
+2026-03-27T03:38:01.773Z [INFO] ----------------------invoke appmod-report-event----------------------
+2026-03-27T03:38:01.774Z [INFO] [Tool.invoke]({name: appmod-report-event, input: {
+  "event": "planReviewed",
+  "phase": "plan",
+  "projectPath": "c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app",
+  "sessionId": "20260327033618",
+  "status": "succeeded"
+}}).
+2026-03-27T03:38:01.775Z [INFO] [Tool.invoke] do invoke.
+2026-03-27T03:38:01.776Z [INFO] [Tool.invoke]({result: {
+  "message": "Event 'planReviewed' reported!\nSession ID: 20260327033618,\nSession Dir: c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app\\.github\\java-upgrade\\20260327033618"
+}}).
+2026-03-27T03:38:01.776Z [INFO] ----------------------invoked appmod-report-event----------------------
+2026-03-27T03:38:02.864Z [INFO] ---------------------prepare appmod-confirm-upgrade-plan----------------------
+2026-03-27T03:38:02.864Z [INFO] [Tool.prepareInvocation]({name: appmod-confirm-upgrade-plan, input: {
+  "sessionId": "20260327033618"
+}}).
+2026-03-27T03:38:02.865Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-03-27T03:38:02.867Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "Review [upgrade plan](file:///c:/Users/Admin/OneDrive/Máy tính/University/Advanced Programming/Major Assignment/app/.github/java-upgrade/20260327033618/plan.md)",
+  "confirmationMessages": {
+    "title": "Plan generated",
+    "message": "Please review the generated plan and make any necessary adjustments before proceeding. You can modify the generated [`plan.md`](file:///c:/Users/Admin/OneDrive/Máy tính/University/Advanced Programming/Major Assignment/app/.github/java-upgrade/20260327033618/plan.md) directly."
+  }
+}}).
+2026-03-27T03:38:02.867Z [INFO] ----------------------prepared appmod-confirm-upgrade-plan----------------------
+2026-03-27T03:38:04.708Z [INFO] ----------------------invoke appmod-confirm-upgrade-plan----------------------
+2026-03-27T03:38:04.709Z [INFO] [Tool.invoke]({name: appmod-confirm-upgrade-plan, input: {
+  "sessionId": "20260327033618"
+}}).
+2026-03-27T03:38:04.709Z [INFO] [Tool.invoke] do invoke.
+2026-03-27T03:38:04.710Z [INFO] Upgrade plan confirmed successfully.
+2026-03-27T03:38:04.713Z [INFO] [Tool.invoke]({result: {
+  "message": "Generated plan is reviewed and confirmed by the user! the upgrade process will start now and be tracked in markdown file: c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app\\.github\\java-upgrade\\20260327033618\\progress.md."
+}}).
+2026-03-27T03:38:04.714Z [INFO] ----------------------invoked appmod-confirm-upgrade-plan----------------------
+2026-03-27T03:38:05.870Z [INFO] ---------------------prepare appmod-report-event----------------------
+2026-03-27T03:38:05.870Z [INFO] [Tool.prepareInvocation]({name: appmod-report-event, input: {
+  "event": "planConfirmed",
+  "phase": "plan",
+  "projectPath": "c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app",
+  "sessionId": "20260327033618",
+  "status": "succeeded"
+}}).
+2026-03-27T03:38:05.870Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-03-27T03:38:05.871Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "Report upgrade event"
+}}).
+2026-03-27T03:38:05.871Z [INFO] ----------------------prepared appmod-report-event----------------------
+2026-03-27T03:38:05.938Z [INFO] ----------------------invoke appmod-report-event----------------------
+2026-03-27T03:38:05.939Z [INFO] [Tool.invoke]({name: appmod-report-event, input: {
+  "event": "planConfirmed",
+  "phase": "plan",
+  "projectPath": "c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app",
+  "sessionId": "20260327033618",
+  "status": "succeeded"
+}}).
+2026-03-27T03:38:05.940Z [INFO] [Tool.invoke] do invoke.
+2026-03-27T03:38:05.941Z [INFO] [Tool.invoke]({result: {
+  "message": "Event 'planConfirmed' reported!\nSession ID: 20260327033618,\nSession Dir: c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app\\.github\\java-upgrade\\20260327033618"
+}}).
+2026-03-27T03:38:05.941Z [INFO] ----------------------invoked appmod-report-event----------------------
+2026-03-27T03:38:25.353Z [INFO] ---------------------prepare appmod-report-event----------------------
+2026-03-27T03:38:25.354Z [INFO] [Tool.prepareInvocation]({name: appmod-report-event, input: {
+  "event": "planExecutionStarted",
+  "phase": "execute",
+  "projectPath": "c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app",
+  "sessionId": "20260327033618",
+  "status": "succeeded"
+}}).
+2026-03-27T03:38:25.354Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-03-27T03:38:25.355Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "Report upgrade event"
+}}).
+2026-03-27T03:38:25.355Z [INFO] ----------------------prepared appmod-report-event----------------------
+2026-03-27T03:38:25.416Z [INFO] ----------------------invoke appmod-report-event----------------------
+2026-03-27T03:38:25.416Z [INFO] [Tool.invoke]({name: appmod-report-event, input: {
+  "event": "planExecutionStarted",
+  "phase": "execute",
+  "projectPath": "c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app",
+  "sessionId": "20260327033618",
+  "status": "succeeded"
+}}).
+2026-03-27T03:38:25.417Z [INFO] [Tool.invoke] do invoke.
+2026-03-27T03:38:25.527Z [INFO] [Tool.invoke]({result: {
+  "message": "Event 'planExecutionStarted' reported!\nSession ID: 20260327033618,\nSession Dir: c:\\Users\\Admin\\OneDrive\\Máy tính\\University\\Advanced Programming\\Major Assignment\\app\\.github\\java-upgrade\\20260327033618"
+}}).
+2026-03-27T03:38:25.528Z [INFO] ----------------------invoked appmod-report-event----------------------
+2026-03-27T03:38:26.802Z [INFO] ---------------------prepare appmod-install-jdk----------------------
+2026-03-27T03:38:26.802Z [INFO] [Tool.prepareInvocation]({name: appmod-install-jdk, input: {
+  "sessionId": "20260327033618",
+  "version": "11"
+}}).
+2026-03-27T03:38:26.803Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-03-27T03:38:27.471Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "Download and install JDK",
+  "confirmationMessages": {
+    "title": "Download and install JDK",
+    "message": "\nThis tool will download and install JDK 11 from Microsoft with below settings.\n- **Version**: 11\n- **Vendor**: Microsoft\n- **Url**: https://aka.ms/download-jdk/microsoft-jdk-11.0.28-windows-x64.zip\n- **Destination**: `C:\\Users\\Admin\\.jdk`\n- **Checksum**: SHA256: dd8522b9888504f1c7bee8289384ec194c72f5a631c74ee7c9cd5e17f10203b1\n- **Signature**: https://aka.ms/download-jdk/microsoft-jdk-11.0.28-windows-x64.zip.sig\n- **Public Key**: http://aka.ms/microsoft_jdk_public_key\n"
+  }
+}}).
+2026-03-27T03:38:27.471Z [INFO] ----------------------prepared appmod-install-jdk----------------------
+2026-03-27T03:38:28.869Z [INFO] ----------------------invoke appmod-install-jdk----------------------
+2026-03-27T03:38:28.869Z [INFO] [Tool.invoke]({name: appmod-install-jdk, input: {
+  "sessionId": "20260327033618",
+  "version": "11"
+}}).
+2026-03-27T03:38:28.870Z [INFO] [Tool.invoke] do invoke.
+2026-03-27T03:39:26.065Z [INFO] [Tool.invoke]({result: {
+  "result": {
+    "name": "java",
+    "path": "C:\\Users\\Admin\\.jdk\\jdk-11.0.28\\bin",
+    "version": "11.0.28"
+  },
+  "message": "JDK 11 is installed at C:\\Users\\Admin\\.jdk\\jdk-11.0.28\\bin",
+  "telemetry": {
+    "tool": "JDK",
+    "version": "11"
+  }
+}}).
+2026-03-27T03:39:26.067Z [INFO] ----------------------invoked appmod-install-jdk----------------------
+2026-03-27T03:39:31.323Z [INFO] ---------------------prepare appmod-install-maven----------------------
+2026-03-27T03:39:31.329Z [INFO] [Tool.prepareInvocation]({name: appmod-install-maven, input: {
+  "sessionId": "20260327033618",
+  "version": "latest"
+}}).
+2026-03-27T03:39:31.331Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-03-27T03:39:32.298Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "Download and install Maven",
+  "confirmationMessages": {
+    "title": "Download and install Maven",
+    "message": "\nThis tool will download and install Maven latest from Apache with below settings.\n- **Version**: latest\n- **Vendor**: Apache\n- **Url**: https://dlcdn.apache.org/maven/maven-3/3.9.14/binaries/apache-maven-3.9.14-bin.zip\n- **Destination**: `C:\\Users\\Admin\\.maven`\n- **Checksum**: SHA512: 4122c5e7a8794260539dd8fcd78480549511babff2f85e2b1258c8d4cf33c50af90f65d323f43c88d4959f35a8f37ced3eca802983caa6eb7cc81b16af936ab0\n- **Signature**: https://dlcdn.apache.org/maven/maven-3/3.9.14/binaries/apache-maven-3.9.14-bin.zip.asc\n- **Public Key**: https://downloads.apache.org/maven/KEYS\n"
+  }
+}}).
+2026-03-27T03:39:32.300Z [INFO] ----------------------prepared appmod-install-maven----------------------
+2026-03-27T03:42:08.459Z [INFO] ----------------------invoke appmod-install-maven----------------------
+2026-03-27T03:42:08.461Z [INFO] [Tool.invoke]({name: appmod-install-maven, input: {
+  "sessionId": "20260327033618",
+  "version": "latest"
+}}).
+2026-03-27T03:42:08.462Z [INFO] [Tool.invoke] do invoke.
+2026-03-27T03:42:15.431Z [INFO] [Tool.invoke]({result: {
+  "result": {
+    "name": "mvn",
+    "path": "C:\\Users\\Admin\\.maven\\maven-3.9.14\\bin",
+    "version": "3.9.14"
+  },
+  "message": "Maven latest is installed at C:\\Users\\Admin\\.maven\\maven-3.9.14\\bin",
+  "telemetry": {
+    "tool": "Maven",
+    "version": "latest"
+  }
+}}).
+2026-03-27T03:42:15.432Z [INFO] ----------------------invoked appmod-install-maven----------------------
