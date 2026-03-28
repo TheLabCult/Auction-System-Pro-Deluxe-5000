@@ -1,32 +1,32 @@
 package com.auction.model;
+
 public abstract class User extends Entity {
     private String username;
     private String password;
-    private String personalID;
     private String email;
     private String fullName;
     private boolean isActive; //state (admin can lock)
-    public User(String username, String password, String personalID, String email, String fullName) {
+    public User(String username, String password, String email, String fullName) {
         super();
         this.username = username;
         this.password = password;
-        this.personalID = personalID;
         this.email = email;
         this.fullName = fullName;
         this.isActive = true;
     }
-    public abstract void displayRoleInfo();
-    //getter
+
+    public abstract String displayRoleInfo();
+
+    //  Getter
     public String getUsername() {
         return this.username;
     }
     public String getFullName() {
         return this.fullName;
     }
-    public String getEmail() {
-        return this.email;
-    }
-    //setter
+    public String getEmail() { return this.email; }
+
+    // Setter
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
@@ -36,9 +36,11 @@ public abstract class User extends Entity {
     public boolean isActive() {
         return isActive;
     }
+
     public void setActive(boolean state) {
         isActive = state;
     }
+
     public boolean changePassword(String oldPassword, String newPassword) {
         if (oldPassword.equals(this.password)) {
             this.password = newPassword;
@@ -49,6 +51,7 @@ public abstract class User extends Entity {
     public boolean verifyPassword(String password) {
         return this.password.equals(password);
     }
+
 //    public void setPassword(String password) {
 //        this.password = password;
 //    }
