@@ -1,4 +1,4 @@
-package controller.com.auction_pro_5000;
+package com.auction_pro_5000.controller;
 
 import java.util.Optional;
 

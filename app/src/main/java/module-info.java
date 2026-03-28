@@ -6,7 +6,7 @@ module com.auction_pro_5000 { // Tên module của bạn
     opens com.auction_pro_5000 to javafx.fxml;
     
     // Cho phép JavaFX truy cập vào các class Controller
-    opens controller.com.auction_pro_5000 to javafx.fxml;
+    opens com.auction_pro_5000.controller to javafx.fxml;
 
     // Xuất khẩu để chạy chương trình
     exports com.auction_pro_5000;
