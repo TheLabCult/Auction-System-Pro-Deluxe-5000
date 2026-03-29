@@ -2,6 +2,9 @@ module com.auction_pro_5000 { // Tên module của bạn
     requires javafx.controls;
     requires javafx.fxml;
 
+    requires java.sql;
+    requires mysql.connector.j;
+
     // Cho phép JavaFX đọc các file FXML trong resources
     opens com.auction_pro_5000 to javafx.fxml;
     
