@@ -18,7 +18,7 @@ public class Admin extends User{
 
     }
     @Override
-    public void displayRoleInfo() {
-        System.out.println("Role: ADMIN | Username: " + getUsername());
+    public String displayRoleInfo() {
+        return "Role: ADMIN | Username: " + getUsername();
     }
 }
