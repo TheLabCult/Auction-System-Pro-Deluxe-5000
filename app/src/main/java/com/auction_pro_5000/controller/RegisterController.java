@@ -18,21 +18,27 @@ public class RegisterController {
 
     @FXML
     public void handleRegister() {
-        String username = txtUser.getText();
-        String password = txtPass.getText();
+        String user = txtUser.getText();
+        String pass = txtPass.getText();
         String fullName = txtFullName.getText();
-        String personalID = this.txtpersonalID.getText();
-        String email = this.txtemail.getText();
+        String personalID = txtpersonalID.getText();
+        String email = txtemail.getText();
 
-        // Kiểm tra dữ liệu trống
-        if (username.isEmpty() || password.isEmpty() || personalID.isEmpty() || email.isEmpty() ||fullName.isEmpty()) {
-            showAlert(AlertType.ERROR, "Lỗi", "Vui lòng nhập đầy đủ thông tin!");
+        if (user.isEmpty() || pass.isEmpty() || fullName.isEmpty() || personalID.isEmpty() || email.isEmpty()) {
+            showAlert(AlertType.ERROR, "Lỗi đăng ký", "Vui lòng nhập đầy đủ thông tin!");
+            return;
+        }
+
+
+        // Kiểm tra sự tồn tại của username trước khi đăng ký
+        if (UserManager.isUsernameExists(user)) {
+            showAlert(AlertType.ERROR, "Lỗi đăng ký", "Tên đăng nhập '" + user + "' đã tồn tại. Vui lòng chọn tên khác!");
             return;
         }
 
         // Gọi hàm addUser từ lớp UserManager chúng ta đã viết
         try {
-            UserManager.addUser(username, password, personalID, email, fullName);
+            UserManager.addUser(user, pass, personalID, email, fullName);
             showAlert(AlertType.INFORMATION, "Thành công", "Đăng ký tài khoản thành công!");
             clearFields();
         } catch (Exception e) {

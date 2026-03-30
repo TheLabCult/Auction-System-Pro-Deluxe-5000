@@ -13,8 +13,8 @@ public class StandardUser extends User {
     private List<Item> myItems;
     private double balance;
 
-    public StandardUser(String username, String password, String email, String fullName, double balance){
-        super(username, password, email, fullName);
+    public StandardUser(String username, String password, String personalID, String email, String fullName, double balance){
+        super(username, password, personalID, email, fullName);
         this.balance = balance;
         this.myItems = new ArrayList<>();
     }

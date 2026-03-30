@@ -11,4 +11,5 @@
     <TextField fx:id="txtUser" promptText="Tên đăng nhập" maxWidth="220" />
     <PasswordField fx:id="txtPass" promptText="Mật khẩu" maxWidth="220" />
     <Button fx:id="loginBtn" text="Đăng nhập" onAction="#handleLogin" minWidth="100" />
+    <Button text="Chưa có tài khoản? Đăng ký ngay" onAction="#handleShowRegister" style="-fx-background-color: transparent; -fx-text-fill: #3498db; -fx-underline: true;" />
 </VBox>

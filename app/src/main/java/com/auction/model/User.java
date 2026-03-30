@@ -3,13 +3,15 @@ package com.auction.model;
 public abstract class User extends Entity {
     private String username;
     private String password;
+    private String personalID;
     private String email;
     private String fullName;
     private boolean isActive; //state (admin can lock)
-    public User(String username, String password, String email, String fullName) {
+    public User(String username, String password, String personalID, String email, String fullName) {
         super();
         this.username = username;
         this.password = password;
+        this.personalID = personalID;
         this.email = email;
         this.fullName = fullName;
         this.isActive = true;

@@ -25,6 +25,7 @@ public class LoginController {
             // Gọi hàm chuyển scene ở đây (cần tham chiếu đến Stage chính)
         } else {
             showWarning("Vui lòng nhập đầy đủ thông tin!");
+            return;
         }// Bây giờ loginBtn sẽ không còn bị null nữa
         if (loginBtn != null && loginBtn.getScene() != null) {
             // Lấy Stage hiện tại từ nút bấm
@@ -33,6 +34,13 @@ public class LoginController {
             // Chuyển sang file Main.fxml
             NavigationUtils.navigate(stage, "Main.fxml", "Hệ thống chính");
         }
+    }
+
+    @FXML
+    private void handleShowRegister() {
+        // Lấy Stage hiện tại và chuyển sang màn hình Register.fxml
+        Stage stage = (Stage) loginBtn.getScene().getWindow();
+        NavigationUtils.navigate(stage, "Register.fxml", "Đăng ký tài khoản");
     }
 
     private void showWarning(String message) {

@@ -10,7 +10,7 @@
 
 <VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx/8.0.171" 
       xmlns:fx="http://javafx.com/fxml/1" 
-      fx:controller="com.auction_pro_5000.RegisterController">
+      fx:controller="com.auction_pro_5000.controller.RegisterController">
    <children>
       <Label text="ĐĂNG KÝ HỆ THỐNG ĐẤU GIÁ">
          <font>
@@ -28,14 +28,28 @@
       <VBox spacing="5.0">
          <children>
             <Label text="Tên đăng nhập:" />
-            <TextField fx:id="txtUsername" promptText="Tên đăng nhập duy nhất" />
+            <TextField fx:id="txtUser" promptText="Tên đăng nhập duy nhất" />
          </children>
       </VBox>
 
       <VBox spacing="5.0">
          <children>
             <Label text="Mật khẩu:" />
-            <PasswordField fx:id="txtPassword" promptText="Mật khẩu bảo mật" />
+            <PasswordField fx:id="txtPass" promptText="Mật khẩu bảo mật" />
+         </children>
+      </VBox>
+
+      <VBox spacing="5.0">
+         <children>
+            <Label text="Email:" />
+            <TextField fx:id="txtemail" promptText="Email chưa đăng ký" />
+         </children>
+      </VBox>
+
+      <VBox spacing="5.0">
+         <children>
+            <Label text="CMND/CCCD:" />
+            <TextField fx:id="txtpersonalID" promptText="Nhập số CMND/CCCD" />
          </children>
       </VBox>
 

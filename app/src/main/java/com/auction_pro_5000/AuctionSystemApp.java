@@ -84,6 +84,13 @@ public class AuctionSystemApp extends Application {
                 System.out.println("Sai tên đăng nhập hoặc mật khẩu!");
             }
         });
+
+        Button goToRegisterBtn = new Button("Chưa có tài khoản? Đăng ký");
+        goToRegisterBtn.setOnAction(e -> primaryStage.setScene(registerScene));
+
+        VBox layout = new VBox(15, label, userField, passField, loginBtn, goToRegisterBtn);
+        layout.setAlignment(Pos.CENTER);
+        loginScene = new Scene(layout, 400, 350);
     }
 
     private void initRegisterScene() {

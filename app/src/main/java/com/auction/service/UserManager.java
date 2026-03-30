@@ -126,4 +126,21 @@ public class UserManager {
         }
         return false; // Trả về false nếu không tìm thấy hoặc có lỗi
     }
+
+    /**
+     * Kiểm tra xem tên đăng nhập đã tồn tại trong hệ thống chưa.
+     */
+    public static boolean isUsernameExists(String username) {
+        String sql = "SELECT 1 FROM users WHERE username = ? LIMIT 1";
+        try (Connection conn = TestConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next(); // Trả về true nếu tìm thấy ít nhất một dòng
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
