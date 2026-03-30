@@ -1,8 +1,8 @@
 package com.auction.model;
 public class Admin extends User{
     //private String department; //phòng ban, phan quyen quan tri
-    public Admin(String username, String password, String personalID, String email, String fullName) {
-        super(username, password, personalID, email, fullName);
+    public Admin(String username, String password, String email, String fullName) {
+        super(username, password, email, fullName);
         //this.department = department;
     }
 
@@ -15,10 +15,10 @@ public class Admin extends User{
         System.out.println("Admin [" + this.getUsername() + "] banned user: " + user.getUsername() + ". Reason: " + reason);
     }
     public void cancelAuction(Auction auction, String reason) {
-
+        auction.cancelByAdmin(this, reason);
     }
     @Override
-    public String displayRoleInfo() {
-        return "Role: ADMIN | Username: " + getUsername();
+    public void displayRoleInfo() {
+        System.out.println("Role: ADMIN | Username: " + getUsername());
     }
 }
