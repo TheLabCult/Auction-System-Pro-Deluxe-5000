@@ -53,9 +53,17 @@
          </children>
       </VBox>
 
-      <Button fx:id="btnRegister" mnemonicParsing="false" 
+      <Button fx:id="registerBtn" mnemonicParsing="false" 
               onAction="#handleRegister" text="Đăng ký ngay" 
               style="-fx-background-color: #2ecc71; -fx-text-fill: white;">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Button>
+
+      <Button text = "Đã có tài khoản? Đăng nhập ngay" 
+              onAction="#handleShowLogin" 
+              style="-fx-background-color: transparent; -fx-text-fill: #3498db; -fx-underline: true;">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
