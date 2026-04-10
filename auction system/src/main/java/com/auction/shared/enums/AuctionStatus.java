@@ -1,9 +1,9 @@
-package com.auction.shared.enums;
+package main.java.com.auction.shared.enums;
 
 public enum AuctionStatus {
     OPEN,
     RUNNING,
     FINISHED,
-    PAID,
+    BID,
     CANCELED
 }

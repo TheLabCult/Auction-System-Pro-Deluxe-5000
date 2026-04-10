@@ -1,4 +1,4 @@
-package com.auction.shared.models;
+package main.java.com.auction.shared.models;
 import java.util.*;
 import java.time.*;
 public abstract class Entity {
