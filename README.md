@@ -2,6 +2,11 @@ Trót push -f vài lần nên mất một đống commit rồi =(((
 
 Không sao
 
+LƯU Ý:  (những ai cần người khác lưu ý cái gì thì cứ bổ sung vào đay nhé)
+
+- Trong dự án này sẽ dùng SQLite, không dùng serialization (Database của Quang) 
+
+
 
 File hierarchy:
 
