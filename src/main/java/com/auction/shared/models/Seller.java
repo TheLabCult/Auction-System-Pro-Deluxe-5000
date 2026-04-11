@@ -14,7 +14,7 @@ public class Seller extends User {
     public double getBalance() { return balance; }
     public List<Item> getItems() {return items; }
     //setter
-    public void addBalance(double amount) {
+    public synchronized void addBalance(double amount) {
         balance += amount;
     }
     //method
