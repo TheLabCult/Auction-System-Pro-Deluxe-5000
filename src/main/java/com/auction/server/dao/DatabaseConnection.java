@@ -5,6 +5,7 @@ package com.auction.server.dao;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 
 
@@ -50,6 +51,33 @@ public class DatabaseConnection {
 
     
     private void initializeTables() throws SQLException {
-        // Cái này từ từ
+        
+        Statement stmt = connection.createStatement();
+
+
+        stmt.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id          TEXT PRIMARY KEY,
+                    username    TEXT NOT NULL UNIQUE,
+                    password    TEXT NOT NULL,
+                    email       TEXT NOT NULL,
+                    role        TEXT NOT NULL
+                )
+        """);
+
+
+
+
+        stmt.execute("""
+                CREATE TABLE IF NOT EXISTS items (
+                    id              TEXT PRIMARY KEY,
+                    name            TEXT NOT NULL,
+                    description     TEXT,
+                    starting_price  REAL NOT NULL,
+                    category        TEXT NOT NULL,
+                    seller_id       TEXT NOT NULL,
+                    FOREIGN KEY (seller_id) REFERENCES users(id)
+                    )
+        """);
     }
 }
