@@ -23,7 +23,7 @@ public class DatabaseConnection {
         try {
             connection = DriverManager.getConnection(DB_URL);
 
-            // PRAGMA... - nhiều thread read từ db, 1 thread write xuống db
+            // PRAGMA... - nhiều thread read từ db ok, nhưng chỉ 1 thread write xuống db
             connection.createStatement().execute("PRAGMA journal_mode=WAL;");
 
             initializeTables(); // Tạo bảng, method này ở dưới
@@ -79,5 +79,38 @@ public class DatabaseConnection {
                     FOREIGN KEY (seller_id) REFERENCES users(id)
                     )
         """);
+
+
+
+        stmt.execute("""
+                CREATE TABLE IF NOT EXISTS auctions (
+                    id              TEXT PRIMARY KEY,
+                    item_id         TEXT NOT NULL,
+                    current_price   REAL NOT NULL,
+                    start_time      TEXT NOT NULL,
+                    end_time        TEXT NOT NULL,
+                    status          TEXT NOT NULL,
+                    winner_id       TEXT NOT NULL,
+                    FOREIGN KEY (item_id)    REFERENCES items(id),
+                    FOREIGN KEY (winner_id)  REFERENCES users(id)
+                )
+        """);
+
+
+
+        stmt.execute("""
+                CREATE TABLE IF NOT EXISTS bid_transactions (
+                    id          TEXT PRIMARY KEY,
+                    auction_id  TEXT NOT NULL,
+                    bidder_id   TEXT NOT NULL,
+                    amount      REAL NOT NULL,
+                    bid_time    TEXT NOT NULL,
+                    FOREIGN KEY (auction_id) REFERENCES auctions(id),
+                    FOREIGN KEY (bidder_id)  REFERENCES users(id)
+                )
+        """);    
+    
+        stmt.close();
+        System.out.println("Database tables initialized successfully! Yeah!!!");
     }
 }
