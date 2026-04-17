@@ -31,12 +31,30 @@ import java.sql.Statement;
 
 public class DatabaseConnection {
 
-    
+    // mình không hardcode đường dẫn như là jdbc:sqlite:C:\abc\xyz\ahihi 
+    // mà mình viết jdbc:sqlite.auction.db thì
+    // file auction.db sẽ đc tạo ra ở root folder của maven, ngang hàng với pom.xml
+    // nếu file .db chưa có sẵn thì nó sẽ tự tạo cái mới, yên tâm
     private static final String DB_URL = "jdbc:sqlite:auction.db";
 
     // Singleton - chỉ 1 object để kết nối database
     private static DatabaseConnection instance;
 
+    /*
+    Theo như một số tutorial, thậm chí phần này còn không cần phải 
+    khai báo cho biến connection thuộc loại tham chiếu Connection,
+    cứ viết var connection = DriverManager.getConnection(DB_URL);
+    là nó tự gán kiểu dữ liệu Connection cho biến connection, thậm chí
+    còn không cần phải import java.sql.Connection; 
+    
+    Vậy khi nào cần phải import cái kiểu dữ liệu tham chiếu của biến?
+    1. Khi mình sử dụng tên kiểu dữ liệu một cách tường minh ở một phần nào đó
+    trong mã của mình  
+    2. Khi mình khởi tạo một biến mới có kiểu dữ liệu tham chiếu dùng từ new ...
+    
+    Nhưng ở đây mình không dùng từ new, mình lấy từ getConnection() của DriverManager,
+    nên tadaa không cần import java.sql.Connection; nếu dùng theo cách var ở trên
+    */
     private Connection connection;
 
     private DatabaseConnection() {
@@ -70,6 +88,9 @@ public class DatabaseConnection {
     }
 
     
+    // các phần dưới này thì là tạo bảng thôi
+    // cú pháp của tạo bảng nó v á, ít có gì technical để giải thích cho ae
+    // nhìn vào đọc ra sao thì cứ hiểu v là đúng
     private void initializeTables() throws SQLException {
         
         Statement stmt = connection.createStatement();
