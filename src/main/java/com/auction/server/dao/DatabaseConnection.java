@@ -1,5 +1,25 @@
 package com.auction.server.dao;
 
+/* Ý nghĩa của file này trong hệ thống đấu giá
+
+Đây là cổng kết nối giữa server và SQLite file ở trên ổ đĩa auction.db
+Khi khởi động chương trình bình thường nếu không có DatabaseConnection, các object được
+tạo ở trên RAM, khi tắt chương trình sẽ mất đi, lần sau khởi động lại không còn gì cả,
+mới toanh
+
+Thế nên sẽ cần một file lưu trữ trong ổ đĩa, và file này là cầu nối giữa server và 
+file lưu trên ổ đâix đó
+
+File này có hai việc: 
+1. Mở hoặc tạo file auction.db (nếu chưa có) khi khởi động server
+2. Tạo ra các bảng SQLite để lưu trữ dữ liệu (nếu chưa có).
+
+Các class DAO - data access object sẽ gọi DatabaseConnection.getInstance().getConnection()
+để lấy kết nối. các class đó không kết nối trực tiếp, mà sẽ kết nối thông qua class này.
+
+Lựa chọn Design Pát từn: Singleton
+-> đảm bảo chỉ có 1 instance của class này tồn tại
+để tránh mở 2 cổng đến DB write đồng thời lên DB*/
 
 
 import java.sql.Connection;
@@ -14,7 +34,7 @@ public class DatabaseConnection {
     
     private static final String DB_URL = "jdbc:sqlite:auction.db";
 
-    // Singleton - chỉ 1 object để kết nối database - sẽ comment giải thích thêm sau
+    // Singleton - chỉ 1 object để kết nối database
     private static DatabaseConnection instance;
 
     private Connection connection;
