@@ -31,9 +31,10 @@ public class UserDAO {
     public boolean save(User user) {
         String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
 
-        try {
-            PreparedStatement stmt = conn.prepareStatement(sql);
-
+        /*try-with-resources tức là cái gì mở trong phần ngoặc đơn sau try
+        sẽ tự động đóng sau try-catch. ở đây stmt.close() sẽ tự động gọi sau try-catch */
+        try (PreparedStatement stmt = conn.prepareStatement(sql);) {
+            
             // 1, 2, 3 là các chỉ số của dấu hỏi sau phần VALUES
             // Không đếm từ 0, 1, 2 vì đây là SQL, nó vẫn dùng kiểu cũ
             stmt.setString(1, user.getUsername());
@@ -47,7 +48,6 @@ public class UserDAO {
         } catch (SQLException e) {
             System.err.println("UserDAO save failed!" + e.getMessage());
             return false;
-        } finally { stmt.close(); }
     }
 
 }
