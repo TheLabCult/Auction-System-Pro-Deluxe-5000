@@ -1,3 +1,4 @@
+```
 online-auction-system/
 ├── .github/workflows/
 ├── .gitignore
@@ -22,3 +23,4 @@ online-auction-system/
     │       └── (FXML files, images, icons)
     └── test/
         └── java/com/auction/ 
+```
