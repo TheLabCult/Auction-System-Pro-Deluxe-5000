@@ -1,47 +1,26 @@
 package com.auction.shared.models;
 
+import java.time.LocalDateTime;
+
 public abstract class User extends Entity {
-    private final String username;
+    private String username;
     private String password;
     private String email;
-    private boolean isActive;
-    //private String fullName;
-    public User(String username, String password, String email) {
+    private double balance;
+
+    protected User(String id, String username, String password, String email, LocalDateTime createdAt) {
+        super(id, createdAt);
         this.username = username;
         this.password = password;
         this.email = email;
-        //this.fullname = "";
-        this.isActive = true;
+        this.balance = 0;
     }
 
-    //method
-    public abstract void getInfo();
-    //getter
-    public String getEmail() {
-        return email;
-    }
-    public String getUsername() {
-        return username;
-    }
+    public String getUsername() { return username; }
     public String getPassword() { return password; }
-    public boolean isActive() {
-        return isActive;
-    }
-    //setter
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-    public boolean changePassword(String oldPassword, String newPassword) {
-        if (oldPassword.equals(this.password)) {
-            this.password = newPassword;
-            return true;
-        }
-        return false;
-    }
-    public boolean verifyPassword(String password) {
-        return this.password.equals(password);
-    }
+    public String getEmail()    { return email; }
+    public double getBalance()  { return balance; }
+    public abstract String getRoleString();
+
+    public void updateBalance(double amount)      { this.balance += amount; }
 }

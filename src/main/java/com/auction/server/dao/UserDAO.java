@@ -1,11 +1,13 @@
 package com.auction.server.dao;
 
-// Nhập vào các class Bidder, User, Seller, Admin(nếu có)
+// Nhập vào các class Bidder, User, Seller
 import com.auction.shared.models.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.sql.SQLException;
 
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ public class UserDAO {
     // Thêm người dùng vào bảng User
     // Trả về true nếu được, false nếu trùng với username đã có
     public boolean save(User user) {
-        String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO users (id, username, password, email, role, createdAt) VALUES (?, ?, ?, ?, ?, ?)";
 
         /*try-with-resources tức là cái gì mở trong phần ngoặc đơn sau try
         sẽ tự động đóng sau try-catch. ở đây stmt.close() sẽ tự động gọi sau try-catch */
@@ -37,9 +39,12 @@ public class UserDAO {
             
             // 1, 2, 3 là các chỉ số của dấu hỏi sau phần VALUES
             // Không đếm từ 0, 1, 2 vì đây là SQL, nó vẫn dùng kiểu cũ
-            stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getPassword());
-            stmt.setString(3, user.getEmail());
+            stmt.setString(1, user.getId());
+            stmt.setString(2, user.getUsername());
+            stmt.setString(3, user.getPassword());
+            stmt.setString(4, user.getEmail());
+            stmt.setString(5, user.getRoleString());
+            stmt.setString(6, user.getCreatedAt().toString());
 
             stmt.executeUpdate();
 
@@ -48,6 +53,42 @@ public class UserDAO {
         } catch (SQLException e) {
             System.err.println("UserDAO save failed!" + e.getMessage());
             return false;
+        }
     }
 
+
+    /*Tìm kiếm người dùng theo username, dùng để khi đăng nhập */
+    public Optional<User> findByUsername(String username) {
+        String sql = "SELECT * FROM users WHERE username=?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery(); // SELECT thì dùng executeQuery()
+            if (rs.next()) { return Optional.of(mapRowToUser(rs)); }
+        } catch (SQLException e) {
+            System.err.println("UserDAO findByUsername failed!");
+        }
+        return Optional.empty();
+    }
+
+
+    // Chuyen du lieu tu bang SQLite sang dang Object
+    private User mapRowToUser(ResultSet rs) throws SQLException {
+        String id = rs.getString("id");
+        String username = rs.getString("username");
+        String password = rs.getString("password");
+        String email = rs.getString("email");
+        String role = rs.getString("role");
+        LocalDateTime dt = LocalDateTime.parse(rs.getString("createdAt"));
+
+        return switch (role) {
+            case "BIDDER" -> Bidder.fromDatabase(id, username, password, email, dt);
+            case "SELLER" -> Seller.fromDatabase(id, username, password, email, dt);
+
+            // Neu khong tim thay role
+            default -> throw new SQLException("Unknown role in DB " + role); 
+        };
+    }
 }
+
+

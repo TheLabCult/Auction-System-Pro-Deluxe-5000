@@ -1,33 +1,31 @@
 package com.auction.shared.models;
-import java.util.*;
 
+import com.auction.shared.enums.Role;
+
+import java.time.*;
+import java.util.UUID;
 
 public class Seller extends User {
-    //private String shopname;
-    private List<Item> items;
-    private double balance;
-    public Seller(String username, String password, String email) {
-        super(username, password, email);
-        items = new ArrayList<>();
-    }
-    //getter
-    public double getBalance() { return balance; }
-    public List<Item> getItems() {return items; }
-    //setter
-    public synchronized void addBalance(double amount) {
-        balance += amount;
-    }
-    //method
-    public void cancelAuction() {}
-    public void addItem(Item item) {
-        items.add(item);
-    }
-    public boolean removeItem(Item item) {
-        return items.remove(item);
-    }
+    private Role role;
 
-    @Override
-    public void getInfo() {
-        System.out.println("Role: Seller | Username: " + getUsername()+ " | Balance: " + balance);
+    private Seller(String id, String username, String password, String email, LocalDateTime createdAt) {
+        super(id, username, password, email, createdAt);
+        this.role = Role.SELLER;
+    } 
+
+    public static Seller createNew(String username, String password, String email) {
+        return new Seller(
+            UUID.randomUUID().toString(), 
+            username, 
+            password, 
+            email, 
+            LocalDateTime.now());
+    } 
+
+    public static Seller fromDatabase(String id, String username, String password, String email, LocalDateTime createdAt) {
+        return new Seller(id, username, password, email, createdAt);
     }
+    public String getRoleString() { return this.role.name(); }
+    
+    public void cancelAuction() {}
 }
