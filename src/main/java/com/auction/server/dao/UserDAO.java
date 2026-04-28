@@ -28,11 +28,11 @@ public class UserDAO {
 
     // Thêm người dùng vào bảng User
     // Trả về true nếu được, false nếu trùng với username đã có
-    public boolean save(User user) {
+    public boolean save(User user) throws SQLException {
         String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-
+        PreparedStatement stmt = null;
         try {
-            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt = conn.prepareStatement(sql);
 
             // 1, 2, 3 là các chỉ số của dấu hỏi sau phần VALUES
             // Không đếm từ 0, 1, 2 vì đây là SQL, nó vẫn dùng kiểu cũ

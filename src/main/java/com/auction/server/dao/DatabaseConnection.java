@@ -11,7 +11,7 @@ public class DatabaseConnection {
     private static DatabaseConnection instance;
     private Connection connection;
 
-    private DatabaseConnection() throws SQLException {
+    public DatabaseConnection() throws SQLException {
         try {
             connection = DriverManager.getConnection(DB_URL);
             // PRAGMA.. - nhiều thread read từ db ok, nhưng chỉ 1 thread write xuống db

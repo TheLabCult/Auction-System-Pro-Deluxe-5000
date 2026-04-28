@@ -1,4 +1,5 @@
 package com.auction.client.controllers;
+import com.auction.server.dao.DatabaseConnection;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -16,6 +17,7 @@ import javafx.stage.StageStyle;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ResourceBundle;
 
@@ -46,7 +48,7 @@ public class LoginController {
         lockImageView.setImage(lockImage);
     }
 
-    public void loginButtonOnAction(ActionEvent event) {
+    public void loginButtonOnAction(ActionEvent event) throws SQLException {
         loginMessageLabel.setText("You try to login");
         if (!usernameTextField.getText().isBlank() && !enterPasswordField.getText().isBlank()) {
             validateLogin();
@@ -62,7 +64,7 @@ public class LoginController {
         stage.close();
     }
 
-    public void validateLogin(){
+    public void validateLogin() throws SQLException {
         DatabaseConnection connectNow = new DatabaseConnection();
         Connection connectDB = connectNow.getConnection();
 

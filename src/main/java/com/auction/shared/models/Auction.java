@@ -66,7 +66,7 @@ public class Auction extends Entity {
     private void notify(BidTransaction newBid) {
         if (observers != null) for (AuctionObserver ob: observers) ob.onNewBid(this.getId()     , newBid);
     }
-    public synchronized void placeBid(BidTransaction newBid) throws AuctionClosedException, InvalidBidException {
+    public synchronized boolean placeBid(BidTransaction newBid) throws AuctionClosedException, InvalidBidException, InsufficientFundsException {
         init();
         lock.lock();
         try {
@@ -75,12 +75,13 @@ public class Auction extends Entity {
             }
             double currentPrice = highestBid != null ? highestBid.getAmount() : item.getStartingPrice();
             if (newBid.getAmount() <= currentPrice) throw new InvalidBidException("Amount must be larger than current price");
-            if (newBid.getBidder().getBalance() < newBid.getAmount()) throw new InvalidBidException("not enough balance");
+            if (newBid.getBidder().getBalance() < newBid.getAmount()) throw new InsufficientFundsException("not enough balance");
             //update data
             this.highestBid = newBid;
             this.bidHistory.add(highestBid);
             //observer
             notify(this.highestBid);
+            return true;
         }
         finally {
             lock.unlock();
