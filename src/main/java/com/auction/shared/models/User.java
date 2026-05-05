@@ -7,13 +7,19 @@ public abstract class User extends Entity {
     private boolean isActive;
     //private String fullName;
     public User(String username, String password, String email) {
+        super();
         this.username = username;
         this.password = password;
         this.email = email;
         //this.fullname = "";
         this.isActive = true;
     }
-
+    public User(String id, String username, String password, String email) {
+        super(id);
+        this.username = username;
+        this.password = password;
+        this.email = email;
+    }
     //method
     public abstract void getInfo();
     //getter

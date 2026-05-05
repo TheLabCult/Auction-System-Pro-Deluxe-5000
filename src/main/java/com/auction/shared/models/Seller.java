@@ -9,6 +9,17 @@ public class Seller extends User {
     public Seller(String username, String password, String email) {
         super(username, password, email);
         items = new ArrayList<>();
+        balance = 0;
+    }
+    public Seller(String username, String password, String email, double balance) {
+        super(username, password, email);
+        this.balance = balance;
+        items = new ArrayList<>();
+    }
+    public Seller(String id, String username, String password, String email, double balance) {
+        super(id, username, password, email);
+        this.balance = balance;
+        items = new ArrayList<>();
     }
     //getter
     public double getBalance() { return balance; }
