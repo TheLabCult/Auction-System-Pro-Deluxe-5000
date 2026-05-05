@@ -31,6 +31,7 @@ public class UserDAO {
     public boolean save(User user) throws SQLException {
         String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
         PreparedStatement stmt = null;
+
         try {
             stmt = conn.prepareStatement(sql);
 
