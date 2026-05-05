@@ -64,7 +64,7 @@ public class Auction extends Entity {
         this.observers.remove(ob);
     }
     private void notify(BidTransaction newBid) {
-        if (observers != null) for (AuctionObserver ob: observers) ob.onNewBid(this.getId()     , newBid);
+        if (observers != null) for (AuctionObserver ob: observers) ob.onNewBid(this.getId(), newBid);
     }
     public synchronized boolean placeBid(BidTransaction newBid) throws AuctionClosedException, InvalidBidException, InsufficientFundsException {
         init();

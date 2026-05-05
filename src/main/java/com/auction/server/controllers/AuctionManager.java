@@ -84,6 +84,11 @@ public class AuctionManager {
         }
         return false;
     }
+    public Auction createAuction(Item item, Seller seller, LocalDateTime startTime, LocalDateTime endTime) {
+        Auction newAuction = new Auction(item, seller, startTime, endTime);
+        auctions.put(newAuction.getId(), newAuction);
+        return newAuction;
+    }
     public void addAuction(Auction auction) {
         auctions.put(auction.getId(), auction);
     }
@@ -92,5 +97,14 @@ public class AuctionManager {
     }
     public Map<String, Auction> getAllAuctions() {
         return auctions;
+    }
+    public List<Auction> getActiveAuctions() {
+        List<Auction> activeList = new ArrayList<>();
+        for (Auction auction : auctions.values()) {
+            if (auction.getStatus() == AuctionStatus.OPEN || auction.getStatus() == AuctionStatus.RUNNING) {
+                activeList.add(auction);
+            }
+        }
+        return activeList;
     }
 }
