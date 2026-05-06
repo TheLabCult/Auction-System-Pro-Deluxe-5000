@@ -1,48 +1,27 @@
 package com.auction.shared.models;
 
+import com.auction.shared.enums.UserRole;
+
+/*
+Bidder có thể:
+- Xem toàn bộ auctions
+- Đặt bid thủ công
+- Cài auto-bid
+
+Bidder không thể:
+- Mở auction hay tạo item
+- Không có quyền admin
+
+UserFactory tạo một Bidder khi role đăng kí là BIDDER
+SQLiteUserDao tái tạo một Bidder khi hàng role là BIDDER
+*/
+
 public class Bidder extends User{
-    private double balance;
-    private double frozen;
-    public Bidder(String name, String password, String email, double balance) {
-        super(name, password, email);
-        this.balance = balance;
-        this.frozen = 0;
-    }
-    //getter
-    public double getBalance() {
-        return balance;
-    }
-    //setter
-    public synchronized void addBalance(double amount) {
-        this.balance += amount;
-    }
-    //method
-//    //freeze money khi bid
-//    public boolean freeze(double amount) {
-//        if (this.balance >= amount) {
-//            this.balance -= amount;
-//            frozen += amount;
-//            return true;
-//        }
-//        return false;
-//    }
-//    public void unfreeze(double amount) {
-//        frozen -= amount;
-//        balance += amount;
-//    }
-//    public void payForWonAuction(double amount) {
-//        if (frozen >= amount) frozen -= amount;
-//        else throw new IllegalStateException("not enough frozen balance");
-//    }
-    public synchronized boolean deduct(double amount) {
-        if (balance >= amount) {
-            balance -= amount;
-            return true;
-        }
-        return false;
-    }
-    @Override
-    public void getInfo() {
-        System.out.println("Role: BIDDER | Username: " + getUsername()+ " | Balance: " + balance);
-    }
+    public Bidder() { super(); }
+    
+    @Override public UserRole getRole() { return UserRole.BIDDER; }
+
+    @Override public boolean canBid() { return true; }
+    @Override public boolean canSell() { return false; }
 }
+

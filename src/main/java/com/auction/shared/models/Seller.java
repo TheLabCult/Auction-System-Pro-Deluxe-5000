@@ -1,33 +1,24 @@
 package com.auction.shared.models;
-import java.util.*;
 
+import com.auction.shared.enums.UserRole;
 
+/*
+Seller có thể:
+- Tạo items (CREATE_ITEM request)
+- Mở auction cho items của họ (CREATE_AUCTION request)
+- Hủy OPEN/RUNNING auction của họ (CANCEL_AUCTION request)
+- Xem tất cả auctions (tất cả user đều có thể)
+
+Seller không thể:
+- Đặt bid 
+- Có chức năng của admin (ban)
+*/
 public class Seller extends User {
-    //private String shopname;
-    private List<Item> items;
-    private double balance;
-    public Seller(String username, String password, String email) {
-        super(username, password, email);
-        items = new ArrayList<>();
-    }
-    //getter
-    public double getBalance() { return balance; }
-    public List<Item> getItems() {return items; }
-    //setter
-    public synchronized void addBalance(double amount) {
-        balance += amount;
-    }
-    //method
-    public void cancelAuction() {}
-    public void addItem(Item item) {
-        items.add(item);
-    }
-    public boolean removeItem(Item item) {
-        return items.remove(item);
-    }
+    public Seller() { super(); }
 
-    @Override
-    public void getInfo() {
-        System.out.println("Role: Seller | Username: " + getUsername()+ " | Balance: " + balance);
-    }
+    @Override public UserRole getRole() { return UserRole.SELLER; }
+
+    @Override public boolean canBid() { return false; }
+    @Override public boolean canSell() { return true; }
+
 }

@@ -1,4 +1,4 @@
-package com.auction.server.dao;
+package com.auction.server.db;
 
 import java.sql.Statement;
 import java.sql.SQLException;
@@ -16,7 +16,9 @@ public class DatabaseManager {
                         username    TEXT NOT NULL UNIQUE,
                         password    TEXT NOT NULL,
                         email       TEXT NOT NULL,
-                        role        TEXT NOT NULL
+                        role        TEXT NOT NULL,
+                        active      INTEGER NOT NULL,
+                        created_at  TEXT NOT NULL
                     )
             """);
 
@@ -25,24 +27,23 @@ public class DatabaseManager {
                         id              TEXT PRIMARY KEY,
                         name            TEXT NOT NULL,
                         description     TEXT,
-                        starting_price  REAL NOT NULL,
                         category        TEXT NOT NULL,
                         seller_id       TEXT NOT NULL,
-                        FOREIGN KEY (seller_id) REFERENCES users(id)
+                        created_at      TEXT NOT NULL
                         )
             """);
 
             stmt.execute("""
                     CREATE TABLE IF NOT EXISTS auctions (
-                        id              TEXT PRIMARY KEY,
-                        item_id         TEXT NOT NULL,
+                        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                        item_id         INTEGER NOT NULL REFERENCES items(id),
+                        starting_price  REAL NOT NULL,
                         current_price   REAL NOT NULL,
                         start_time      TEXT NOT NULL,
                         end_time        TEXT NOT NULL,
                         status          TEXT NOT NULL,
+                        seller_id       INTEGER NOT NULL REFERENCES users(id)
                         winner_id       TEXT NOT NULL,
-                        FOREIGN KEY (item_id)    REFERENCES items(id),
-                        FOREIGN KEY (winner_id)  REFERENCES users(id)
                     )
             """);
 
@@ -52,9 +53,8 @@ public class DatabaseManager {
                         auction_id  TEXT NOT NULL,
                         bidder_id   TEXT NOT NULL,
                         amount      REAL NOT NULL,
-                        bid_time    TEXT NOT NULL,
-                        FOREIGN KEY (auction_id) REFERENCES auctions(id),
-                        FOREIGN KEY (bidder_id)  REFERENCES users(id)
+                        is_auto_bid INTEGER NOT NULL DEFAULT 0,
+                        created_at  TEXT NOT NULL
                     )
             """);    
             

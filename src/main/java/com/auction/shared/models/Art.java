@@ -1,21 +1,8 @@
 package com.auction.shared.models;
 
-public class Art extends Item {
-    private String artist;
+import com.auction.shared.enums.ItemCategory;
 
-    public Art(String name, double startingPrice) {
-        super(name, startingPrice);
-    }
-    public Art(String name, double startingPrice, String artist) {
-        super(name, startingPrice);
-        this.artist = artist;
-    }
-    //getter
-    public String getArtist() {return artist;}
-    //setter
-    public void setArtist(String artist) {this.artist = artist;}
-    @Override
-    public String getInfo() {
-        return "[Art] " + getName() + " | Description: " + getDescription();
-    }
+
+public final class Art extends Item {
+    @Override public ItemCategory getCategory() { return ItemCategory.ART; }
 }

@@ -1,4 +1,4 @@
-package com.auction.server.dao;
+package com.auction.server.db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,8 +14,7 @@ public class DatabaseConnection {
     public DatabaseConnection() throws SQLException {
         try {
             connection = DriverManager.getConnection(DB_URL);
-            // PRAGMA.. - nhiều thread read từ db ok, nhưng chỉ 1 thread write xuống db
-            connection.createStatement().execute("PRAGMA journal_mode=WAL;");
+            connection.createStatement().execute("PRAGMA foreign_keys=ON");
             System.out.println("[DB] Connected to SQLite: " + DB_URL);
         } catch (SQLException e) {
             throw new RuntimeException("Failed to connect to database", e);
@@ -33,6 +32,15 @@ public class DatabaseConnection {
 
     // Các class DAO khác sẽ gọi cái này
     public Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = DriverManager.getConnection(DB_URL);
+                connection.createStatement().execute("PRAGMA foreign_keys=ON");
+            }
+        }
+        catch (SQLException e) {
+            throw new RuntimeException("Failed to connect to database", e);
+        }
         return connection;
     }
 }

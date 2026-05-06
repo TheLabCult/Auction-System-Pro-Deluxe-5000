@@ -1,6 +1,6 @@
 package com.auction.shared.enums;
 
-public enum ItemType {
+public enum ItemCategory {
     ELECTRONICS,
     ART,
     VEHICLE

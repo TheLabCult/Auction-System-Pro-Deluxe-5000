@@ -12,6 +12,7 @@ public class AuctionManager {
     private static AuctionManager instance;
     private Map<String, Auction> auctions;
     private ScheduledExecutorService scheduler;
+    
     private AuctionManager() {
         auctions = new ConcurrentHashMap<>();
         startTimer();
