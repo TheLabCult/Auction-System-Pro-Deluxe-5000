@@ -1,7 +1,8 @@
 package com.auction.server.dao.impl;
 
 import com.auction.server.dao.UserDAO;         
-import com.auction.server.db.*;  
+import com.auction.server.db.*;
+import com.auction.server.factory.UserFactory;
 import com.auction.shared.models.*; 
 import com.auction.shared.enums.*;            
 
@@ -101,11 +102,8 @@ public final class SQLiteUserDAO implements UserDAO {
     /* Chuyển đổi ResultSet - một hàng lấy ra từ db thành một User hoàn chỉnh */
     private User map(ResultSet rs) throws SQLException {
         UserRole role = UserRole.valueOf(rs.getString("role")); // "BIDDER" → BIDDER enum
-        User user = switch (role) {
-            case BIDDER -> new Bidder();
-            case SELLER -> new Seller();
-            default     -> throw new RuntimeException("Unhandled type"); 
-        };
+        User user = UserFactory.create(role);
+        
         user.setId(rs.getLong("id"));
         user.setUsername(rs.getString("username"));
         user.setPassword(rs.getString("password"));
