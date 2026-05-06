@@ -22,11 +22,16 @@ public class DatabaseConnection {
     }
 
 
-    public static synchronized DatabaseConnection getInstance() throws SQLException {
-        if (instance == null || instance.connection.isClosed()) {
-            instance = new DatabaseConnection();
+    public static synchronized DatabaseConnection getInstance() {
+        try {
+            if (instance == null || instance.connection.isClosed()) {
+                instance = new DatabaseConnection();
+            }
+            return instance;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to get database connectoion");
         }
-        return instance;
+        
     }
 
 
