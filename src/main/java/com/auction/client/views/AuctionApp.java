@@ -11,7 +11,7 @@ public class AuctionApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        // Load the login screen from FXML
+        // Load man hinh tu login.fxml
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/resources/login.fxml"));
         Parent root = loader.load();
 
