@@ -13,7 +13,7 @@ online-auction-system/
     │   │   │   └── exceptions/
     │   │   ├── server/
     │   │   │   ├── network/
-    │   │   │   ├── service/
+    │   │   │   ├── controllers/
     │   │   │   └── dao/
     │   │   └── client/
     │   │       ├── network/
