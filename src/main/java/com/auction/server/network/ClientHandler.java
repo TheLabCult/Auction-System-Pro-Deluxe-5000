@@ -1,7 +1,7 @@
 package com.auction.server.network;
 //Đây là nơi Server thực sự đọc gói tin Request, gọi logic từ AuctionManager, và trả về Response
 import com.auction.server.controllers.*;
-import com.auction.shared.interfaces.AuctionObserver;
+import com.auction.server.observer.AuctionObserver;
 import com.auction.shared.models.*;
 import com.auction.shared.network.*;
 

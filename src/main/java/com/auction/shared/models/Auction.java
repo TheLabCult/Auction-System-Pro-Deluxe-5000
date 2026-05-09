@@ -46,7 +46,7 @@ public class Auction extends Entity {
         return status == AuctionStatus.RUNNING;
     }
 
-    // ── Getters / setters ──────────────────────────────────────────────────────
+    // Getters / setters
 
     public Item getItem() { return item; }
     public void setItem(Item item) { this.item = item; }
