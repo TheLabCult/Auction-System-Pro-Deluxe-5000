@@ -1,7 +1,7 @@
 package com.auction.server.dao;
 
-import com.auction.shared.models.Auction;
-import com.auction.shared.enums.AuctionStatus;
+import com.auction.server.enums.AuctionStatus;
+import com.auction.server.models.Auction;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,11 +1,11 @@
 package com.auction.server.controllers;
 
-import com.auction.server.dao.ItemDAO;              
-import com.auction.shared.exceptions.AuctionException;
-import com.auction.server.factory.ItemFactory;      
-import com.auction.shared.models.Item;              
-import com.auction.shared.models.User;              
-import com.auction.shared.enums.UserRole;           
+import com.auction.server.dao.ItemDAO;
+import com.auction.server.enums.UserRole;
+import com.auction.server.exceptions.AuctionException;
+import com.auction.server.factory.ItemFactory;
+import com.auction.server.models.Item;
+import com.auction.server.models.User;
 
 import java.util.List; 
 

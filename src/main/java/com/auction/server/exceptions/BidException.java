@@ -1,4 +1,4 @@
-package com.auction.shared.exceptions;
+package com.auction.server.exceptions;
 
 public class BidException extends RuntimeException {
     public BidException(String message) { super(message); }

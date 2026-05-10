@@ -1,13 +1,13 @@
 package com.auction.server.observer;
 
-import com.auction.shared.models.Auction;      
-import com.auction.shared.models.BidTransaction;
-
 import java.util.Collections;                 
 import java.util.Set;                         
 import java.util.concurrent.ConcurrentHashMap; 
 import java.util.concurrent.ExecutorService;  
-import java.util.concurrent.Executors;        
+import java.util.concurrent.Executors;
+
+import com.auction.server.models.Auction;
+import com.auction.server.models.BidTransaction;        
 
 // TODO: comment here
 public final class AuctionEventBus {

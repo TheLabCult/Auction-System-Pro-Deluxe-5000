@@ -1,6 +1,6 @@
-package com.auction.shared.models;
+package com.auction.server.models;
 
-import com.auction.shared.enums.*;
+import com.auction.server.enums.*;
 
 public abstract class Item extends Entity {
 

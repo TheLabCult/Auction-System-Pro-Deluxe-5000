@@ -2,10 +2,10 @@ package com.auction.server.controllers;
 
 import com.auction.server.dao.AuctionDAO;  
 import com.auction.server.dao.AutoBidDAO; 
-import com.auction.server.dao.BidDAO;     
-import com.auction.shared.exceptions.BidException; 
-import com.auction.shared.models.*;        
-import com.auction.shared.enums.*;
+import com.auction.server.dao.BidDAO;
+import com.auction.server.enums.*;
+import com.auction.server.exceptions.BidException;
+import com.auction.server.models.*;
 import com.auction.server.observer.AuctionEventBus;
 
 import java.time.LocalDateTime;          

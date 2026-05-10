@@ -1,4 +1,4 @@
-package com.auction.shared.enums;
+package com.auction.server.enums;
 
 public enum ItemCategory {
     ELECTRONICS,

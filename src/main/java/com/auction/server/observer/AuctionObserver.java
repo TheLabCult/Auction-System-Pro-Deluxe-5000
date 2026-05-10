@@ -1,7 +1,7 @@
 package com.auction.server.observer;
 
-import com.auction.shared.models.Auction;
-import com.auction.shared.models.BidTransaction;
+import com.auction.server.models.Auction;
+import com.auction.server.models.BidTransaction;
 
 public interface AuctionObserver {
 

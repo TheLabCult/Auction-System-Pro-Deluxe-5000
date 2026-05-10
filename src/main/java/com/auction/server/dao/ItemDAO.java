@@ -1,9 +1,9 @@
 package com.auction.server.dao;
 
-import com.auction.shared.models.Item;
-
 import java.util.List;
 import java.util.Optional;
+
+import com.auction.server.models.Item;
 
 public interface ItemDAO {
 

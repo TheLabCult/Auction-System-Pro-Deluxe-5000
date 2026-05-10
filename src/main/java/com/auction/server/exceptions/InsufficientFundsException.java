@@ -1,4 +1,4 @@
-package com.auction.shared.exceptions;
+package com.auction.server.exceptions;
 
 public class InsufficientFundsException extends Exception{
     public InsufficientFundsException(String msg) {

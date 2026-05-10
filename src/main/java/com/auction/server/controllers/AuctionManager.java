@@ -1,10 +1,10 @@
 package com.auction.server.controllers;
 
-import com.auction.server.dao.AuctionDAO;          
-import com.auction.shared.exceptions.AuctionException;
-import com.auction.shared.models.*;                 
-import com.auction.server.observer.AuctionEventBus; 
-import com.auction.shared.enums.*;
+import com.auction.server.dao.AuctionDAO;
+import com.auction.server.enums.*;
+import com.auction.server.exceptions.AuctionException;
+import com.auction.server.models.*;
+import com.auction.server.observer.AuctionEventBus;
 
 import java.time.LocalDateTime;                    
 import java.time.temporal.ChronoUnit;              

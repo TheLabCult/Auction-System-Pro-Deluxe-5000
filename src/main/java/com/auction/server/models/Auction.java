@@ -1,8 +1,8 @@
-package com.auction.shared.models;
+package com.auction.server.models;
 
-import com.auction.shared.enums.AuctionStatus;
+import java.time.LocalDateTime;
 
-import java.time.LocalDateTime; 
+import com.auction.server.enums.AuctionStatus; 
 
 /* 
 Concurrency:

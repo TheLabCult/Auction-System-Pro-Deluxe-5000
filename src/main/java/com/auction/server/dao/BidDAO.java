@@ -1,8 +1,8 @@
 package com.auction.server.dao;
 
-import com.auction.shared.models.BidTransaction;
-
 import java.util.List;
+
+import com.auction.server.models.BidTransaction;
 
 
 public interface BidDAO {

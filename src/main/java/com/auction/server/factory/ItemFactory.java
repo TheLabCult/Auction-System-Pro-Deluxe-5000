@@ -1,7 +1,7 @@
 package com.auction.server.factory;
 
-import com.auction.shared.models.*;          
-import com.auction.shared.enums.ItemCategory; 
+import com.auction.server.enums.ItemCategory;
+import com.auction.server.models.*; 
 
 public final class ItemFactory {
 

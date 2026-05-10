@@ -2,10 +2,10 @@ package com.auction.server.dao.impl;
 
 import com.auction.server.dao.AuctionDAO;      
 import com.auction.server.db.DatabaseConnection;
-import com.auction.server.factory.ItemFactory; 
-import com.auction.shared.models.*;    
-import com.auction.shared.enums.AuctionStatus;    
-import com.auction.shared.enums.ItemCategory;        
+import com.auction.server.enums.AuctionStatus;
+import com.auction.server.enums.ItemCategory;
+import com.auction.server.factory.ItemFactory;
+import com.auction.server.models.*;
 
 import java.sql.*;
 import java.time.LocalDateTime;

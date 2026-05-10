@@ -1,6 +1,6 @@
-package com.auction.shared.models;
+package com.auction.server.models;
 
-import com.auction.shared.enums.ItemCategory;
+import com.auction.server.enums.ItemCategory;
 
 
 public final class Art extends Item {

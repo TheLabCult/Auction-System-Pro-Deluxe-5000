@@ -1,6 +1,6 @@
-package com.auction.shared.models;
+package com.auction.server.models;
 
-import com.auction.shared.enums.UserRole;
+import com.auction.server.enums.UserRole;
 
 /*
 Seller có thể:

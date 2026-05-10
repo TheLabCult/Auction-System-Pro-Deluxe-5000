@@ -2,7 +2,7 @@ package com.auction.server.dao.impl;
 
 import com.auction.server.dao.AutoBidDAO;      
 import com.auction.server.db.DatabaseConnection;
-import com.auction.shared.models.AutoBid;       
+import com.auction.server.models.AutoBid;
 
 import java.sql.*;
 import java.time.LocalDateTime;

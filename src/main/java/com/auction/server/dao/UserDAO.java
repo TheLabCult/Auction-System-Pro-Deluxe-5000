@@ -1,9 +1,9 @@
 package com.auction.server.dao;
 
-import com.auction.shared.models.User;
-
 import java.util.List;     
-import java.util.Optional; 
+import java.util.Optional;
+
+import com.auction.server.models.User; 
 
 /*
 Vai trò của File:

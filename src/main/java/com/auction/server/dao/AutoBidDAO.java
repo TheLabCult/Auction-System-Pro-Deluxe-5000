@@ -1,9 +1,9 @@
 package com.auction.server.dao;
 
-import com.auction.shared.models.AutoBid;
-
 import java.util.List;
 import java.util.Optional;
+
+import com.auction.server.models.AutoBid;
 
 
 public interface AutoBidDAO {

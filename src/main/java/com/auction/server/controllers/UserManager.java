@@ -1,10 +1,10 @@
 package com.auction.server.controllers;
 
 import com.auction.server.dao.UserDAO;            // injected dependency - talks to the database
-import com.auction.shared.exceptions.AuthenticationException; 
-import com.auction.server.factory.UserFactory;     
-import com.auction.shared.models.User;             
-import com.auction.shared.enums.UserRole;          
+import com.auction.server.enums.UserRole;
+import com.auction.server.exceptions.AuthenticationException;
+import com.auction.server.factory.UserFactory;
+import com.auction.server.models.User;
 
 import java.util.List; 
 
