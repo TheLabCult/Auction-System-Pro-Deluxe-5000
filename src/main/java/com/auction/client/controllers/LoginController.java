@@ -1,5 +1,4 @@
 package com.auction.client.controllers;
-import com.auction.server.dao.DatabaseConnection;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -21,6 +20,8 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.util.Objects;
 import java.util.ResourceBundle;
+
+import com.auction.server.db.DatabaseConnection;
 
 import java.net.URL;
 

@@ -1,10 +1,11 @@
 package com.auction;
 
-import com.auction.shared.enums.AuctionStatus;
-import com.auction.shared.exceptions.AuctionClosedException;
-import com.auction.shared.exceptions.InsufficientFundsException;
-import com.auction.shared.exceptions.InvalidBidException;
-import com.auction.shared.models.*;
+import com.auction.server.enums.AuctionStatus;
+import com.auction.server.exceptions.AuctionClosedException;
+import com.auction.server.exceptions.InsufficientFundsException;
+import com.auction.server.exceptions.InvalidBidException;
+import com.auction.server.models.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
