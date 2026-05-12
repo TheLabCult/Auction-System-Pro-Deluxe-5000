@@ -23,34 +23,6 @@ public class CuratedController {
     @FXML private HBox catVehicle;
     @FXML private HBox catElectronic;
 
-    // --- Main card labels (featured lot) ---
-    @FXML private Label featuredLotMeta;
-    @FXML private Label featuredLotTitle;
-    @FXML private Label featuredLotPrice;
-    @FXML private Label featuredLotSubtitle;
-    @FXML private Label featuredLotTimer;
-
-    // --- Small card 1 (Timepiece) ---
-    @FXML private Label lot1Meta;
-    @FXML private Label lot1Title;
-    @FXML private Label lot1Subtitle;
-    @FXML private Label lot1Price;
-    @FXML private Label lot1Timer;
-
-    // --- Small card 2 (Jewel) ---
-    @FXML private Label lot2Meta;
-    @FXML private Label lot2Title;
-    @FXML private Label lot2Subtitle;
-    @FXML private Label lot2Price;
-    @FXML private Label lot2Timer;
-
-    // --- Footer links ---
-    @FXML private Label footerTerms;
-    @FXML private Label footerPrivacy;
-    @FXML private Label footerConsignment;
-    @FXML private Label footerLocations;
-    @FXML private Label footerExperts;
-
     // Track which category HBox is currently active
     private HBox activeCategory;
 
@@ -63,13 +35,6 @@ public class CuratedController {
         if (catArt     != null) catArt.setOnMouseClicked(e -> selectCategory(catArt,     "ART"));
         if (catVehicle  != null) catVehicle.setOnMouseClicked(e -> selectCategory(catVehicle, "VEHICLE"));
         if (catElectronic    != null) catElectronic.setOnMouseClicked(e -> selectCategory(catElectronic,     "ELECTRONIC"));
-
-        // Wire up footer link handlers
-        if (footerTerms       != null) footerTerms.setOnMouseClicked(e -> openFooterLink("TERMS OF SALE"));
-        if (footerPrivacy     != null) footerPrivacy.setOnMouseClicked(e -> openFooterLink("PRIVACY POLICY"));
-        if (footerConsignment != null) footerConsignment.setOnMouseClicked(e -> openFooterLink("CONSIGNMENT SERVICES"));
-        if (footerLocations   != null) footerLocations.setOnMouseClicked(e -> openFooterLink("GLOBAL LOCATIONS"));
-        if (footerExperts     != null) footerExperts.setOnMouseClicked(e -> openFooterLink("EXPERT DIRECTORY"));
     }
 
     // ---------------------------------------------------------------
@@ -143,18 +108,6 @@ public class CuratedController {
     public void onNavArtists() {
         System.out.println("Nav: ARTISTS");
         loadView("artists.fxml");
-    }
-
-    @FXML
-    public void onNavPrivateSales() {
-        System.out.println("Nav: PRIVATE SALES");
-        loadView("privateSales.fxml");
-    }
-
-    @FXML
-    public void onNavJournal() {
-        System.out.println("Nav: JOURNAL");
-        loadView("journal.fxml");
     }
 
     // ---------------------------------------------------------------
