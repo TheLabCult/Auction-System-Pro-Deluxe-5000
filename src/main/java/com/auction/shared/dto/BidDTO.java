@@ -1,5 +1,7 @@
 package com.auction.shared.dto;
 
+import java.time.LocalDateTime;
+
 public class BidDTO {
 
     private long id;           

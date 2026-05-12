@@ -21,8 +21,7 @@ public final class ItemManager {
     }
 
     public Item createItem(String name, String description,
-                           String category, String extraData,
-                           String imageUrl, User seller) {
+                           String category, User seller) {
         
         if (seller.getRole() != UserRole.SELLER)
             throw new AuctionException("Only sellers can create items");

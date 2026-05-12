@@ -2,7 +2,7 @@ package com.auction.server.controllers;
 
 import com.auction.server.dao.UserDAO;            // injected dependency - talks to the database
 import com.auction.server.enums.UserRole;
-import com.auction.server.exceptions.AuthenticationException;
+import com.auction.server.exceptions.AuthException;
 import com.auction.server.factory.UserFactory;
 import com.auction.server.models.User;
 
@@ -25,11 +25,11 @@ public final class UserManager {
     public User register(String username, String password, String email, String roleName) {
         
         if (username == null || username.isBlank())
-            throw new AuthenticationException("Username must not be blank");
+            throw new AuthException("Username must not be blank");
         if (password == null || password.length() < 4)
-            throw new AuthenticationException("Password must be at least 4 characters");
+            throw new AuthException("Password must be at least 4 characters");
         if (email == null || !email.contains("@"))
-            throw new AuthenticationException("Invalid email address");
+            throw new AuthException("Invalid email address");
 
         
         
@@ -37,7 +37,7 @@ public final class UserManager {
         try {
             role = UserRole.valueOf(roleName.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new AuthenticationException("Invalid role: " + roleName);
+            throw new AuthException("Invalid role: " + roleName);
         }
 
         // Admins can only be created by seeding - never by self-registration.
@@ -46,7 +46,7 @@ public final class UserManager {
 
         // Duplicate username check - findByUsername() queries the DB.
         userDAO.findByUsername(username).ifPresent(u -> {
-            throw new AuthenticationException("Username already taken: " + username);
+            throw new AuthException("Username already taken: " + username);
         });
 
         
@@ -62,31 +62,31 @@ public final class UserManager {
     public User login(String username, String password) {
         
         User user = userDAO.findByUsername(username)
-                .orElseThrow(() -> new AuthenticationException("Invalid credentials"));
+                .orElseThrow(() -> new AuthException("Invalid credentials"));
 
         
         if (!user.isActive())
-            throw new AuthenticationException("Account is banned");
+            throw new AuthException("Account is banned");
 
         
         if (password != user.getPassword())
-            throw new AuthenticationException("Invalid credentials");
+            throw new AuthException("Invalid credentials");
 
         return user;
     }
 
     // Admin operations
 
-    // public List<User> getAllUsers() {
-    //     return userDAO.findAll();
-    // }
+    public List<User> getAllUsers() {
+        return userDAO.findAll();
+    }
 
-    // public void banUser(long targetId, User requester) {
-    //     if (requester.getRole() != UserRole.ADMIN)
-    //         throw new AuthenticationException("Only admins can ban users");
+    public void banUser(long targetId, User requester) {
+        if (requester.getRole() != UserRole.ADMIN)
+            throw new AuthException("Only admins can ban users");
         
-    //     User user = userDAO.findById(targetId)
-    //             .orElseThrow(() -> new AuthenticationException("User not found"));
-    //     userDAO.updateActive(targetId, false); // set active=0 in the database
-    // }
+        User user = userDAO.findById(targetId)
+                .orElseThrow(() -> new AuthException("User not found"));
+        userDAO.updateActive(targetId, false); // set active=0 in the database
+    }
 }

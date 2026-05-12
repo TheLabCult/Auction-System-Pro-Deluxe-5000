@@ -1,7 +1,7 @@
 package com.auction.client.network;
 
-import com.auction.shared.network.Request;
-import com.auction.shared.network.Response;
+import com.auction.shared.network.Requests;
+import com.auction.shared.network.Responses;
 import javafx.application.Platform;
 
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class NetworkClient {
         listeningThread.start();
     }
     //xu ly goi tin tra ve
-    private void handleServerResponse(Response response) {
+    private void handleServerResponse(Responses response) {
         //moi thao tac lquan den javafx bat buoc phai nam trong Platform.runLater()
         Platform.runLater(() -> {
             String status = response.getStatus();
