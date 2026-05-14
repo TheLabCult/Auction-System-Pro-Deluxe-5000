@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:controller="com.auction.client.controllers.ProfileController"
+            styleClass="root-pane"
+            prefWidth="1000"
+            prefHeight="680"
+            minWidth="800"
+            minHeight="500"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml/1">
+
+    <stylesheets>
+        <URL value="@style.css" />
+    </stylesheets>
+
+    <!-- ═══════════════════ HEADER ═══════════════════ -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="30" styleClass="header"
+              style="-fx-padding: 10 20 10 20;">
+            <Label styleClass="logo-title" text="AuctionApp"
+                   style="-fx-font-size: 15px;" />
+
+            <HBox alignment="CENTER" spacing="20">
+                <Label styleClass="nav-link" text="AUCTIONS"
+                       onMouseClicked="#onNavAuctions" />
+                <Label styleClass="nav-link" text="ARTISTS"
+                       onMouseClicked="#onNavArtists" />
+            </HBox>
+
+            <Region HBox.hgrow="ALWAYS" />
+
+            <!-- Back button -->
+            <Button fx:id="btnBack"
+                    text="← BACK"
+                    onAction="#onBackClicked"
+                    styleClass="back-button" />
+
+            <HBox alignment="CENTER" spacing="12">
+                <Label style="-fx-font-size: 14px; -fx-cursor: hand;" text="🔔"
+                       onMouseClicked="#onNotificationsClicked" />
+                <!-- Profile icon highlighted to show active state -->
+                <Label style="-fx-font-size: 14px; -fx-cursor: hand;
+                              -fx-background-color: #EAEAEA;
+                              -fx-background-radius: 50;
+                              -fx-padding: 3 5;" text="👤" />
+            </HBox>
+        </HBox>
+    </top>
+
+    <!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox spacing="0" style="-fx-padding: 0;">
+
+                <!-- ── Profile Hero Banner ── -->
+                <StackPane prefHeight="140"
+                           style="-fx-background-color: linear-gradient(to right, #1A1A1A, #3A3A3A);">
+                    <!-- Decorative text watermark -->
+                    <Label text="CURATED"
+                           style="-fx-font-size: 80px; -fx-font-weight: bold;
+                                  -fx-text-fill: rgba(255,255,255,0.04);
+                                  -fx-letter-spacing: 10px;" />
+                </StackPane>
+
+                <!-- ── Avatar + Name row ── -->
+                <HBox style="-fx-padding: 0 50 0 50; -fx-background-color: #FFFFFF;">
+                    <StackPane prefWidth="90" prefHeight="90"
+                               style="-fx-background-color: #D2B48C;
+                                      -fx-background-radius: 50;
+                                      -fx-border-color: #FFFFFF;
+                                      -fx-border-width: 4;
+                                      -fx-border-radius: 50;"
+                               translateY="-30">
+                        <Label text="👤"
+                               style="-fx-font-size: 36px;" />
+                    </StackPane>
+                    <VBox spacing="2" alignment="BOTTOM_LEFT"
+                          style="-fx-padding: 14 0 14 16;">
+                        <Label fx:id="lblFullName"
+                               text="Stellaaria"
+                               style="-fx-font-size: 20px; -fx-font-weight: bold;
+                                      -fx-text-fill: #111111;" />
+                        <Label fx:id="lblMemberSince"
+                               text="MEMBER SINCE MAY 2026"
+                               style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                      -fx-text-fill: #888888; -fx-letter-spacing: 1px;" />
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <HBox alignment="CENTER" spacing="10"
+                          style="-fx-padding: 0 0 14 0;">
+                        <Button fx:id="btnEditProfile"
+                                text="EDIT PROFILE"
+                                onAction="#onEditProfile"
+                                styleClass="profile-action-btn" />
+                    </HBox>
+                </HBox>
+
+                <!-- ── Stats strip ── -->
+                <HBox style="-fx-background-color: #FFFFFF;
+                             -fx-border-color: transparent transparent #EAEAEA transparent;
+                             -fx-border-width: 1;
+                             -fx-padding: 0 50 20 50;"
+                      spacing="0">
+                    <!-- Stat 1 -->
+                    <VBox alignment="CENTER" prefWidth="130" spacing="2">
+                        <Label fx:id="lblBidsCount" text="67"
+                               style="-fx-font-size: 22px; -fx-font-weight: bold;
+                                      -fx-text-fill: #111111;" />
+                        <Label text="TOTAL BIDS"
+                               style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                      -fx-text-fill: #888888; -fx-letter-spacing: 1px;" />
+                    </VBox>
+                    <Separator orientation="VERTICAL" style="-fx-pref-height: 40;" />
+                    <!-- Stat 2 -->
+                    <VBox alignment="CENTER" prefWidth="130" spacing="2">
+                        <Label fx:id="lblWonCount" text="0"
+                               style="-fx-font-size: 22px; -fx-font-weight: bold;
+                                      -fx-text-fill: #111111;" />
+                        <Label text="LOTS WON"
+                               style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                      -fx-text-fill: #888888; -fx-letter-spacing: 1px;" />
+                    </VBox>
+                    <Separator orientation="VERTICAL" style="-fx-pref-height: 40;" />
+                    <!-- Stat 3 -->
+                    <VBox alignment="CENTER" prefWidth="130" spacing="2">
+                        <Label fx:id="lblWatchingCount" text="8"
+                               style="-fx-font-size: 22px; -fx-font-weight: bold;
+                                      -fx-text-fill: #111111;" />
+                        <Label text="WATCHING"
+                               style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                      -fx-text-fill: #888888; -fx-letter-spacing: 1px;" />
+                    </VBox>
+                    <Separator orientation="VERTICAL" style="-fx-pref-height: 40;" />
+                    <!-- Stat 4 -->
+                    <VBox alignment="CENTER" prefWidth="130" spacing="2">
+                        <Label fx:id="lblSpentTotal" text="Broke Ass"
+                               style="-fx-font-size: 22px; -fx-font-weight: bold;
+                                      -fx-text-fill: #111111;" />
+                        <Label text="TOTAL SPENT"
+                               style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                      -fx-text-fill: #888888; -fx-letter-spacing: 1px;" />
+                    </VBox>
+                </HBox>
+
+                <!-- ── Two-column body ── -->
+                <HBox spacing="24" style="-fx-padding: 30 50 40 50;
+                                          -fx-background-color: #F8F8F8;">
+
+                    <!-- LEFT: Personal information card -->
+                    <VBox HBox.hgrow="ALWAYS" spacing="18"
+                          style="-fx-background-color: #FFFFFF;
+                                 -fx-padding: 24;
+                                 -fx-effect: dropshadow(three-pass-box,
+                                             rgba(0,0,0,0.03), 10, 0, 0, 5);">
+
+                        <Label text="PERSONAL INFORMATION"
+                               style="-fx-font-size: 10px; -fx-font-weight: bold;
+                                      -fx-text-fill: #888888; -fx-letter-spacing: 1px;" />
+
+                        <!-- Full Name -->
+                        <VBox spacing="4">
+                            <Label text="FULL NAME"
+                                   style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                          -fx-text-fill: #AAAAAA; -fx-letter-spacing: 1px;" />
+                            <TextField fx:id="fieldFullName"
+                                       text="Stellaaria"
+                                       editable="false"
+                                       styleClass="profile-field" />
+                        </VBox>
+
+                        <!-- Email -->
+                        <VBox spacing="4">
+                            <Label text="EMAIL ADDRESS"
+                                   style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                          -fx-text-fill: #AAAAAA; -fx-letter-spacing: 1px;" />
+                            <TextField fx:id="fieldEmail"
+                                       text="ruanguanghui@example.com"
+                                       editable="false"
+                                       styleClass="profile-field" />
+                        </VBox>
+
+                        <!-- Phone -->
+                        <VBox spacing="4">
+                            <Label text="PHONE NUMBER"
+                                   style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                          -fx-text-fill: #AAAAAA; -fx-letter-spacing: 1px;" />
+                            <TextField fx:id="fieldPhone"
+                                       text="+84 69420 177013"
+                                       editable="false"
+                                       styleClass="profile-field" />
+                        </VBox>
+
+                        <!-- Location -->
+                        <VBox spacing="4">
+                            <Label text="LOCATION"
+                                   style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                          -fx-text-fill: #AAAAAA; -fx-letter-spacing: 1px;" />
+                            <TextField fx:id="fieldLocation"
+                                       text="Hanoi - Vietnam"
+                                       editable="false"
+                                       styleClass="profile-field" />
+                        </VBox>
+
+                        <!-- Preferred Categories -->
+                        <VBox spacing="4">
+                            <Label text="PREFERRED CATEGORIES"
+                                   style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                          -fx-text-fill: #AAAAAA; -fx-letter-spacing: 1px;" />
+                            <HBox spacing="8">
+                                <Label text="🎨 ART"
+                                       style="-fx-background-color: #EAEAEA;
+                                              -fx-padding: 4 10;
+                                              -fx-background-radius: 4;
+                                              -fx-font-size: 10px; -fx-font-weight: bold;" />
+                                <Label text="💎 JEWELS"
+                                       style="-fx-background-color: #EAEAEA;
+                                              -fx-padding: 4 10;
+                                              -fx-background-radius: 4;
+                                              -fx-font-size: 10px; -fx-font-weight: bold;" />
+                            </HBox>
+                        </VBox>
+
+                        <!-- Save / Cancel buttons (hidden until edit mode) -->
+                        <HBox fx:id="editActionsBar" spacing="10"
+                              managed="false" visible="false">
+                            <Button text="SAVE CHANGES"
+                                    onAction="#onSaveChanges"
+                                    styleClass="profile-action-btn" />
+                            <Button text="CANCEL"
+                                    onAction="#onCancelEdit"
+                                    styleClass="back-button" />
+                        </HBox>
+
+                    </VBox>
+
+                    <!-- RIGHT: Recent activity card -->
+                    <VBox prefWidth="300" spacing="16"
+                          style="-fx-background-color: #FFFFFF;
+                                 -fx-padding: 24;
+                                 -fx-effect: dropshadow(three-pass-box,
+                                             rgba(0,0,0,0.03), 10, 0, 0, 5);">
+
+                        <Label text="RECENT ACTIVITY"
+                               style="-fx-font-size: 10px; -fx-font-weight: bold;
+                                      -fx-text-fill: #888888; -fx-letter-spacing: 1px;" />
+
+                        <!-- Activity row helper — repeated 3× -->
+                        <VBox spacing="14">
+
+                            <!-- Activity 1 -->
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <StackPane prefWidth="36" prefHeight="36"
+                                           style="-fx-background-color: #F0F0F0;
+                                                  -fx-background-radius: 4;">
+                                    <Label text="🏆" style="-fx-font-size: 16px;" />
+                                </StackPane>
+                                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                    <Label text="Won: Untitled (Black &amp; Ochre)"
+                                           style="-fx-font-size: 11px; -fx-font-weight: bold;
+                                                  -fx-text-fill: #111111;" />
+                                    <Label text="2 days ago  •  $1.2M"
+                                           style="-fx-font-size: 10px; -fx-text-fill: #888888;" />
+                                </VBox>
+                            </HBox>
+                            <Separator />
+
+                            <!-- Activity 2 -->
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <StackPane prefWidth="36" prefHeight="36"
+                                           style="-fx-background-color: #F0F0F0;
+                                                  -fx-background-radius: 4;">
+                                    <Label text="🔔" style="-fx-font-size: 16px;" />
+                                </StackPane>
+                                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                    <Label text="Bid placed: Chronograph Ref. 6239"
+                                           style="-fx-font-size: 11px; -fx-font-weight: bold;
+                                                  -fx-text-fill: #111111;" />
+                                    <Label text="5 days ago  •  $85,000"
+                                           style="-fx-font-size: 10px; -fx-text-fill: #888888;" />
+                                </VBox>
+                            </HBox>
+                            <Separator />
+
+                            <!-- Activity 3 -->
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <StackPane prefWidth="36" prefHeight="36"
+                                           style="-fx-background-color: #F0F0F0;
+                                                  -fx-background-radius: 4;">
+                                    <Label text="👁" style="-fx-font-size: 16px;" />
+                                </StackPane>
+                                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                    <Label text="Watching: Sapphire &amp; Diamond Rivière"
+                                           style="-fx-font-size: 11px; -fx-font-weight: bold;
+                                                  -fx-text-fill: #111111;" />
+                                    <Label text="1 week ago  •  Est. $420,000"
+                                           style="-fx-font-size: 10px; -fx-text-fill: #888888;" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Sign Out button -->
+                        <Region VBox.vgrow="ALWAYS" />
+                        <Separator />
+                        <Button text="SIGN OUT"
+                                onAction="#onSignOut"
+                                maxWidth="Infinity"
+                                style="-fx-background-color: transparent;
+                                       -fx-border-color: #DDDDDD;
+                                       -fx-border-width: 1;
+                                       -fx-font-size: 10px; -fx-font-weight: bold;
+                                       -fx-text-fill: #888888;
+                                       -fx-padding: 8 0;
+                                       -fx-cursor: hand;" />
+
+                    </VBox>
+
+                </HBox>
+
+                <!-- ── Footer ── -->
+                <VBox alignment="CENTER" spacing="12"
+                      style="-fx-padding: 20 0 30 0; -fx-background-color: #F8F8F8;">
+                    <Label styleClass="footer-logo" text="CURATED"
+                           style="-fx-font-size: 13px;" />
+                    <HBox alignment="CENTER" spacing="20">
+                        <Label styleClass="footer-link" text="TERMS OF SALE" />
+                        <Label styleClass="footer-link" text="PRIVACY POLICY" />
+                        <Label styleClass="footer-link" text="CONSIGNMENT SERVICES" />
+                        <Label styleClass="footer-link" text="GLOBAL LOCATIONS" />
+                    </HBox>
+                    <Label styleClass="footer-copyright"
+                           text="© 2024 CURATED EDITORIAL AUCTION HOUSE. ALL RIGHTS RESERVED." />
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

@@ -93,8 +93,10 @@
 .link-view-all {
     -fx-font-size: 11px;
     -fx-font-weight: bold;
-    -fx-border-color: transparent transparent #111 transparent;
-    -fx-border-width: 0 0 1 0;
+    -fx-text-fill: #1A6FD4;
+    -fx-border-color: transparent transparent #1A6FD4 transparent;
+    -fx-border-width: 0 0 2 0;
+    -fx-padding: 0 0 3 0;
     -fx-cursor: hand;
 }
 
@@ -169,4 +171,55 @@
 .footer-copyright {
     -fx-font-size: 9px;
     -fx-text-fill: #999999;
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   PROFILE VIEW
+   ═══════════════════════════════════════════════════════ */
+
+/* Read-only / editable text field on the profile page */
+.profile-field {
+    -fx-background-color: #F4F4F4;
+    -fx-background-radius: 4;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-padding: 8 12;
+    -fx-font-size: 12px;
+    -fx-text-fill: #111111;
+}
+
+/* Primary action button (EDIT PROFILE / SAVE CHANGES) */
+.profile-action-btn {
+    -fx-background-color: #111111;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 1px;
+    -fx-padding: 8 18;
+    -fx-background-radius: 4;
+    -fx-cursor: hand;
+}
+
+.profile-action-btn:hover {
+    -fx-background-color: #333333;
+}
+
+/* Secondary / back button */
+.back-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #CCCCCC;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #555555;
+    -fx-padding: 7 16;
+    -fx-cursor: hand;
+}
+
+.back-button:hover {
+    -fx-background-color: #F0F0F0;
+    -fx-border-color: #AAAAAA;
 }

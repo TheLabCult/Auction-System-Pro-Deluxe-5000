@@ -7,6 +7,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
@@ -14,33 +15,38 @@ import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
-public class CuratedController {
+public class ArtistsController {
 
     // --- Header ---
     @FXML private TextField searchTextField;
 
     // --- Sidebar category rows ---
-    @FXML private HBox catArt;
-    @FXML private HBox catVehicle;
-    @FXML private HBox catElectronic;
+    @FXML private HBox catPainting;
+    @FXML private HBox catSculpture;
+    @FXML private HBox catPhotography;
+    @FXML private HBox catPrintmaking;
+
+    // --- Artist card grid ---
+    @FXML private FlowPane artistGrid;
 
     // Track which category HBox is currently active
     private HBox activeCategory;
 
     @FXML
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        activeCategory = catArt;
+        activeCategory = catPainting;
 
-        if (catArt        != null) catArt.setOnMouseClicked(e        -> selectCategory(catArt,        "ART"));
-        if (catVehicle    != null) catVehicle.setOnMouseClicked(e    -> selectCategory(catVehicle,    "VEHICLE"));
-        if (catElectronic != null) catElectronic.setOnMouseClicked(e -> selectCategory(catElectronic, "ELECTRONIC"));
+        if (catPainting    != null) catPainting.setOnMouseClicked(e    -> selectCategory(catPainting,    "PAINTING"));
+        if (catSculpture   != null) catSculpture.setOnMouseClicked(e   -> selectCategory(catSculpture,   "SCULPTURE"));
+        if (catPhotography != null) catPhotography.setOnMouseClicked(e -> selectCategory(catPhotography, "PHOTOGRAPHY"));
+        if (catPrintmaking != null) catPrintmaking.setOnMouseClicked(e -> selectCategory(catPrintmaking, "PRINTMAKING"));
     }
 
     // ---------------------------------------------------------------
     //  Sidebar logic
     // ---------------------------------------------------------------
 
-    private void selectCategory(HBox selected, String categoryName) {
+    private void selectCategory(HBox selected, String specialtyName) {
         if (activeCategory != null) {
             activeCategory.getStyleClass().remove("category-item-active");
             if (!activeCategory.getStyleClass().contains("category-item")) {
@@ -54,8 +60,8 @@ public class CuratedController {
         }
 
         activeCategory = selected;
-        System.out.println("Category selected: " + categoryName);
-        // TODO: filter / reload lot data for the chosen category
+        System.out.println("Artist specialty selected: " + specialtyName);
+        // TODO: filter artist grid by specialty
     }
 
     // ---------------------------------------------------------------
@@ -66,8 +72,8 @@ public class CuratedController {
     public void onSearchAction() {
         String query = searchTextField != null ? searchTextField.getText().trim() : "";
         if (!query.isBlank()) {
-            System.out.println("Searching for: " + query);
-            // TODO: query the database and refresh the card grid
+            System.out.println("Searching artists for: " + query);
+            // TODO: query the database and refresh the artist grid
         }
     }
 
@@ -80,14 +86,9 @@ public class CuratedController {
         System.out.println("Notifications clicked");
     }
 
-    /**
-     * Navigate to the Profile view when the 👤 icon is clicked.
-     * We resolve the Stage from the searchTextField (always injected
-     * before any user interaction can occur).
-     */
     @FXML
-    public void onProfileClicked(MouseEvent event) {
-        switchView(event, "/profile.fxml");
+    public void onProfileClicked() {
+        System.out.println("Profile clicked");
     }
 
     // ---------------------------------------------------------------
@@ -97,23 +98,28 @@ public class CuratedController {
 
     @FXML
     public void onNavAuctions(MouseEvent event) {
-        // Already on this view — no-op
-        System.out.println("Nav: AUCTIONS (already active)");
+        switchView(event, "/curated.fxml");
     }
 
     @FXML
     public void onNavArtists(MouseEvent event) {
-        switchView(event, "/artists.fxml");
+        // Already on this view — no-op
+        System.out.println("Nav: ARTISTS (already active)");
+    }
+
+    @FXML
+    public void onProfileClicked(MouseEvent event) {
+        switchView(event, "/profile.fxml");
     }
 
     // ---------------------------------------------------------------
-    //  "VIEW ALL LOTS" link
+    //  "VIEW ALL ARTISTS" link
     // ---------------------------------------------------------------
 
     @FXML
-    public void onViewAllLots(MouseEvent event) {
-        System.out.println("View All Lots clicked");
-//        switchView(event, "/allLots.fxml");
+    public void onViewAllArtists(MouseEvent event) {
+        System.out.println("View All Artists clicked");
+        // TODO: navigate to full artist directory
     }
 
     // ---------------------------------------------------------------
@@ -122,10 +128,9 @@ public class CuratedController {
     //  which is always non-null at the point of a user click.
     // ---------------------------------------------------------------
 
-    private void switchView(MouseEvent event, String fxmlPath) {
+    private void switchView(MouseEvent event, String fxmlFile) {
         try {
-            Parent root = FXMLLoader.load(
-                    Objects.requireNonNull(getClass().getResource(fxmlPath)));
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxmlFile)));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
         } catch (Exception e) {
