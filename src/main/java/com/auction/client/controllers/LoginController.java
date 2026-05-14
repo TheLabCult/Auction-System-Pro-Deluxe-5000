@@ -13,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.stage.StageStyle;
+import javafx.scene.input.MouseEvent;
 
 import java.io.File;
 import java.sql.Connection;
@@ -61,12 +62,18 @@ public class LoginController {
 
     }
 
+    public void registerButtonOnAction(MouseEvent event) {
+        loginMessageLabel.setText("Registering");
+        openRegisterView();
+    }
+
     public void cancelButtonOnAction(ActionEvent event) {
         Stage stage = (Stage) cancelButton.getScene().getWindow();
         stage.close();
     }
 
     public void validateLogin() throws SQLException {
+        openCuratedView();
         DatabaseConnection connectNow = new DatabaseConnection();
         Connection connectDB = connectNow.getConnection();
 
@@ -109,21 +116,52 @@ public class LoginController {
         }
     }
 
+    // ── Navigation helpers ───────────────────────────────────────────────────
+
+    /**
+     * Navigates to the register view, reusing the same window.
+     */
+    private void openRegisterView() {
+        try {
+            Parent root = FXMLLoader.load(
+                    Objects.requireNonNull(getClass().getResource("/main/resources/register.fxml")));
+
+            Stage stage = (Stage) usernameTextField.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("AuctionApp - Register");
+            stage.setResizable(false);
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Failed to load register view.");
+        }
+    }
+
+    /**
+     * Navigates to the main curated view after a successful login.
+     */
     private void openCuratedView() {
         try {
-            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/main/resources/curated.fxml")));
+            Parent root = FXMLLoader.load(
+                    Objects.requireNonNull(getClass().getResource("/main/resources/curated.fxml")));
 
-            // Reuse the existing window instead of opening a new one
             Stage stage = (Stage) usernameTextField.getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
+            stage.setScene(new Scene(root));
             stage.setTitle("AuctionApp - Curated");
             stage.setResizable(true);
             stage.show();
 
         } catch (Exception e) {
             e.printStackTrace();
-            loginMessageLabel.setText("Failed to load main view.");
+            showError("Failed to load main view.");
         }
+    }
+
+    // ── UI helpers ───────────────────────────────────────────────────────────
+
+    private void showError(String message) {
+        loginMessageLabel.setStyle("-fx-text-fill: #eb0505;");
+        loginMessageLabel.setText(message);
     }
 }
