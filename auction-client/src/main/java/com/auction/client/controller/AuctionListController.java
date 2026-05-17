@@ -2,24 +2,24 @@ package com.auction.client.controller;
 
 /**
  * FILE ROLE:
-FILE ROLE: Controller for the main auction list screen (auction_list.fxml).
+ FILE ROLE: Controller for the main auction list screen (auction_list.fxml).
 
-Implements Refreshable so SceneManager calls refresh() every time this screen
-is navigated to, ensuring the list is always current.
+ Implements Refreshable so SceneManager calls refresh() every time this screen
+ is navigated to, ensuring the list is always current.
 
-KEY BEHAVIOURS:
-  - Loads all auctions via GET_AUCTIONS on refresh().
-  - Applies a real-time text filter (FilteredList) so the user can search by
-    item name or status without another server request.
-  - Double-clicking a row opens the auction detail screen for that auction.
-  - The TableView uses SimpleStringProperty cell factories to display fields
-    from AuctionDTO (id, item name, current price, status, end time).
+ KEY BEHAVIOURS:
+ - Loads all auctions via GET_AUCTIONS on refresh().
+ - Applies a real-time text filter (FilteredList) so the user can search by
+ item name or status without another server request.
+ - Double-clicking a row opens the auction detail screen for that auction.
+ - The TableView uses SimpleStringProperty cell factories to display fields
+ from AuctionDTO (id, item name, current price, status, end time).
 
-IMPORT NOTES:
-  - ObservableList: JavaFX's list type that notifies the TableView of changes.
-  - FilteredList: wraps the ObservableList to apply a predicate without copying.
-  - SimpleStringProperty: wraps a String so TableColumn cell factories can bind to it.
-  - AuctionsResponse: the server's response payload containing the auction list.
+ IMPORT NOTES:
+ - ObservableList: JavaFX's list type that notifies the TableView of changes.
+ - FilteredList: wraps the ObservableList to apply a predicate without copying.
+ - SimpleStringProperty: wraps a String so TableColumn cell factories can bind to it.
+ - AuctionsResponse: the server's response payload containing the auction list.
  */
 
 import com.auction.client.network.ServerConnection;
@@ -37,6 +37,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 
 import java.util.List;
@@ -52,6 +53,16 @@ public final class AuctionListController implements SceneManager.Refreshable {
     @FXML private TextField                          searchField;
     @FXML private Label                              userLabel;
     @FXML private Button                             logoutButton;
+    @FXML private javafx.scene.layout.VBox           sidebarBox;
+    @FXML private Label                              sidebarTitle;
+    @FXML private Label                              sidebarSubtitle;
+
+    /**
+     * Set to true by AdminController before switching to this screen.
+     * Causes refresh() to render the admin sidebar (USERS / AUCTIONS)
+     * instead of the default category sidebar (ALL LOTS / ART / …).
+     */
+    public static boolean adminMode = false;
 
     private final ObservableList<AuctionDTO> allAuctions = FXCollections.observableArrayList();
     private FilteredList<AuctionDTO> filteredAuctions;
@@ -96,7 +107,64 @@ public final class AuctionListController implements SceneManager.Refreshable {
     @Override
     public void refresh() {
         userLabel.setText("Logged in as: " + ClientSession.getInstance().getCurrentUser().getUsername());
+        // If a non-admin user reaches this screen, ensure adminMode is off.
+        String role = ClientSession.getInstance().getCurrentUser().getRole();
+        if (!"ADMIN".equals(role)) adminMode = false;
+        applySidebar();
         loadAuctions();
+    }
+
+    /**
+     * Rebuilds the sidebar depending on whether this screen was opened from
+     * the admin panel (adminMode == true) or by a regular bidder/seller.
+     *
+     * Admin sidebar  → USERS (links back to admin panel) / AUCTIONS (active, current screen)
+     * Normal sidebar → ALL LOTS (active) / ART / VEHICLE / ELECTRONIC
+     */
+    private void applySidebar() {
+        // Keep the two header labels; remove everything after them (index 2+).
+        if (sidebarBox.getChildren().size() > 2) {
+            sidebarBox.getChildren().remove(2, sidebarBox.getChildren().size());
+        }
+
+        if (adminMode) {
+            sidebarTitle.setText("MANAGEMENT");
+            sidebarSubtitle.setText("ADMIN CONTROLS");
+
+            // USERS row — clicking returns to admin panel
+            javafx.scene.layout.HBox usersRow = buildSidebarItem("👤", "USERS", false);
+            usersRow.setOnMouseClicked(e -> SceneManager.switchTo(SceneManager.View.ADMIN_PANEL));
+            usersRow.setStyle(usersRow.getStyle() + "; -fx-cursor: hand;");
+
+            // AUCTIONS row — active (current screen)
+            javafx.scene.layout.HBox auctionsRow = buildSidebarItem("🔨", "AUCTIONS", true);
+
+            sidebarBox.getChildren().addAll(usersRow, auctionsRow);
+        } else {
+            sidebarTitle.setText("CATEGORIES");
+            sidebarSubtitle.setText("FILTER LOTS");
+
+            sidebarBox.getChildren().addAll(
+                    buildSidebarItem("🔨", "ALL LOTS",    true),
+                    buildSidebarItem("🎨", "ART",         false),
+                    buildSidebarItem("🚗", "VEHICLE",     false),
+                    buildSidebarItem("📺", "ELECTRONIC",  false)
+            );
+        }
+    }
+
+    /** Creates a sidebar row with an emoji + label, styled active or inactive. */
+    private javafx.scene.layout.HBox buildSidebarItem(String icon, String text, boolean active) {
+        javafx.scene.layout.HBox row = new javafx.scene.layout.HBox(8);
+        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        row.getStyleClass().add(active ? "category-item-active" : "category-item");
+        row.setStyle("-fx-padding: 9 18 9 18;");
+        Label iconLabel = new Label(icon);
+        iconLabel.getStyleClass().add("category-text");
+        Label textLabel = new Label(text);
+        textLabel.getStyleClass().add("category-text");
+        row.getChildren().addAll(iconLabel, textLabel);
+        return row;
     }
 
     private void loadAuctions() {
