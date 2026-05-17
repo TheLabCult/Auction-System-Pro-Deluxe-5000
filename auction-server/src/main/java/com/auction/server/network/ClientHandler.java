@@ -182,6 +182,7 @@ public final class ClientHandler implements Runnable, AuctionObserver {
                 case GET_SELLER_ITEMS    -> handleGetSellerItems(msg);
                 case GET_USERS           -> handleGetUsers(msg);
                 case BAN_USER            -> handleBanUser(msg);
+                case UNBAN_USER          -> handleUnbanUser(msg);
                 default -> sendError(msg.getRequestId(),
                         "Unknown message type: " + msg.getType());
             }
@@ -373,6 +374,15 @@ public final class ClientHandler implements Runnable, AuctionObserver {
         BanUserRequest req = msg.parsePayload(gson, BanUserRequest.class);
         userService.banUser(req.userId, currentUser);
         send(Message.reply(msg.getRequestId(), MessageType.USER_BANNED, "OK", gson));
+    }
+
+    /** Unban a user account (admin only). */
+    private void handleUnbanUser(Message msg) {
+        requireAuth();
+        requireAdmin();
+        UnbanUserRequest req = msg.parsePayload(gson, UnbanUserRequest.class);
+        userService.unbanUser(req.userId, currentUser);
+        send(Message.reply(msg.getRequestId(), MessageType.USER_UNBANNED, "OK", gson));
     }
 
     // ── AuctionObserver callbacks (called from AuctionEventBus notify-pool) ───

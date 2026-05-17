@@ -145,4 +145,20 @@ public final class UserService {
                 .orElseThrow(() -> new AuthException("User not found: " + targetId));
         userDAO.updateActive(targetId, false); // set active=0 in the database
     }
+
+    /**
+     * Unban (reactivate) a user account.
+     *
+     * @param targetId  the id of the user to unban
+     * @param requester the admin performing the unban (must have ADMIN role)
+     * @throws AuthException if requester is not an admin, or target not found
+     */
+    public void unbanUser(long targetId, User requester) {
+        if (requester.getRole() != UserRole.ADMIN)
+            throw new AuthException("Only admins can unban users");
+        // Verify the target exists before trying to update.
+        userDAO.findById(targetId)
+                .orElseThrow(() -> new AuthException("User not found: " + targetId));
+        userDAO.updateActive(targetId, true); // set active=0 in the database
+    }
 }

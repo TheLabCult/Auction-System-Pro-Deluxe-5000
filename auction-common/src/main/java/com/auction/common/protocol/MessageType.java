@@ -51,6 +51,8 @@ public enum MessageType {
     USERS_RESPONSE, // server → client: list of UserDTOs
     BAN_USER,    // client → server: deactivate a user account
     USER_BANNED, // server → client: confirms ban
+    UNBAN_USER, // client → server: reactivate a user account
+    USER_UNBANNED, // server → client: confirms unban
 
     // ── Real-time subscription ─────────────────────────────────────────────────
     // After watching an auction, the client receives server-push broadcasts

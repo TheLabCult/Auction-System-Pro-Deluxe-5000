@@ -191,4 +191,15 @@ public final class Requests {
         public BanUserRequest() {}
         public BanUserRequest(long id) { this.userId = id; }
     }
+
+    /**
+     * Payload for MessageType.UNBAN_USER.
+     * Admin-only.  Sets the user's active flag to true; they can log in again.
+     */
+    public static final class UnbanUserRequest {
+        public long userId;
+
+        public UnbanUserRequest() {}
+        public UnbanUserRequest(long id) { this.userId = id; }
+    }
 }

@@ -96,6 +96,28 @@ public final class AdminController implements SceneManager.Refreshable {
     }
 
     @FXML
+    private void onUnbanUser() {
+        UserDTO selected = userTable.getSelectionModel().getSelectedItem();
+        if (selected == null) { statusLabel.setText("Select a user first."); return; }
+        if (selected.isActive()) { statusLabel.setText("User is not banned."); return; }
+        if (!AlertUtil.confirm("Unban User", "Unban user '" + selected.getUsername() + "'?")) return;
+
+        ServerConnection conn = ClientSession.getInstance().getConnection();
+        Message msg = Message.of(MessageType.UNBAN_USER,
+                new com.auction.common.request.Requests.UnbanUserRequest(selected.getId()), conn.getGson());
+
+        conn.send(msg).whenCompleteAsync((resp, ex) -> Platform.runLater(() -> {
+            if (ex != null) { statusLabel.setText("Error: " + ex.getMessage()); return; }
+            if (resp.getType() == MessageType.ERROR) {
+                statusLabel.setText(resp.parsePayload(conn.getGson(), ErrorResponse.class).message);
+                return;
+            }
+            statusLabel.setText("User '" + selected.getUsername() + "' unbanned.");
+            loadUsers();
+        }));
+    }
+
+    @FXML
     private void onViewAuctions() {
         SceneManager.switchTo(SceneManager.View.AUCTION_LIST);
     }

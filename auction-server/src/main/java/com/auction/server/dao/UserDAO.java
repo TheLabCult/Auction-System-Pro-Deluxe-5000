@@ -60,7 +60,7 @@ public interface UserDAO {
     /**
      * Set the active flag on a user account.
      * active=false means the user is banned and cannot log in.
-     * Called by UserService.banUser() after admin authorization is confirmed.
+     * Called by UserService.banUser() or UserService.unbanUser() after admin authorization is confirmed.
      *
      * @param userId the id of the user to ban/unban
      * @param active false to ban, true to restore
