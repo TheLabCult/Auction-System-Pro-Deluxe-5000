@@ -119,6 +119,7 @@ public final class AdminController implements SceneManager.Refreshable {
 
     @FXML
     private void onViewAuctions() {
+        AuctionListController.adminMode = true;
         SceneManager.switchTo(SceneManager.View.AUCTION_LIST);
     }
 
