@@ -8,7 +8,7 @@ import com.auction.client.util.SceneManager;        // navigates to the next scr
 import com.auction.common.dto.UserDTO;              // the user data returned by the server
 import com.auction.common.protocol.Message;         // TCP message envelope
 import com.auction.common.protocol.MessageType;     // LOGIN / LOGIN_RESPONSE / ERROR
-import com.auction.common.request.Requests.LoginRequest;   // payload sent to server
+import com.auction.common.request.Requests.*;   // payload sent to server
 import com.auction.common.request.Responses.ErrorResponse; // payload received on failure
 
 // JavaFX application thread scheduling — callbacks from CompletableFuture run on a
@@ -17,7 +17,11 @@ import javafx.application.Platform;
 
 // FXML-injected UI controls — @FXML links Java field to the XML element with the same fx:id.
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 
 /**
  * FILE ROLE: Controller for the login screen (login.fxml).

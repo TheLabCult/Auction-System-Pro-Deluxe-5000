@@ -88,7 +88,6 @@
                                         <Font size="14.0" />
                                     </font></Label>
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #5A6D88; -fx-cursor: hand;" text="Forget Password?" />
                             </HBox>
                             <PasswordField fx:id="passwordField" promptText="••••••••" style="-fx-background-color: #EFEFEF; -fx-padding: 14; -fx-background-radius: 6; -fx-font-size: 14px;" />
                         </VBox>
