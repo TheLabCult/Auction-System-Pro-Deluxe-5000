@@ -64,6 +64,21 @@ public final class AuctionListController implements SceneManager.Refreshable {
      */
     public static boolean adminMode = false;
 
+    /**
+     * Set to true by SellerDashboardController before switching to this screen.
+     * Causes refresh() to render the seller sidebar (← SELLER / AUCTIONS active)
+     * so the seller can navigate back to their dashboard.
+     */
+    public static boolean sellerMode = false;
+
+    /**
+     * The currently active category filter for the sidebar.
+     * "ALL" means no category filter is applied.
+     * Other values (e.g. "ART", "VEHICLE", "ELECTRONICS") are matched
+     * against AuctionDTO.getItem().getCategory() (case-insensitive).
+     */
+    private String selectedCategory = "ALL";
+
     private final ObservableList<AuctionDTO> allAuctions = FXCollections.observableArrayList();
     private FilteredList<AuctionDTO> filteredAuctions;
 
@@ -86,14 +101,7 @@ public final class AuctionListController implements SceneManager.Refreshable {
         filteredAuctions = new FilteredList<>(allAuctions, a -> true);
         auctionTable.setItems(filteredAuctions);
 
-        searchField.textProperty().addListener((obs, old, val) -> {
-            String lower = val.toLowerCase();
-            filteredAuctions.setPredicate(a -> {
-                if (lower.isEmpty()) return true;
-                String itemName = a.getItem() != null ? a.getItem().getName().toLowerCase() : "";
-                return itemName.contains(lower) || a.getStatus().toLowerCase().contains(lower);
-            });
-        });
+        searchField.textProperty().addListener((obs, old, val) -> applyFilter());
 
         // Double-click to view detail
         auctionTable.setOnMouseClicked(e -> {
@@ -107,9 +115,10 @@ public final class AuctionListController implements SceneManager.Refreshable {
     @Override
     public void refresh() {
         userLabel.setText("Logged in as: " + ClientSession.getInstance().getCurrentUser().getUsername());
-        // If a non-admin user reaches this screen, ensure adminMode is off.
         String role = ClientSession.getInstance().getCurrentUser().getRole();
-        if (!"ADMIN".equals(role)) adminMode = false;
+        if (!"ADMIN".equals(role))  adminMode  = false;
+        if (!"SELLER".equals(role)) sellerMode = false;
+        selectedCategory = "ALL";
         applySidebar();
         loadAuctions();
     }
@@ -119,7 +128,7 @@ public final class AuctionListController implements SceneManager.Refreshable {
      * the admin panel (adminMode == true) or by a regular bidder/seller.
      *
      * Admin sidebar  → USERS (links back to admin panel) / AUCTIONS (active, current screen)
-     * Normal sidebar → ALL LOTS (active) / ART / VEHICLE / ELECTRONIC
+     * Normal sidebar → ALL LOTS (active) / ART / VEHICLE / ELECTRONICS
      */
     private void applySidebar() {
         // Keep the two header labels; remove everything after them (index 2+).
@@ -131,40 +140,107 @@ public final class AuctionListController implements SceneManager.Refreshable {
             sidebarTitle.setText("MANAGEMENT");
             sidebarSubtitle.setText("ADMIN CONTROLS");
 
-            // USERS row — clicking returns to admin panel
-            javafx.scene.layout.HBox usersRow = buildSidebarItem("👤", "USERS", false);
+            // USERS row — clicking returns to admin panel (no category logic needed)
+            javafx.scene.layout.HBox usersRow = buildSidebarItem("👤", "USERS", null);
             usersRow.setOnMouseClicked(e -> SceneManager.switchTo(SceneManager.View.ADMIN_PANEL));
             usersRow.setStyle(usersRow.getStyle() + "; -fx-cursor: hand;");
 
-            // AUCTIONS row — active (current screen)
-            javafx.scene.layout.HBox auctionsRow = buildSidebarItem("🔨", "AUCTIONS", true);
+            // AUCTIONS row — active (current screen, no filter)
+            javafx.scene.layout.HBox auctionsRow = buildSidebarItem("🔨", "AUCTIONS", null);
+            auctionsRow.getStyleClass().remove("category-item");
+            auctionsRow.getStyleClass().add("category-item-active");
 
             sidebarBox.getChildren().addAll(usersRow, auctionsRow);
+
+        } else if (sellerMode) {
+            sidebarTitle.setText("BROWSING");
+            sidebarSubtitle.setText("ALL AUCTIONS");
+
+            // ← SELLER DASHBOARD row — clicking returns to seller dashboard
+            javafx.scene.layout.HBox backRow = buildSidebarItem("◀", "MY DASHBOARD", null);
+            backRow.setOnMouseClicked(e -> {
+                sellerMode = false;
+                SceneManager.switchTo(SceneManager.View.SELLER_DASHBOARD);
+            });
+
+            // ALL LOTS row — active (current view, shows all)
+            javafx.scene.layout.HBox allRow = buildSidebarItem("🔨", "ALL LOTS", "ALL");
+            allRow.getStyleClass().remove("category-item");
+            allRow.getStyleClass().add("category-item-active");
+
+            sidebarBox.getChildren().addAll(backRow, new javafx.scene.control.Separator(),
+                    allRow,
+                    buildSidebarItem("🎨", "ART",         "ART"),
+                    buildSidebarItem("🚗", "VEHICLE",     "VEHICLE"),
+                    buildSidebarItem("📺", "ELECTRONICS", "ELECTRONICS"));
+
         } else {
             sidebarTitle.setText("CATEGORIES");
             sidebarSubtitle.setText("FILTER LOTS");
 
             sidebarBox.getChildren().addAll(
-                    buildSidebarItem("🔨", "ALL LOTS",    true),
-                    buildSidebarItem("🎨", "ART",         false),
-                    buildSidebarItem("🚗", "VEHICLE",     false),
-                    buildSidebarItem("📺", "ELECTRONIC",  false)
+                    buildSidebarItem("🔨", "ALL LOTS",   "ALL"),
+                    buildSidebarItem("🎨", "ART",         "ART"),
+                    buildSidebarItem("🚗", "VEHICLE",     "VEHICLE"),
+                    buildSidebarItem("📺", "ELECTRONICS",  "ELECTRONICS")
             );
         }
     }
 
-    /** Creates a sidebar row with an emoji + label, styled active or inactive. */
-    private javafx.scene.layout.HBox buildSidebarItem(String icon, String text, boolean active) {
+    /**
+     * Creates a sidebar row.
+     *
+     * @param icon     Emoji shown on the left.
+     * @param text     Label text.
+     * @param category The category key this row filters by ("ALL", "ART", …),
+     *                 or null for admin-mode rows that don't do category filtering.
+     *                 A row is rendered active when its category equals selectedCategory.
+     */
+    private javafx.scene.layout.HBox buildSidebarItem(String icon, String text, String category) {
+        boolean active = category != null && category.equals(selectedCategory);
         javafx.scene.layout.HBox row = new javafx.scene.layout.HBox(8);
         row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         row.getStyleClass().add(active ? "category-item-active" : "category-item");
-        row.setStyle("-fx-padding: 9 18 9 18;");
+        row.setStyle("-fx-padding: 9 18 9 18; -fx-cursor: hand;");
         Label iconLabel = new Label(icon);
         iconLabel.getStyleClass().add("category-text");
         Label textLabel = new Label(text);
         textLabel.getStyleClass().add("category-text");
         row.getChildren().addAll(iconLabel, textLabel);
+
+        if (category != null) {
+            row.setOnMouseClicked(e -> {
+                selectedCategory = category;
+                applyFilter();
+                applySidebar(); // re-render to move active highlight
+            });
+        }
         return row;
+    }
+
+    /**
+     * Updates the FilteredList predicate to combine the current search text
+     * and the selected sidebar category.
+     *
+     * Category matching uses AuctionDTO.getItem().getCategory() (case-insensitive).
+     * Adjust the getter name if your ItemDTO uses a different method (e.g. getType()).
+     */
+    private void applyFilter() {
+        String lower = searchField.getText().toLowerCase();
+        filteredAuctions.setPredicate(a -> {
+            // ── category filter ──────────────────────────────────────────
+            if (!"ALL".equals(selectedCategory)) {
+                if (a.getItem() == null) return false;
+                String cat = a.getItem().getCategory(); // ← adjust if needed
+                if (cat == null || !cat.equalsIgnoreCase(selectedCategory)) return false;
+            }
+            // ── text search filter ────────────────────────────────────────
+            if (!lower.isEmpty()) {
+                String itemName = a.getItem() != null ? a.getItem().getName().toLowerCase() : "";
+                return itemName.contains(lower) || a.getStatus().toLowerCase().contains(lower);
+            }
+            return true;
+        });
     }
 
     private void loadAuctions() {

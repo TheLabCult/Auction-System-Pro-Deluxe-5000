@@ -60,10 +60,6 @@
             xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml/1">
 
-<stylesheets>
-    <URL value="@style.css" />
-</stylesheets>
-
 <!-- ═══════════════════ HEADER ═══════════════════ -->
 <top>
     <HBox alignment="CENTER_LEFT" spacing="30" styleClass="header"

@@ -54,10 +54,6 @@
             xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml/1">
 
-    <stylesheets>
-        <URL value="@style.css" />
-    </stylesheets>
-
     <!-- ═══════════════════ HEADER ═══════════════════ -->
     <top>
         <HBox alignment="CENTER_LEFT" spacing="30" styleClass="header"
@@ -133,7 +129,7 @@
                       styleClass="category-item"
                       style="-fx-padding: 9 18 9 18;">
                     <Label styleClass="category-text" text="📺" />
-                    <Label styleClass="category-text" text="ELECTRONIC" />
+                    <Label styleClass="category-text" text="ELECTRONICS" />
                 </HBox>
             </VBox>
         </ScrollPane>
