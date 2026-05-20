@@ -52,6 +52,7 @@ public final class ClientMain extends Application {
         primaryStage.setTitle("Auction System");
         primaryStage.setMinWidth(900);   // prevent the window from being resized too small
         primaryStage.setMinHeight(620);
+        primaryStage.setMaximized(true);
 
         // Give SceneManager a reference to the window so it can swap scenes.
         SceneManager.init(primaryStage);

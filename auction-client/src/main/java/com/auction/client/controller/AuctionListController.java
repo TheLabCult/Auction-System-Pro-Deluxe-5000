@@ -48,8 +48,10 @@ public final class AuctionListController implements SceneManager.Refreshable {
     @FXML private TableColumn<AuctionDTO, String>    colId;
     @FXML private TableColumn<AuctionDTO, String>    colItem;
     @FXML private TableColumn<AuctionDTO, String>    colPrice;
+    @FXML private TableColumn<AuctionDTO, String>    colCategory;
     @FXML private TableColumn<AuctionDTO, String>    colStatus;
     @FXML private TableColumn<AuctionDTO, String>    colEnds;
+    @FXML private TableColumn<AuctionDTO, String>    colWins;
     @FXML private TextField                          searchField;
     @FXML private Label                              userLabel;
     @FXML private Button                             logoutButton;
@@ -88,15 +90,54 @@ public final class AuctionListController implements SceneManager.Refreshable {
                 new SimpleStringProperty(String.valueOf(c.getValue().getId())));
         colItem.setCellValueFactory(c -> {
             AuctionDTO a = c.getValue();
-            String name = a.getItem() != null ? a.getItem().getName() : "(unknown)";
-            return new SimpleStringProperty(name);
+            return new SimpleStringProperty(a.getItem() != null ? a.getItem().getName() : "(unknown)");
+        });
+        colItem.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) { setText(null); return; }
+                setText(value);
+                getStyleClass().removeAll("cell-item-name");
+                getStyleClass().add("cell-item-name");
+            }
         });
         colPrice.setCellValueFactory(c ->
                 new SimpleStringProperty(String.format("$%.2f", c.getValue().getCurrentPrice())));
+        colCategory.setCellValueFactory(c -> {
+            AuctionDTO a = c.getValue();
+            String cat = a.getItem() != null ? a.getItem().getCategory() : "—";
+            return new SimpleStringProperty(cat != null ? cat : "—");
+        });
         colStatus.setCellValueFactory(c ->
                 new SimpleStringProperty(c.getValue().getStatus()));
+        colStatus.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setText(null);
+                    setStyle("");
+                    return;
+                }
+                setText(value);
+                setStyle("-fx-font-weight: bold; -fx-text-fill: " + switch (value.toUpperCase()) {
+                    case "RUNNING", "OPEN"  -> "#2E7D32";
+                    case "FINISHED", "PAID" -> "#D93025";
+                    case "CANCELED"         -> "#111111";
+                    default                 -> "#888888";
+                } + ";");
+            }
+        });
         colEnds.setCellValueFactory(c ->
                 new SimpleStringProperty(formatDateTime(c.getValue().getEndTime())));
+        colWins.setCellValueFactory(c -> {
+            AuctionDTO a = c.getValue();
+            if ("FINISHED".equalsIgnoreCase(a.getStatus()) && a.getWinnerName() != null) {
+                return new SimpleStringProperty(a.getWinnerName());
+            }
+            return new SimpleStringProperty("");
+        });
 
         filteredAuctions = new FilteredList<>(allAuctions, a -> true);
         auctionTable.setItems(filteredAuctions);

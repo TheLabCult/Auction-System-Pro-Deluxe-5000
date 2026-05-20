@@ -297,7 +297,7 @@
                     <VBox spacing="4">
                         <Label styleClass="section-title" text="Bid Log"
                                style="-fx-font-size: 14px;" />
-                        <Label styleClass="section-desc" text="All bids for this lot, latest first."
+                        <Label styleClass="section-desc" text="All bids for this lot, latest last."
                                style="-fx-font-size: 10px;" />
                     </VBox>
                     <Region HBox.hgrow="ALWAYS" />

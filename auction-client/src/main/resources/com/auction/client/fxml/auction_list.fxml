@@ -160,8 +160,10 @@
                     <TableColumn fx:id="colId"     text="#"       prefWidth="55" />
                     <TableColumn fx:id="colItem"   text="ITEM"    prefWidth="270" />
                     <TableColumn fx:id="colPrice"  text="PRICE"   prefWidth="120" />
+                    <TableColumn fx:id="colCategory" text="CATEGORY" prefWidth="120" />
                     <TableColumn fx:id="colStatus" text="STATUS"  prefWidth="120" />
                     <TableColumn fx:id="colEnds"   text="ENDS"    prefWidth="150" />
+                    <TableColumn fx:id="colWins"   text="WINNER"  prefWidth="120" />
                 </columns>
                 <placeholder>
                     <Label text="No auctions found." styleClass="table-placeholder" />
