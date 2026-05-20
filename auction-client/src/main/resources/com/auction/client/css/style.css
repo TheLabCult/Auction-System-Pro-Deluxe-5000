@@ -1024,3 +1024,9 @@
     -fx-background-color: #F0F0F0;
     -fx-border-color: #AAAAAA;
 }
+
+/* ── Auction list cell styles ─────────────────────────────────────────────── */
+.cell-item-name {
+    -fx-font-weight: bold;
+    -fx-text-fill: #111111;
+}
