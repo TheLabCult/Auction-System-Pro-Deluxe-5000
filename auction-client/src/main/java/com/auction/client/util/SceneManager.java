@@ -67,7 +67,8 @@ public final class SceneManager {
         AUCTION_LIST    ("/com/auction/client/fxml/auction_list.fxml"),
         AUCTION_DETAIL  ("/com/auction/client/fxml/auction_detail.fxml"),
         SELLER_DASHBOARD("/com/auction/client/fxml/seller_dashboard.fxml"),
-        ADMIN_PANEL     ("/com/auction/client/fxml/admin_panel.fxml");
+        ADMIN_PANEL     ("/com/auction/client/fxml/admin_panel.fxml"),
+        USER_PROFILE    ("/com/auction/client/fxml/user_profile.fxml");
 
         public final String fxmlPath; // the resource path passed to FXMLLoader
         View(String path) { this.fxmlPath = path; }

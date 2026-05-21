@@ -124,6 +124,12 @@ public final class AdminController implements SceneManager.Refreshable {
     }
 
     @FXML
+    private void onViewProfile() {
+        UserProfileController.backView = SceneManager.View.ADMIN_PANEL;
+        SceneManager.switchTo(SceneManager.View.USER_PROFILE);
+    }
+
+    @FXML
     private void onLogout() {
         ClientSession session = ClientSession.getInstance();
         session.getConnection().send(

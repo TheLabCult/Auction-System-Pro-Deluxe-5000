@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+    WIRING REQUIRED IN SceneManager:
+    Add to the View enum:
+        USER_PROFILE("/fxml/user_profile.fxml")
+    and register it in the view map the same way as other views.
+-->
+
+<BorderPane fx:controller="com.auction.client.controller.UserProfileController"
+            styleClass="root-pane"
+            prefWidth="1000"
+            prefHeight="680"
+            minWidth="800"
+            minHeight="500"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml/1">
+
+    <!-- ═══════════════════ HEADER ═══════════════════ -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="30" styleClass="header"
+              style="-fx-padding: 10 20 10 20;">
+            <Label styleClass="logo-title" text="AuctionApp"
+                   style="-fx-font-size: 15px;" />
+
+            <HBox alignment="CENTER" spacing="20">
+                <Label styleClass="nav-link" text="AUCTIONS" />
+            </HBox>
+
+            <Region HBox.hgrow="ALWAYS" />
+
+            <!-- Profile icon — highlighted to signal "active" screen -->
+            <HBox fx:id="profileIconBox" alignment="CENTER" spacing="12">
+                <Label style="-fx-font-size: 14px; -fx-cursor: hand;
+                              -fx-background-color: #EAEAEA;
+                              -fx-background-radius: 50;
+                              -fx-padding: 3 5;" text="👤" />
+            </HBox>
+        </HBox>
+    </top>
+
+    <!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox spacing="0" style="-fx-padding: 0;">
+
+                <!-- ── Profile Hero Banner ── -->
+                <StackPane prefHeight="140"
+                           style="-fx-background-color: linear-gradient(to right, #1A1A1A, #3A3A3A);">
+                    <Label text="AUCTION APP"
+                           style="-fx-font-size: 72px; -fx-font-weight: bold;
+                                  -fx-text-fill: rgba(255,255,255,0.04);
+                                  -fx-letter-spacing: 10px;" />
+                </StackPane>
+
+                <!-- ── Avatar + Name row ── -->
+                <HBox style="-fx-padding: 0 50 0 50; -fx-background-color: #FFFFFF;">
+                    <StackPane prefWidth="90" prefHeight="90"
+                               style="-fx-background-color: #D2B48C;
+                                      -fx-background-radius: 50;
+                                      -fx-border-color: #FFFFFF;
+                                      -fx-border-width: 4;
+                                      -fx-border-radius: 50;"
+                               translateY="-30">
+                        <Label text="👤"
+                               style="-fx-font-size: 36px;" />
+                    </StackPane>
+                    <VBox spacing="2" alignment="BOTTOM_LEFT"
+                          style="-fx-padding: 14 0 14 16;">
+                        <Label fx:id="lblFullName"
+                               text=""
+                               style="-fx-font-size: 20px; -fx-font-weight: bold;
+                                      -fx-text-fill: #111111;" />
+                        <Label fx:id="lblMemberSince"
+                               text=""
+                               style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                      -fx-text-fill: #888888; -fx-letter-spacing: 1px;" />
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <!-- Role badge -->
+                    <HBox alignment="CENTER"
+                          style="-fx-padding: 0 0 14 0;">
+                        <Label fx:id="lblRole"
+                               text=""
+                               style="-fx-background-color: #1A1A1A;
+                                      -fx-text-fill: white;
+                                      -fx-font-size: 9px; -fx-font-weight: bold;
+                                      -fx-letter-spacing: 1px;
+                                      -fx-padding: 4 12;
+                                      -fx-background-radius: 3;" />
+                    </HBox>
+                </HBox>
+
+                <!-- ── Email strip ── -->
+                <HBox style="-fx-background-color: #FFFFFF;
+                             -fx-border-color: transparent transparent #EAEAEA transparent;
+                             -fx-border-width: 1;
+                             -fx-padding: 0 50 20 50;"
+                      spacing="0">
+                    <VBox alignment="CENTER" prefWidth="200" spacing="2">
+                        <Label fx:id="lblEmail"
+                               text=""
+                               style="-fx-font-size: 13px; -fx-font-weight: bold;
+                                      -fx-text-fill: #111111;" />
+                        <Label text="EMAIL"
+                               style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                      -fx-text-fill: #888888; -fx-letter-spacing: 1px;" />
+                    </VBox>
+                </HBox>
+
+                <!-- ── Detail card + Sign-out panel ── -->
+                <HBox spacing="24"
+                      style="-fx-padding: 28 50 28 50; -fx-background-color: #F8F8F8;">
+
+                    <!-- LEFT: account fields -->
+                    <VBox spacing="20" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: #FFFFFF;
+                                 -fx-padding: 24;
+                                 -fx-effect: dropshadow(three-pass-box,
+                                             rgba(0,0,0,0.03), 10, 0, 0, 5);">
+
+                        <Label text="ACCOUNT DETAILS"
+                               style="-fx-font-size: 10px; -fx-font-weight: bold;
+                                      -fx-text-fill: #888888; -fx-letter-spacing: 1px;" />
+
+                        <Separator />
+
+                        <!-- Username -->
+                        <VBox spacing="4">
+                            <Label text="USERNAME"
+                                   style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                          -fx-text-fill: #AAAAAA; -fx-letter-spacing: 1px;" />
+                            <TextField fx:id="fieldUsername"
+                                       editable="false"
+                                       styleClass="profile-field" />
+                        </VBox>
+
+                        <!-- Email -->
+                        <VBox spacing="4">
+                            <Label text="EMAIL ADDRESS"
+                                   style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                          -fx-text-fill: #AAAAAA; -fx-letter-spacing: 1px;" />
+                            <TextField fx:id="fieldEmail"
+                                       editable="false"
+                                       styleClass="profile-field" />
+                        </VBox>
+
+                        <!-- Role -->
+                        <VBox spacing="4">
+                            <Label text="ROLE"
+                                   style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                          -fx-text-fill: #AAAAAA; -fx-letter-spacing: 1px;" />
+                            <TextField fx:id="fieldRole"
+                                       editable="false"
+                                       styleClass="profile-field" />
+                        </VBox>
+
+                    </VBox>
+
+                    <!-- RIGHT: actions card -->
+                    <VBox prefWidth="260" spacing="16"
+                          style="-fx-background-color: #FFFFFF;
+                                 -fx-padding: 24;
+                                 -fx-effect: dropshadow(three-pass-box,
+                                             rgba(0,0,0,0.03), 10, 0, 0, 5);">
+
+                        <Label text="ACCOUNT ACTIONS"
+                               style="-fx-font-size: 10px; -fx-font-weight: bold;
+                                      -fx-text-fill: #888888; -fx-letter-spacing: 1px;" />
+
+                        <Separator />
+
+                        <!-- Back button -->
+                        <Button text="← BACK TO APP"
+                                onAction="#onBackClicked"
+                                maxWidth="Infinity"
+                                style="-fx-background-color: #1A1A1A;
+                                       -fx-text-fill: white;
+                                       -fx-font-size: 10px; -fx-font-weight: bold;
+                                       -fx-padding: 9 0;
+                                       -fx-background-radius: 3;
+                                       -fx-cursor: hand;" />
+
+                        <Region VBox.vgrow="ALWAYS" />
+                        <Separator />
+
+                        <!-- Sign Out -->
+                        <Button text="SIGN OUT"
+                                onAction="#onLogout"
+                                maxWidth="Infinity"
+                                style="-fx-background-color: transparent;
+                                       -fx-border-color: #DDDDDD;
+                                       -fx-border-width: 1;
+                                       -fx-font-size: 10px; -fx-font-weight: bold;
+                                       -fx-text-fill: #888888;
+                                       -fx-padding: 8 0;
+                                       -fx-cursor: hand;" />
+
+                    </VBox>
+
+                </HBox>
+
+                <!-- ── Footer ── -->
+                <VBox alignment="CENTER" spacing="12"
+                      style="-fx-padding: 20 0 30 0; -fx-background-color: #F8F8F8;">
+                    <Label styleClass="footer-logo" text="AUCTION APP"
+                           style="-fx-font-size: 13px;" />
+                    <HBox alignment="CENTER" spacing="20">
+                        <Label styleClass="footer-link" text="TERMS OF SALE" />
+                        <Label styleClass="footer-link" text="PRIVACY POLICY" />
+                        <Label styleClass="footer-link" text="GLOBAL LOCATIONS" />
+                    </HBox>
+                    <Label styleClass="footer-copyright"
+                           text="© 2026 AUCTION APP. ALL RIGHTS RESERVED." />
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

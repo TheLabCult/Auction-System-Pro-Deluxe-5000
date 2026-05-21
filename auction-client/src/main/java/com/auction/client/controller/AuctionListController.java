@@ -220,9 +220,9 @@ public final class AuctionListController implements SceneManager.Refreshable {
             sidebarSubtitle.setText("FILTER LOTS");
 
             sidebarBox.getChildren().addAll(
-                    buildSidebarItem("🔨", "ALL LOTS",   "ALL"),
-                    buildSidebarItem("🎨", "ART",         "ART"),
-                    buildSidebarItem("🚗", "VEHICLE",     "VEHICLE"),
+                    buildSidebarItem("🔨", "ALL LOTS",    "ALL"),
+                    buildSidebarItem("🎨", "ART",          "ART"),
+                    buildSidebarItem("🚗", "VEHICLE",      "VEHICLE"),
                     buildSidebarItem("📺", "ELECTRONICS",  "ELECTRONICS")
             );
         }
@@ -307,6 +307,12 @@ public final class AuctionListController implements SceneManager.Refreshable {
         AuctionDTO selected = auctionTable.getSelectionModel().getSelectedItem();
         if (selected == null) { AlertUtil.info("Select Auction", "Please select an auction first."); return; }
         SceneManager.showAuctionDetail(selected.getId());
+    }
+
+    @FXML
+    private void onViewProfile() {
+        UserProfileController.backView = SceneManager.View.AUCTION_LIST;
+        SceneManager.switchTo(SceneManager.View.USER_PROFILE);
     }
 
     @FXML

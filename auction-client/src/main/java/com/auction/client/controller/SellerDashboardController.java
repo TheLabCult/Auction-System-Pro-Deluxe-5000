@@ -267,6 +267,12 @@ public final class SellerDashboardController implements SceneManager.Refreshable
         SceneManager.switchTo(SceneManager.View.AUCTION_LIST);
     }
 
+    @FXML
+    private void onSidebarProfile() {
+        UserProfileController.backView = SceneManager.View.SELLER_DASHBOARD;
+        SceneManager.switchTo(SceneManager.View.USER_PROFILE);
+    }
+
     /**
      * Shows one of the three content panels and updates the sidebar active highlight.
      * @param index 0 = MY LOTS, 1 = NEW ITEM, 2 = NEW AUCTION

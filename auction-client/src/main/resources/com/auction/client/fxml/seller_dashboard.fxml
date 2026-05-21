@@ -5,81 +5,6 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<!--<BorderPane xmlns:fx="http://javafx.com/fxml"-->
-<!--            fx:controller="com.auction.client.controller.SellerDashboardController"-->
-<!--            styleClass="root-pane"-->
-<!--            minWidth="960" minHeight="680">-->
-
-<!--    <top>-->
-<!--        <HBox styleClass="nav-bar" alignment="CENTER_LEFT" spacing="16">-->
-<!--            <Text text="SELLER DASHBOARD" styleClass="nav-logo"/>-->
-<!--            <Region HBox.hgrow="ALWAYS"/>-->
-<!--            <Label fx:id="userLabel" styleClass="nav-user"/>-->
-<!--            <Button text="Browse Auctions" onAction="#onViewAuctions" styleClass="btn-secondary"/>-->
-<!--            <Button text="Log Out"         onAction="#onLogout"       styleClass="btn-danger"/>-->
-<!--        </HBox>-->
-<!--    </top>-->
-
-<!--    <center>-->
-<!--        <SplitPane dividerPositions="0.55" styleClass="content-pane">-->
-
-<!--            &lt;!&ndash; Left: my auctions &ndash;&gt;-->
-<!--            <VBox spacing="12">-->
-<!--                <Text text="My Auctions" styleClass="page-title"/>-->
-<!--                <TableView fx:id="auctionTable" VBox.vgrow="ALWAYS" styleClass="data-table">-->
-<!--                    <columns>-->
-<!--                        <TableColumn fx:id="colItem"   text="Item"   prefWidth="200"/>-->
-<!--                        <TableColumn fx:id="colPrice"  text="Price"  prefWidth="90"/>-->
-<!--                        <TableColumn fx:id="colStatus" text="Status" prefWidth="100"/>-->
-<!--                        <TableColumn fx:id="colEnds"   text="Ends"   prefWidth="140"/>-->
-<!--                    </columns>-->
-<!--                    <placeholder><Label text="No auctions yet." styleClass="table-placeholder"/></placeholder>-->
-<!--                </TableView>-->
-<!--                <HBox spacing="10">-->
-<!--                    <Button text="Cancel Selected" onAction="#onCancelAuction" styleClass="btn-danger"/>-->
-<!--                </HBox>-->
-<!--            </VBox>-->
-
-<!--            &lt;!&ndash; Right: create forms &ndash;&gt;-->
-<!--            <VBox spacing="18">-->
-<!--                &lt;!&ndash; Create item &ndash;&gt;-->
-<!--                <VBox styleClass="form-card" spacing="10">-->
-<!--                    <Text text="New Item" styleClass="section-title"/>-->
-<!--                    <TextField fx:id="itemNameField" promptText="Item name" styleClass="input-field"/>-->
-<!--                    <TextArea  fx:id="itemDescField" promptText="Description"-->
-<!--                               styleClass="input-field" prefHeight="70" wrapText="true"/>-->
-<!--                    <TextField fx:id="itemImageField"-->
-<!--                               promptText="Image URL or local file path"-->
-<!--                               styleClass="input-field"/>-->
-<!--                    <HBox spacing="10" alignment="CENTER_LEFT">-->
-<!--                        <ComboBox fx:id="itemCategoryCombo" styleClass="input-field"/>-->
-<!--                        <TextField fx:id="itemExtraField" promptText="Extra info (JSON)"-->
-<!--                                   styleClass="input-field" HBox.hgrow="ALWAYS"/>-->
-<!--                    </HBox>-->
-<!--                    <Button text="Create Item" onAction="#onCreateItem" styleClass="btn-primary"/>-->
-<!--                </VBox>-->
-
-<!--                &lt;!&ndash; Create auction &ndash;&gt;-->
-<!--                <VBox styleClass="form-card" spacing="10">-->
-<!--                    <Text text="New Auction" styleClass="section-title"/>-->
-<!--                    <ComboBox fx:id="itemCombo" styleClass="input-field" maxWidth="9999"/>-->
-<!--                    <TextField fx:id="startPriceField" promptText="Starting price ($)"-->
-<!--                               styleClass="input-field"/>-->
-<!--                    <TextField fx:id="startTimeField"-->
-<!--                               promptText="Start time (yyyy-MM-ddTHH:mm:ss, blank=now)"-->
-<!--                               styleClass="input-field"/>-->
-<!--                    <TextField fx:id="endTimeField"-->
-<!--                               promptText="End time (yyyy-MM-ddTHH:mm:ss)"-->
-<!--                               styleClass="input-field"/>-->
-<!--                    <Button text="Create Auction" onAction="#onCreateAuction" styleClass="btn-primary"/>-->
-<!--                </VBox>-->
-
-<!--                <Label fx:id="statusLabel" styleClass="bid-status" wrapText="true"/>-->
-<!--            </VBox>-->
-<!--        </SplitPane>-->
-<!--    </center>-->
-<!--</BorderPane>-->
-
 <BorderPane fx:controller="com.auction.client.controller.SellerDashboardController"
             styleClass="root-pane"
             prefWidth="1000" prefHeight="700"
@@ -116,46 +41,66 @@
 
     <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
     <left>
-        <VBox fx:id="sidebarBox" prefWidth="160" spacing="3" styleClass="sidebar"
-              style="-fx-border-color: transparent #EAEAEA transparent transparent;
-                     -fx-border-width: 1; -fx-padding: 20 0 0 0;">
-            <Label styleClass="sidebar-title" text="SELLER"
-                   style="-fx-padding: 0 0 0 18;" />
-            <Label styleClass="sidebar-subtitle" text="TOOLS"
-                   style="-fx-padding: 0 0 10 18;" />
+        <AnchorPane prefWidth="160" minWidth="160"
+                    style="-fx-border-color: transparent #EAEAEA transparent transparent;
+                           -fx-border-width: 1;">
 
-            <HBox fx:id="sidebarMyLots" alignment="CENTER_LEFT" spacing="8"
-                  styleClass="category-item-active"
-                  style="-fx-padding: 9 18 9 18; -fx-cursor: hand;"
-                  onMouseClicked="#onSidebarMyLots">
-                <Label styleClass="category-text" text="🏷" />
-                <Label styleClass="category-text" text="MY LOTS" />
-            </HBox>
-            <HBox fx:id="sidebarNewItem" alignment="CENTER_LEFT" spacing="8"
-                  styleClass="category-item"
-                  style="-fx-padding: 9 18 9 18; -fx-cursor: hand;"
-                  onMouseClicked="#onSidebarNewItem">
-                <Label styleClass="category-text" text="📦" />
-                <Label styleClass="category-text" text="NEW ITEM" />
-            </HBox>
-            <HBox fx:id="sidebarNewAuction" alignment="CENTER_LEFT" spacing="8"
-                  styleClass="category-item"
-                  style="-fx-padding: 9 18 9 18; -fx-cursor: hand;"
-                  onMouseClicked="#onSidebarNewAuction">
-                <Label styleClass="category-text" text="🔨" />
-                <Label styleClass="category-text" text="NEW AUCTION" />
-            </HBox>
+            <!-- Top nav items -->
+            <VBox spacing="3" styleClass="sidebar"
+                  style="-fx-padding: 20 0 0 0; -fx-background-color: transparent;"
+                  AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+                <Label styleClass="sidebar-title" text="SELLER"
+                       style="-fx-padding: 0 0 0 18;" />
+                <Label styleClass="sidebar-subtitle" text="TOOLS"
+                       style="-fx-padding: 0 0 10 18;" />
 
-            <Separator style="-fx-padding: 6 0 6 0;" />
+                <HBox fx:id="sidebarMyLots" alignment="CENTER_LEFT" spacing="8"
+                      styleClass="category-item-active"
+                      style="-fx-padding: 9 18 9 18; -fx-cursor: hand;"
+                      onMouseClicked="#onSidebarMyLots">
+                    <Label styleClass="category-text" text="🏷" />
+                    <Label styleClass="category-text" text="MY LOTS" />
+                </HBox>
+                <HBox fx:id="sidebarNewItem" alignment="CENTER_LEFT" spacing="8"
+                      styleClass="category-item"
+                      style="-fx-padding: 9 18 9 18; -fx-cursor: hand;"
+                      onMouseClicked="#onSidebarNewItem">
+                    <Label styleClass="category-text" text="📦" />
+                    <Label styleClass="category-text" text="NEW ITEM" />
+                </HBox>
+                <HBox fx:id="sidebarNewAuction" alignment="CENTER_LEFT" spacing="8"
+                      styleClass="category-item"
+                      style="-fx-padding: 9 18 9 18; -fx-cursor: hand;"
+                      onMouseClicked="#onSidebarNewAuction">
+                    <Label styleClass="category-text" text="🔨" />
+                    <Label styleClass="category-text" text="NEW AUCTION" />
+                </HBox>
 
-            <HBox fx:id="sidebarAllAuctions" alignment="CENTER_LEFT" spacing="8"
-                  styleClass="category-item"
-                  style="-fx-padding: 9 18 9 18; -fx-cursor: hand;"
-                  onMouseClicked="#onSidebarAllAuctions">
-                <Label styleClass="category-text" text="🌐" />
-                <Label styleClass="category-text" text="ALL AUCTIONS" />
-            </HBox>
-        </VBox>
+                <Separator style="-fx-padding: 6 0 6 0;" />
+
+                <HBox fx:id="sidebarAllAuctions" alignment="CENTER_LEFT" spacing="8"
+                      styleClass="category-item"
+                      style="-fx-padding: 9 18 9 18; -fx-cursor: hand;"
+                      onMouseClicked="#onSidebarAllAuctions">
+                    <Label styleClass="category-text" text="🌐" />
+                    <Label styleClass="category-text" text="ALL AUCTIONS" />
+                </HBox>
+            </VBox>
+
+            <!-- Profile — anchored to bottom -->
+            <VBox spacing="0"
+                  AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+                <Separator />
+                <HBox fx:id="sidebarProfile" alignment="CENTER_LEFT" spacing="8"
+                      styleClass="category-item"
+                      style="-fx-padding: 9 18 9 18; -fx-cursor: hand;"
+                      onMouseClicked="#onSidebarProfile">
+                    <Label styleClass="category-text" text="👤" />
+                    <Label styleClass="category-text" text="MY PROFILE" />
+                </HBox>
+            </VBox>
+
+        </AnchorPane>
     </left>
 
     <!-- ═══════════════════ CONTENT ═══════════════════ -->

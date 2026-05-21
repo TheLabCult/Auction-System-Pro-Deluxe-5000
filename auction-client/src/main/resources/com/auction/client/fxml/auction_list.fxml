@@ -2,48 +2,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-
-<!--<BorderPane xmlns:fx="http://javafx.com/fxml"-->
-<!--            fx:controller="com.auction.client.controller.AuctionListController"-->
-<!--            styleClass="root-pane"-->
-<!--            minWidth="900" minHeight="620">-->
-
-<!--    &lt;!&ndash; Top nav bar &ndash;&gt;-->
-<!--    <top>-->
-<!--        <HBox styleClass="nav-bar" alignment="CENTER_LEFT" spacing="16">-->
-<!--            <Text text="AUCTION SYSTEM" styleClass="nav-logo"/>-->
-<!--            <Region HBox.hgrow="ALWAYS"/>-->
-<!--            <Label fx:id="userLabel" styleClass="nav-user"/>-->
-<!--            <Button text="Refresh" onAction="#onRefresh" styleClass="btn-secondary"/>-->
-<!--            <Button text="Log Out" onAction="#onLogout" styleClass="btn-danger"/>-->
-<!--        </HBox>-->
-<!--    </top>-->
-
-<!--    &lt;!&ndash; Content &ndash;&gt;-->
-<!--    <center>-->
-<!--        <VBox spacing="14" styleClass="content-pane">-->
-<!--            <Text text="Live Auctions" styleClass="page-title"/>-->
-
-<!--            <HBox spacing="10" alignment="CENTER_LEFT">-->
-<!--                <TextField fx:id="searchField" promptText="Search by item name or status…"-->
-<!--                           styleClass="input-field" prefWidth="360"/>-->
-<!--                <Button text="View Selected" onAction="#onViewDetail" styleClass="btn-primary"/>-->
-<!--            </HBox>-->
-
-<!--            <TableView fx:id="auctionTable" VBox.vgrow="ALWAYS" styleClass="data-table">-->
-<!--                <columns>-->
-<!--                    <TableColumn fx:id="colId"     text="#"          prefWidth="50"/>-->
-<!--                    <TableColumn fx:id="colItem"   text="Item"       prefWidth="260"/>-->
-<!--                    <TableColumn fx:id="colPrice"  text="Price"      prefWidth="110"/>-->
-<!--                    <TableColumn fx:id="colStatus" text="Status"     prefWidth="110"/>-->
-<!--                    <TableColumn fx:id="colEnds"   text="Ends"       prefWidth="140"/>-->
-<!--                </columns>-->
-<!--                <placeholder><Label text="No auctions found." styleClass="table-placeholder"/></placeholder>-->
-<!--            </TableView>-->
-<!--        </VBox>-->
-<!--    </center>-->
-<!--</BorderPane>-->
-
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 
@@ -96,43 +54,36 @@
 
     <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
     <left>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
-                    style="-fx-background-color: transparent; -fx-background: transparent;
-                           -fx-border-color: transparent #EAEAEA transparent transparent;
+        <AnchorPane prefWidth="160" minWidth="160"
+                    style="-fx-border-color: transparent #EAEAEA transparent transparent;
                            -fx-border-width: 1;">
-            <VBox fx:id="sidebarBox" prefWidth="160" spacing="3" styleClass="sidebar"
-                  style="-fx-border-color: transparent; -fx-padding: 20 0 0 0;">
+
+            <!-- Top nav items — rebuilt dynamically by applySidebar() -->
+            <VBox fx:id="sidebarBox" spacing="3" styleClass="sidebar"
+                  style="-fx-border-color: transparent; -fx-padding: 20 0 0 0;
+                         -fx-background-color: transparent;"
+                  AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
                 <Label fx:id="sidebarTitle"    styleClass="sidebar-title"    text="CATEGORIES"
                        style="-fx-padding: 0 0 0 18;" />
                 <Label fx:id="sidebarSubtitle" styleClass="sidebar-subtitle" text="FILTER LOTS"
                        style="-fx-padding: 0 0 10 18;" />
+                <!-- category rows inserted here at runtime by applySidebar() -->
+            </VBox>
 
-                <HBox alignment="CENTER_LEFT" spacing="8"
-                      styleClass="category-item-active"
-                      style="-fx-padding: 9 18 9 18;">
-                    <Label styleClass="category-text" text="🔨" />
-                    <Label styleClass="category-text" text="ALL LOTS" />
-                </HBox>
+            <!-- Profile — permanently anchored to bottom, never rebuilt -->
+            <VBox fx:id="sidebarProfileBox" spacing="0"
+                  AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+                <Separator />
                 <HBox alignment="CENTER_LEFT" spacing="8"
                       styleClass="category-item"
-                      style="-fx-padding: 9 18 9 18;">
-                    <Label styleClass="category-text" text="🎨" />
-                    <Label styleClass="category-text" text="ART" />
-                </HBox>
-                <HBox alignment="CENTER_LEFT" spacing="8"
-                      styleClass="category-item"
-                      style="-fx-padding: 9 18 9 18;">
-                    <Label styleClass="category-text" text="🚗" />
-                    <Label styleClass="category-text" text="VEHICLE" />
-                </HBox>
-                <HBox alignment="CENTER_LEFT" spacing="8"
-                      styleClass="category-item"
-                      style="-fx-padding: 9 18 9 18;">
-                    <Label styleClass="category-text" text="📺" />
-                    <Label styleClass="category-text" text="ELECTRONICS" />
+                      style="-fx-padding: 9 18 9 18; -fx-cursor: hand;"
+                      onMouseClicked="#onViewProfile">
+                    <Label styleClass="category-text" text="👤" />
+                    <Label styleClass="category-text" text="MY PROFILE" />
                 </HBox>
             </VBox>
-        </ScrollPane>
+
+        </AnchorPane>
     </left>
 
     <!-- ═══════════════════ CONTENT ═══════════════════ -->
