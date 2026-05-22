@@ -27,7 +27,7 @@ import java.util.OptionalDouble;
  * Open via the static {@link #show(Window, ItemDTO, List)} factory —
  * no need to instantiate manually.
  */
-public class ItemDetailDialogController {
+public final class ItemDetailDialogController {
 
     // ── Header ─────────────────────────────────────────────────────────────────
     @FXML private Label titleLabel;
