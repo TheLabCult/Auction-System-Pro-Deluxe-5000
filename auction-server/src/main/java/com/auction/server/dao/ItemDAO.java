@@ -28,6 +28,18 @@ public interface ItemDAO {
     Item save(Item item);
 
     /**
+     * Delete an item by its primary key.
+     * Only called after verifying no active auction references this item.
+     */
+    void delete(long itemId);
+
+    /**
+     * Check whether any OPEN or RUNNING auction references this item.
+     * Used by ItemService.deleteItem() to guard against deleting an active item.
+     */
+    boolean hasActiveAuction(long itemId);
+
+    /**
      * Find an item by its primary key.
      * Used by ItemService.getItem(), which is called by ClientHandler
      * when the Seller creates a new auction and references an existing item.
@@ -43,4 +55,13 @@ public interface ItemDAO {
      * @param sellerId the Seller's user id
      */
     List<Item> findBySellerId(long sellerId);
+
+    /**
+     * Update only the image_url column for an existing item.
+     * Called by ItemService.updateImageUrl() after a Seller uploads an image.
+     *
+     * @param itemId   the item's primary key
+     * @param imageUrl the saved file path to persist
+     */
+    void updateImageUrl(long itemId, String imageUrl);
 }

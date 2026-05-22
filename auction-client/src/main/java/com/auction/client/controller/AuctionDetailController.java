@@ -9,15 +9,8 @@ import com.auction.common.dto.AuctionDTO;
 import com.auction.common.dto.BidDTO;
 import com.auction.common.protocol.Message;
 import com.auction.common.protocol.MessageType;
-import com.auction.common.request.Requests.GetBidHistoryRequest;
-import com.auction.common.request.Requests.GetAuctionDetailRequest;
-import com.auction.common.request.Requests.PlaceBidRequest;
-import com.auction.common.request.Requests.SetAutoBidRequest;
-import com.auction.common.request.Requests.WatchAuctionRequest;
-import com.auction.common.request.Responses.AuctionExtendedNotice;
-import com.auction.common.request.Responses.BidHistoryResponse;
-import com.auction.common.request.Responses.BidResponse;
-import com.auction.common.request.Responses.ErrorResponse;
+import com.auction.common.request.Requests.*;
+import com.auction.common.request.Responses.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -32,14 +25,20 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
 
+import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -68,6 +67,10 @@ public final class AuctionDetailController implements BroadcastListener {
     @FXML private Button autoBidButton;
     @FXML private Label bidStatusLabel;
 
+    @FXML private HBox uploadImageBox;
+    @FXML private Button uploadImageButton;
+    @FXML private Label  uploadImageStatus;
+
     @FXML private TableView<BidDTO> bidTable;
     @FXML private TableColumn<BidDTO, String> colBidder;
     @FXML private TableColumn<BidDTO, String> colAmount;
@@ -82,6 +85,7 @@ public final class AuctionDetailController implements BroadcastListener {
 
     private XYChart.Series<Number, Number> priceSeries;
     private long currentAuctionId;
+    private long currentItemId;       // tracks the item so upload targets the item, not the auction
     private Timer countdownTimer;
     private long endTimeEpochSec;
 
@@ -126,6 +130,10 @@ public final class AuctionDetailController implements BroadcastListener {
         autoBidMaxField.setVisible(canBid);
         autoBidIncrField.setVisible(canBid);
         autoBidButton.setVisible(canBid);
+
+        boolean isSeller = ClientSession.getInstance().isSeller();
+        uploadImageBox.setVisible(isSeller);
+        uploadImageBox.setManaged(isSeller);
     }
 
     public void loadAuction(long auctionId) {
@@ -177,6 +185,9 @@ public final class AuctionDetailController implements BroadcastListener {
                 auction.getWinnerName() != null ? auction.getWinnerName() : "No bids yet");
         labelStatus.setText(auction.getStatus());
         labelEndTime.setText(formatIso(auction.getEndTime()));
+
+        // Remember the item id so the upload button targets the item, not the auction
+        currentItemId = auction.getItem() != null ? auction.getItem().getId() : -1;
 
         try {
             LocalDateTime end = LocalDateTime.parse(auction.getEndTime());
@@ -332,6 +343,72 @@ public final class AuctionDetailController implements BroadcastListener {
     }
 
     @FXML
+    private void onUploadImage() {
+        if (currentItemId < 0) {
+            uploadImageStatus.setText("No item linked to this auction.");
+            return;
+        }
+
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select Item Image");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(
+                        "Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp"));
+
+        File file = chooser.showOpenDialog(uploadImageButton.getScene().getWindow());
+        if (file == null) return; // user cancelled
+
+        uploadImageButton.setDisable(true);
+        uploadImageStatus.setText("Uploading…");
+
+        new Thread(() -> {
+            try {
+                byte[] bytes    = Files.readAllBytes(file.toPath());
+                String mimeType = detectMimeType(file.getName());
+                String base64   = Base64.getEncoder().encodeToString(bytes);
+
+                ServerConnection conn = ClientSession.getInstance().getConnection();
+                // UploadAuctionImageRequest uses auctionId to look up the item server-side,
+                // then saves the image on the Item — so it's already item-scoped.
+                Message msg = Message.of(
+                        MessageType.UPLOAD_AUCTION_IMAGE,
+                        new UploadAuctionImageRequest(currentAuctionId, mimeType, base64),
+                        conn.getGson());
+
+                conn.send(msg).whenCompleteAsync((resp, ex) -> Platform.runLater(() -> {
+                    uploadImageButton.setDisable(false);
+                    if (ex != null) {
+                        uploadImageStatus.setText("Upload failed: " + ex.getMessage());
+                        return;
+                    }
+                    if (resp.getType() == MessageType.ERROR) {
+                        uploadImageStatus.setText(
+                                resp.parsePayload(conn.getGson(), ErrorResponse.class).message);
+                        return;
+                    }
+                    uploadImageStatus.setText("Image saved to item!");
+                    loadAuctionDetail(currentAuctionId); // refresh so the new image appears
+                }));
+
+            } catch (Exception ex) {
+                Platform.runLater(() -> {
+                    uploadImageButton.setDisable(false);
+                    uploadImageStatus.setText("Error reading file: " + ex.getMessage());
+                });
+            }
+        }, "image-upload-thread").start();
+    }
+
+    /** Returns a basic MIME type string based on the file extension. */
+    private String detectMimeType(String filename) {
+        String lower = filename.toLowerCase();
+        if (lower.endsWith(".png"))  return "image/png";
+        if (lower.endsWith(".gif"))  return "image/gif";
+        if (lower.endsWith(".webp")) return "image/webp";
+        return "image/jpeg"; // default for .jpg / .jpeg
+    }
+
+    @FXML
     private void onBack() {
         stopCountdown();
 
@@ -358,18 +435,72 @@ public final class AuctionDetailController implements BroadcastListener {
     }
 
     private void showItemImage(String imageSource) {
-        String normalized = normalizeImageSource(imageSource);
-        if (normalized == null) {
+        if (imageSource == null || imageSource.isBlank()) {
             setImagePlaceholder("No product image.");
             return;
         }
 
-        Image image = new Image(normalized, false);
-        if (image.isError()) {
-            setImagePlaceholder("Unable to load product image.");
+        String trimmed = imageSource.trim();
+
+        // ── Data URI (base64-encoded image from the upload widget) ────────────
+        // JavaFX Image cannot load "data:..." URIs directly; decode to bytes first.
+        if (trimmed.startsWith("data:")) {
+            try {
+                // Format: "data:<mime>;base64,<encoded>"
+                int commaIdx = trimmed.indexOf(',');
+                if (commaIdx < 0) {
+                    setImagePlaceholder("Invalid image data.");
+                    return;
+                }
+                byte[] bytes = Base64.getDecoder().decode(trimmed.substring(commaIdx + 1));
+                Image image = new Image(new java.io.ByteArrayInputStream(bytes));
+                if (image.isError()) {
+                    setImagePlaceholder("Unable to load product image.");
+                } else {
+                    applyImage(image);
+                }
+            } catch (Exception e) {
+                setImagePlaceholder("Unable to load product image.");
+            }
             return;
         }
 
+        // ── Remote URL (http/https) — load asynchronously ─────────────────────
+        String lower = trimmed.toLowerCase();
+        if (lower.startsWith("http://") || lower.startsWith("https://")) {
+            Image image = new Image(trimmed, true);
+            image.errorProperty().addListener((obs, wasError, isError) -> {
+                if (isError) Platform.runLater(() -> setImagePlaceholder("Unable to load product image."));
+            });
+            image.progressProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal.doubleValue() >= 1.0 && !image.isError())
+                    Platform.runLater(() -> applyImage(image));
+            });
+            if (image.getProgress() >= 1.0 && !image.isError()) applyImage(image);
+            else if (image.isError()) setImagePlaceholder("Unable to load product image.");
+            return;
+        }
+
+        // ── file:/ or jar: URI — load directly ───────────────────────────────
+        if (lower.startsWith("file:/") || lower.startsWith("jar:")) {
+            Image image = new Image(trimmed, true);
+            if (image.isError()) setImagePlaceholder("Unable to load product image.");
+            else applyImage(image);
+            return;
+        }
+
+        // ── Bare file path fallback ───────────────────────────────────────────
+        try {
+            String uri = Path.of(trimmed).toAbsolutePath().toUri().toString();
+            Image image = new Image(uri, true);
+            if (image.isError()) setImagePlaceholder("Unable to load product image.");
+            else applyImage(image);
+        } catch (Exception e) {
+            setImagePlaceholder("Unable to load product image.");
+        }
+    }
+
+    private void applyImage(Image image) {
         itemImageView.setImage(image);
         itemImageView.setManaged(true);
         itemImageView.setVisible(true);
@@ -384,28 +515,6 @@ public final class AuctionDetailController implements BroadcastListener {
         itemImagePlaceholder.setText(message);
         itemImagePlaceholder.setManaged(true);
         itemImagePlaceholder.setVisible(true);
-    }
-
-    private String normalizeImageSource(String imageSource) {
-        if (imageSource == null || imageSource.isBlank()) {
-            return null;
-        }
-
-        String trimmed = imageSource.trim();
-        String lower = trimmed.toLowerCase();
-        if (lower.startsWith("http://")
-                || lower.startsWith("https://")
-                || lower.startsWith("file:/")
-                || lower.startsWith("jar:")
-                || lower.startsWith("data:")) {
-            return trimmed;
-        }
-
-        try {
-            return Path.of(trimmed).toAbsolutePath().toUri().toString();
-        } catch (Exception ignored) {
-            return null;
-        }
     }
 
     private void startCountdown() {

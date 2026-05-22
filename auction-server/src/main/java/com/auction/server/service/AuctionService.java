@@ -100,8 +100,8 @@ public final class AuctionService {
      * @param seller        the Seller creating this auction
      */
     public Auction createAuction(Item item, double startingPrice,
-                                  LocalDateTime startTime, LocalDateTime endTime,
-                                  User seller) {
+                                 LocalDateTime startTime, LocalDateTime endTime,
+                                 User seller) {
         if (seller.getRole() != UserRole.SELLER)
             throw new AuctionException("Only sellers can create auctions");
         if (startingPrice <= 0)
@@ -167,7 +167,25 @@ public final class AuctionService {
         cancelScheduledClose(auctionId); // prevent the scheduler from re-processing this
     }
 
-    // ── Anti-sniping (called by BidService under the auction lock) ─────────────
+    // ── Mark as paid ──────────────────────────────────────────────────────────
+
+    /**
+     * Mark a finished auction as PAID once the seller confirms external payment.
+     * Only the seller who created the auction may call this.
+     * Only valid when the auction is in FINISHED status (i.e. has a winner).
+     */
+    public void markAuctionPaid(long auctionId, User requester) {
+        Auction auction = getAuction(auctionId);
+        if (auction.getSellerId() != requester.getId()) {
+            throw new AuctionException("Not authorised to mark this auction as paid");
+        }
+        if (auction.getStatus() != AuctionStatus.FINISHED) {
+            throw new AuctionException("Only a finished auction can be marked as paid");
+        }
+        auctionDAO.updateStatus(auctionId, AuctionStatus.PAID);
+        auction.setStatus(AuctionStatus.PAID);
+        log.info("Auction {} marked as PAID by seller {}", auctionId, requester.getUsername());
+    }
 
     /**
      * Check whether the most recent bid arrived within the anti-snipe window.

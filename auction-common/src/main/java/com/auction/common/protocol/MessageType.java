@@ -37,14 +37,20 @@ public enum MessageType {
     // ── Item and auction management (Seller / Admin only) ─────────────────────
     CREATE_ITEM,    // client → server: create a new item to be auctioned
     ITEM_CREATED,   // server → client: returns the persisted ItemDTO
+    DELETE_ITEM,    // client → server: seller deletes one of their items
+    ITEM_DELETED,   // server → client: confirms deletion
     CREATE_AUCTION, // client → server: open an auction for an existing item
     AUCTION_CREATED,// server → client: returns the persisted AuctionDTO
     CANCEL_AUCTION, // client → server: cancel an open/running auction
     AUCTION_CANCELED, // server → client: confirms cancellation
+    MARK_AUCTION_PAID,  // client → server: seller marks a finished auction as paid
+    AUCTION_PAID,       // server → client: confirms the PAID status change
     GET_SELLER_AUCTIONS,    // client → server: fetch auctions owned by logged-in seller
     SELLER_AUCTIONS_RESPONSE, // server → client: list of seller's AuctionDTOs
     GET_SELLER_ITEMS,       // client → server: fetch items created by logged-in seller
     SELLER_ITEMS_RESPONSE,  // server → client: list of seller's ItemDTOs
+    UPLOAD_AUCTION_IMAGE,         // client → server: seller uploads image for their auction's item
+    UPLOAD_AUCTION_IMAGE_RESPONSE, // server → client: returns the saved image URL
 
     // ── Admin operations ───────────────────────────────────────────────────────
     GET_USERS,   // client → server: fetch all registered users (admin only)
