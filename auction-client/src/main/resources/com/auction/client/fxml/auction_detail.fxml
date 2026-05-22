@@ -1,130 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--<?import javafx.scene.chart.*?>-->
-<!--<?import javafx.scene.control.*?>-->
-<!--<?import javafx.scene.image.*?>-->
-<!--<?import javafx.scene.layout.*?>-->
-<!--<?import javafx.scene.text.*?>-->
-
-<!--<BorderPane xmlns:fx="http://javafx.com/fxml"-->
-<!--            fx:controller="com.auction.client.controller.AuctionDetailController"-->
-<!--            styleClass="root-pane"-->
-<!--            minWidth="960" minHeight="680">-->
-
-<!--    &lt;!&ndash; Nav &ndash;&gt;-->
-<!--    <top>-->
-<!--        <HBox styleClass="nav-bar" alignment="CENTER_LEFT" spacing="16">-->
-<!--            <Button text="← Back" onAction="#onBack" styleClass="btn-secondary"/>-->
-<!--            <Text text="Auction Detail" styleClass="nav-logo"/>-->
-<!--        </HBox>-->
-<!--    </top>-->
-
-<!--    <center>-->
-<!--        <SplitPane dividerPositions="0.42" styleClass="content-pane">-->
-
-<!--            &lt;!&ndash; Left: info + bidding &ndash;&gt;-->
-<!--            <VBox spacing="12" styleClass="detail-left">-->
-<!--                <StackPane prefHeight="220" maxWidth="380">-->
-<!--                    <ImageView fx:id="itemImageView" fitWidth="380" fitHeight="220"-->
-<!--                               preserveRatio="true" smooth="true"-->
-<!--                               visible="false" managed="false"/>-->
-<!--                    <Label fx:id="itemImagePlaceholder" text="No product image."-->
-<!--                           styleClass="table-placeholder" wrapText="true"/>-->
-<!--                </StackPane>-->
-<!--                <Text fx:id="labelTitle" styleClass="item-title" wrappingWidth="380"/>-->
-<!--                <HBox spacing="8">-->
-<!--                    <Label text="Category:" styleClass="form-label"/>-->
-<!--                    <Label fx:id="labelCategory" styleClass="detail-value"/>-->
-<!--                </HBox>-->
-<!--                <Label fx:id="labelDescription" styleClass="item-desc" wrapText="true" maxWidth="380"/>-->
-<!--                <Separator/>-->
-<!--                <HBox spacing="8">-->
-<!--                    <Label text="Seller:" styleClass="form-label"/>-->
-<!--                    <Label fx:id="labelSeller" styleClass="detail-value"/>-->
-<!--                </HBox>-->
-<!--                <HBox spacing="8">-->
-<!--                    <Label text="Status:" styleClass="form-label"/>-->
-<!--                    <Label fx:id="labelStatus" styleClass="detail-value"/>-->
-<!--                </HBox>-->
-<!--                <HBox spacing="8">-->
-<!--                    <Label text="Ends:" styleClass="form-label"/>-->
-<!--                    <Label fx:id="labelEndTime" styleClass="detail-value"/>-->
-<!--                    <Label fx:id="labelCountdown" styleClass="countdown"/>-->
-<!--                </HBox>-->
-<!--                <HBox spacing="12" styleClass="price-row" alignment="CENTER_LEFT">-->
-<!--                    <Label text="Current Price" styleClass="price-label"/>-->
-<!--                    <Label fx:id="labelCurrentPrice" styleClass="price-value"/>-->
-<!--                </HBox>-->
-<!--                <HBox spacing="8">-->
-<!--                    <Label text="Leader:" styleClass="form-label"/>-->
-<!--                    <Label fx:id="labelLeader" styleClass="detail-value"/>-->
-<!--                </HBox>-->
-
-<!--                <Separator/>-->
-
-<!--                &lt;!&ndash; Manual bid &ndash;&gt;-->
-<!--                <Text text="Place a Bid" styleClass="section-title"/>-->
-<!--                <HBox spacing="8" alignment="CENTER_LEFT">-->
-<!--                    <TextField fx:id="bidAmountField" promptText="Amount ($)"-->
-<!--                               styleClass="input-field" prefWidth="160"/>-->
-<!--                    <Button fx:id="bidButton" text="BID NOW" onAction="#onPlaceBid"-->
-<!--                            styleClass="btn-primary"/>-->
-<!--                </HBox>-->
-
-<!--                &lt;!&ndash; Auto-bid &ndash;&gt;-->
-<!--                <Text text="Auto-Bid" styleClass="section-title"/>-->
-<!--                <HBox spacing="8" alignment="CENTER_LEFT">-->
-<!--                    <TextField fx:id="autoBidMaxField"  promptText="Max ($)"-->
-<!--                               styleClass="input-field" prefWidth="110"/>-->
-<!--                    <TextField fx:id="autoBidIncrField" promptText="Increment ($)"-->
-<!--                               styleClass="input-field" prefWidth="120"/>-->
-<!--                    <Button fx:id="autoBidButton" text="SET" onAction="#onSetAutoBid"-->
-<!--                            styleClass="btn-secondary"/>-->
-<!--                </HBox>-->
-<!--                <Label fx:id="bidStatusLabel" styleClass="bid-status" wrapText="true" maxWidth="380"/>-->
-<!--            </VBox>-->
-
-<!--            &lt;!&ndash; Right: chart + history &ndash;&gt;-->
-<!--            <VBox spacing="10" styleClass="detail-right">-->
-<!--                <Text text="Price History" styleClass="section-title"/>-->
-<!--                <LineChart fx:id="priceChart" VBox.vgrow="SOMETIMES" prefHeight="220"-->
-<!--                           legendVisible="false">-->
-<!--                    <xAxis><NumberAxis fx:id="xAxis" label="Time (s)"/></xAxis>-->
-<!--                    <yAxis><NumberAxis fx:id="yAxis" label="Price ($)"/></yAxis>-->
-<!--                </LineChart>-->
-
-<!--                <Text text="Bid Log" styleClass="section-title"/>-->
-<!--                <TableView fx:id="bidTable" VBox.vgrow="ALWAYS" styleClass="data-table">-->
-<!--                    <columns>-->
-<!--                        <TableColumn fx:id="colBidder" text="Bidder" prefWidth="130"/>-->
-<!--                        <TableColumn fx:id="colAmount" text="Amount" prefWidth="90"/>-->
-<!--                        <TableColumn fx:id="colTime"   text="Time"   prefWidth="80"/>-->
-<!--                        <TableColumn fx:id="colAuto"   text="Type"   prefWidth="60"/>-->
-<!--                    </columns>-->
-<!--                    <placeholder><Label text="No bids yet." styleClass="table-placeholder"/></placeholder>-->
-<!--                </TableView>-->
-<!--            </VBox>-->
-<!--        </SplitPane>-->
-<!--    </center>-->
-<!--</BorderPane>-->
 
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <BorderPane fx:controller="com.auction.client.controller.AuctionDetailController"
             styleClass="root-pane"
@@ -176,6 +58,19 @@
                                styleClass="table-placeholder"
                                wrapText="true" />
                     </StackPane>
+
+                    <!-- Seller: upload image button -->
+                    <HBox fx:id="uploadImageBox" alignment="CENTER_RIGHT" spacing="8"
+                          visible="false" managed="false"
+                          style="-fx-padding: 4 0 0 0;">
+                        <Label fx:id="uploadImageStatus" styleClass="bid-status"
+                               style="-fx-font-size: 10px;" />
+                        <Button fx:id="uploadImageButton" text="📷  Upload Image"
+                                onAction="#onUploadImage"
+                                styleClass="btn-secondary"
+                                style="-fx-font-size: 10px; -fx-font-weight: bold;
+                                       -fx-cursor: hand;" />
+                    </HBox>
 
                     <!-- Title + meta -->
                     <Text fx:id="labelTitle" styleClass="section-title"

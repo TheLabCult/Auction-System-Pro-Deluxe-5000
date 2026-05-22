@@ -110,9 +110,21 @@ public final class Requests {
         public String category;    // "ELECTRONICS", "ART", or "VEHICLE"
         public String imageUrl;    // optional image URL or local file path
         public String extraData;   // optional JSON blob for category-specific fields
-                                   // e.g. {"brand":"Sony","warranty":"2yr"} for electronics
+        // e.g. {"brand":"Sony","warranty":"2yr"} for electronics
 
         public CreateItemRequest() {}
+    }
+
+    /**
+     * Payload for MessageType.DELETE_ITEM.
+     * Only the seller who created the item may send this.
+     * Rejected if the item is attached to an OPEN or RUNNING auction.
+     */
+    public static final class DeleteItemRequest {
+        public long itemId;
+
+        public DeleteItemRequest() {}
+        public DeleteItemRequest(long id) { this.itemId = id; }
     }
 
     /**
@@ -182,6 +194,20 @@ public final class Requests {
     }
 
     /**
+     * Payload for MessageType.MARK_AUCTION_PAID.
+     * Allowed for: the auction's own seller only.
+     * Only valid when the auction is in FINISHED status (winner has been determined).
+     * Represents an external payment confirmation — the actual transaction happens
+     * outside the system.
+     */
+    public static final class MarkAuctionPaidRequest {
+        public long auctionId;
+
+        public MarkAuctionPaidRequest() {}
+        public MarkAuctionPaidRequest(long id) { this.auctionId = id; }
+    }
+
+    /**
      * Payload for MessageType.BAN_USER.
      * Admin-only.  Sets the user's active flag to false; they cannot log in again.
      */
@@ -201,5 +227,24 @@ public final class Requests {
 
         public UnbanUserRequest() {}
         public UnbanUserRequest(long id) { this.userId = id; }
+    }
+
+    /**
+     * Payload for MessageType.UPLOAD_AUCTION_IMAGE.
+     * Only the seller who owns the auction may send this.
+     * The image is Base64-encoded by the client; the server decodes, persists it,
+     * and updates the item's imageUrl, then replies with UPLOAD_AUCTION_IMAGE_RESPONSE.
+     */
+    public static final class UploadAuctionImageRequest {
+        public long   auctionId; // auction whose item image should be updated
+        public String mimeType;  // e.g. "image/png", "image/jpeg"
+        public String base64Data; // Base64-encoded raw image bytes (no data-URI prefix)
+
+        public UploadAuctionImageRequest() {}
+        public UploadAuctionImageRequest(long auctionId, String mimeType, String base64Data) {
+            this.auctionId  = auctionId;
+            this.mimeType   = mimeType;
+            this.base64Data = base64Data;
+        }
     }
 }

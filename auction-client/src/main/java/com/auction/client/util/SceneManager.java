@@ -67,6 +67,7 @@ public final class SceneManager {
         AUCTION_LIST    ("/com/auction/client/fxml/auction_list.fxml"),
         AUCTION_DETAIL  ("/com/auction/client/fxml/auction_detail.fxml"),
         SELLER_DASHBOARD("/com/auction/client/fxml/seller_dashboard.fxml"),
+        ITEM_DETAIL     ("/com/auction/client/fxml/item_detail_dialog.fxml"),
         ADMIN_PANEL     ("/com/auction/client/fxml/admin_panel.fxml"),
         USER_PROFILE    ("/com/auction/client/fxml/user_profile.fxml");
 
