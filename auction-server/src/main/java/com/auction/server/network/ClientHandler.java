@@ -64,7 +64,7 @@ import java.util.stream.Collectors; // stream().map().collect() for DTO list con
  * IMPLEMENTS AuctionObserver:
  *   When a client sends WATCH_AUCTION, this handler registers itself with
  *   AuctionEventBus.  When BidService places a bid, the bus calls
- *   this.onBidPlaced() on a pool thread — the handler serialises a BID_BROADCAST
+ *   this.onBidPlaced() on a pool thread — the handler serializes a BID_BROADCAST
  *   Message and sends it over the socket.
  *
  * THREAD SAFETY:
@@ -85,7 +85,7 @@ public final class ClientHandler implements Runnable, AuctionObserver {
     private static final DateTimeFormatter FMT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     private final Socket socket;         // the TCP connection for this client
-    private final Gson gson;             // shared (thread-safe) JSON serialiser
+    private final Gson gson;             // shared (thread-safe) JSON serializer
     private final UserService userService;
     private final ItemService itemService;
     private final AuctionService auctionService;
@@ -113,7 +113,7 @@ public final class ClientHandler implements Runnable, AuctionObserver {
      *
      * Opens a BufferedReader on the socket's input stream.
      * readLine() blocks until a complete JSON line arrives (or the socket closes).
-     * Each line is a complete JSON-serialised Message.
+     * Each line is a complete JSON-serialized Message.
      * On disconnect (readLine returns null or IOException), unsubscribes from all
      * event bus watcher sets to prevent memory leaks and null pointer exceptions
      * during future broadcasts.
@@ -121,11 +121,11 @@ public final class ClientHandler implements Runnable, AuctionObserver {
     @Override
     public void run() {
         try (
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(socket.getInputStream()));
-            PrintWriter out = new PrintWriter(
-                    new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true)
-            // 'true' = auto-flush: every println() immediately sends the line
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(socket.getInputStream()));
+                PrintWriter out = new PrintWriter(
+                        new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true)
+                // 'true' = auto-flush: every println() immediately sends the line
         ) {
             this.out = out;
             String line;
@@ -174,12 +174,15 @@ public final class ClientHandler implements Runnable, AuctionObserver {
                 case PLACE_BID           -> handlePlaceBid(msg);
                 case SET_AUTO_BID        -> handleSetAutoBid(msg);
                 case CREATE_ITEM         -> handleCreateItem(msg);
+                case DELETE_ITEM         -> handleDeleteItem(msg);
                 case CREATE_AUCTION      -> handleCreateAuction(msg);
                 case CANCEL_AUCTION      -> handleCancelAuction(msg);
+                case MARK_AUCTION_PAID   -> handleMarkAuctionPaid(msg);
                 case WATCH_AUCTION       -> handleWatchAuction(msg);
                 case UNWATCH_AUCTION     -> handleUnwatchAuction(msg);
                 case GET_SELLER_AUCTIONS -> handleGetSellerAuctions(msg);
                 case GET_SELLER_ITEMS    -> handleGetSellerItems(msg);
+                case UPLOAD_AUCTION_IMAGE -> handleUploadAuctionImage(msg);
                 case GET_USERS           -> handleGetUsers(msg);
                 case BAN_USER            -> handleBanUser(msg);
                 case UNBAN_USER          -> handleUnbanUser(msg);
@@ -266,7 +269,7 @@ public final class ClientHandler implements Runnable, AuctionObserver {
         requireAuth();
         List<com.auction.common.dto.ItemDTO> dtos =
                 itemService.getItemsBySeller(currentUser.getId()).stream()
-                .map(DtoMapper::toDto).collect(Collectors.toList());
+                        .map(DtoMapper::toDto).collect(Collectors.toList());
         send(Message.reply(msg.getRequestId(), MessageType.SELLER_ITEMS_RESPONSE,
                 new ItemsResponse(dtos), gson));
     }
@@ -308,6 +311,15 @@ public final class ClientHandler implements Runnable, AuctionObserver {
                 DtoMapper.toDto(item), gson));
     }
 
+    /** Delete a Seller's item, provided it has no active auction. */
+    private void handleDeleteItem(Message msg) {
+        requireAuth();
+        requireSeller();
+        DeleteItemRequest req = msg.parsePayload(gson, DeleteItemRequest.class);
+        itemService.deleteItem(req.itemId, currentUser);
+        send(Message.reply(msg.getRequestId(), MessageType.ITEM_DELETED, "OK", gson));
+    }
+
     /**
      * Create a new auction for an existing item.
      * Parses startTime/endTime from ISO-8601 strings (e.g. "2026-04-22T20:00:00").
@@ -333,6 +345,63 @@ public final class ClientHandler implements Runnable, AuctionObserver {
         CancelAuctionRequest req = msg.parsePayload(gson, CancelAuctionRequest.class);
         auctionService.cancelAuction(req.auctionId, currentUser);
         send(Message.reply(msg.getRequestId(), MessageType.AUCTION_CANCELED, "OK", gson));
+    }
+
+    /** Mark a finished auction as paid (seller only); reply with the updated AuctionDTO. */
+    private void handleMarkAuctionPaid(Message msg) {
+        requireAuth();
+        requireSeller();
+        MarkAuctionPaidRequest req = msg.parsePayload(gson, MarkAuctionPaidRequest.class);
+        auctionService.markAuctionPaid(req.auctionId, currentUser);
+        AuctionDTO dto = DtoMapper.toDto(auctionService.getAuction(req.auctionId));
+        send(Message.reply(msg.getRequestId(), MessageType.AUCTION_PAID, dto, gson));
+    }
+
+    /**
+     * Save an image uploaded by a Seller and update the auction item's imageUrl.
+     *
+     * Flow:
+     *   1. Verify the caller is the seller who owns this auction.
+     *   2. Decode the Base64 payload and write it to the images' directory.
+     *   3. Tell ItemService the new URL so it is persisted and returned in future
+     *      GET_AUCTION_DETAIL responses.
+     *   4. Reply with the saved URL so the client can update its ImageView immediately.
+     */
+    private void handleUploadAuctionImage(Message msg) {
+        requireAuth();
+        requireSeller();
+
+        UploadAuctionImageRequest req = msg.parsePayload(gson, UploadAuctionImageRequest.class);
+
+        // 1. Ownership check — only the auction's own seller may upload
+        Auction auction = auctionService.getAuction(req.auctionId);
+        if (auction.getSellerId() != currentUser.getId()) {
+            throw new AuthException("You do not own this auction");
+        }
+
+        // 2. Decode Base64 → bytes and persist to disk
+        byte[] imageBytes = java.util.Base64.getDecoder().decode(req.base64Data);
+        String extension  = req.mimeType.contains("png")  ? ".png"
+                : req.mimeType.contains("gif")  ? ".gif"
+                  : req.mimeType.contains("webp") ? ".webp"
+                    : ".jpg";
+        String filename   = "auction_" + req.auctionId + "_" + System.currentTimeMillis() + extension;
+        java.nio.file.Path imagesDir = java.nio.file.Paths.get("server-data", "images");
+
+        try {
+            java.nio.file.Files.createDirectories(imagesDir);
+            java.nio.file.Path dest = imagesDir.resolve(filename);
+            java.nio.file.Files.write(dest, imageBytes);
+
+            String savedUrl = dest.toAbsolutePath().toString();
+            itemService.updateImageUrl(auction.getItem().getId(), savedUrl);
+
+            send(Message.reply(msg.getRequestId(),
+                    MessageType.UPLOAD_AUCTION_IMAGE_RESPONSE, savedUrl, gson));
+
+        } catch (java.io.IOException e) {
+            throw new AuctionException("Failed to save image: " + e.getMessage());
+        }
     }
 
     // ── Watch / Unwatch ───────────────────────────────────────────────────────
@@ -389,7 +458,7 @@ public final class ClientHandler implements Runnable, AuctionObserver {
 
     /**
      * Called by AuctionEventBus when a new bid is placed in a watched auction.
-     * Serialises the updated auction + bid into a BID_BROADCAST message and
+     * Serializes the updated auction + bid into a BID_BROADCAST message and
      * sends it to this client.  The client's reader thread routes it to
      * BroadcastListener.onBidBroadcast() because the requestId has no pending future.
      */
@@ -416,7 +485,7 @@ public final class ClientHandler implements Runnable, AuctionObserver {
     // ── Wire helpers ──────────────────────────────────────────────────────────
 
     /**
-     * Serialise a Message to JSON and write it as one newline-terminated line.
+     * Serialize a Message to JSON and write it as one newline-terminated line.
      * Synchronized: prevents interleaving if two threads write at the same time
      * (e.g. a response from the reader thread overlapping with a broadcast from
      * the notify-pool thread).
@@ -438,9 +507,9 @@ public final class ClientHandler implements Runnable, AuctionObserver {
     private void sendError(String requestId, String message) {
         Message err = requestId != null
                 ? Message.reply(requestId, MessageType.ERROR,
-                        new ErrorResponse(message), gson)
+                new ErrorResponse(message), gson)
                 : Message.broadcast(MessageType.ERROR,
-                        new ErrorResponse(message), gson);
+                new ErrorResponse(message), gson);
         send(err);
     }
 
@@ -453,5 +522,11 @@ public final class ClientHandler implements Runnable, AuctionObserver {
     private void requireAdmin() {
         if (currentUser.getRole() != UserRole.ADMIN)
             throw new AuthException("Admin access required");
+    }
+
+    /** Throw AuthException if the logged-in user is not a Seller. */
+    private void requireSeller() {
+        if (currentUser.getRole() != UserRole.SELLER)
+            throw new AuthException("Seller access required");
     }
 }

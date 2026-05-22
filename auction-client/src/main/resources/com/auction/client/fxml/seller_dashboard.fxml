@@ -2,6 +2,7 @@
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
@@ -54,26 +55,19 @@
                 <Label styleClass="sidebar-subtitle" text="TOOLS"
                        style="-fx-padding: 0 0 10 18;" />
 
-                <HBox fx:id="sidebarMyLots" alignment="CENTER_LEFT" spacing="8"
-                      styleClass="category-item-active"
-                      style="-fx-padding: 9 18 9 18; -fx-cursor: hand;"
-                      onMouseClicked="#onSidebarMyLots">
-                    <Label styleClass="category-text" text="🏷" />
-                    <Label styleClass="category-text" text="MY LOTS" />
-                </HBox>
                 <HBox fx:id="sidebarNewItem" alignment="CENTER_LEFT" spacing="8"
-                      styleClass="category-item"
+                      styleClass="category-item-active"
                       style="-fx-padding: 9 18 9 18; -fx-cursor: hand;"
                       onMouseClicked="#onSidebarNewItem">
                     <Label styleClass="category-text" text="📦" />
-                    <Label styleClass="category-text" text="NEW ITEM" />
+                    <Label styleClass="category-text" text="MANAGE ITEMS" />
                 </HBox>
-                <HBox fx:id="sidebarNewAuction" alignment="CENTER_LEFT" spacing="8"
+                <HBox fx:id="sidebarManageAuction" alignment="CENTER_LEFT" spacing="8"
                       styleClass="category-item"
                       style="-fx-padding: 9 18 9 18; -fx-cursor: hand;"
-                      onMouseClicked="#onSidebarNewAuction">
+                      onMouseClicked="#onSidebarManageAuction">
                     <Label styleClass="category-text" text="🔨" />
-                    <Label styleClass="category-text" text="NEW AUCTION" />
+                    <Label styleClass="category-text" text="MANAGE AUCTION" />
                 </HBox>
 
                 <Separator style="-fx-padding: 6 0 6 0;" />
@@ -107,21 +101,150 @@
     <center>
         <StackPane fx:id="contentArea">
 
-            <!-- ─── PANEL 1: My Auctions table ─── -->
-            <VBox fx:id="panelMyLots" spacing="16"
+            <!-- ─── PANEL 1: Manage Items ─── -->
+            <VBox fx:id="panelNewItem" spacing="16"
                   style="-fx-padding: 22 28 22 22;">
 
+                <!-- Header -->
                 <HBox alignment="BOTTOM_LEFT">
                     <VBox spacing="5">
-                        <Label styleClass="section-title" text="My Auctions"
+                        <Label styleClass="section-title" text="Manage Items"
                                style="-fx-font-size: 20px;" />
                         <Label styleClass="section-desc"
-                               text="All lots you have listed this season."
+                               text="Create, inspect, and delete your listed items."
                                style="-fx-font-size: 11px;" />
                     </VBox>
                 </HBox>
 
-                <TableView fx:id="auctionTable" VBox.vgrow="ALWAYS" styleClass="data-table">
+                <!-- Item table -->
+                <TableView fx:id="itemTable" VBox.vgrow="ALWAYS" styleClass="data-table"
+                           prefHeight="220">
+                    <columns>
+                        <TableColumn fx:id="colItemName"     text="NAME"     prefWidth="180" />
+                        <TableColumn fx:id="colItemCategory" text="CATEGORY" prefWidth="100" />
+                        <TableColumn fx:id="colItemAuctions" text="AUCTIONS" prefWidth="80" />
+                        <TableColumn fx:id="colItemStatus"   text="STATUS"   prefWidth="110" />
+                    </columns>
+                    <placeholder>
+                        <Label text="No items yet." styleClass="table-placeholder" />
+                    </placeholder>
+                </TableView>
+
+                <!-- Item action buttons -->
+                <HBox spacing="10">
+                    <Button text="🔍  VIEW ITEM DETAIL" onAction="#onViewItemDetail"
+                            styleClass="btn-primary"
+                            style="-fx-font-size: 10px; -fx-font-weight: bold;
+                                   -fx-cursor: hand;" />
+                    <Button text="🗑  DELETE SELECTED" onAction="#onDeleteItem"
+                            styleClass="btn-danger"
+                            style="-fx-font-size: 10px; -fx-font-weight: bold;
+                                   -fx-cursor: hand;" />
+                </HBox>
+
+                <Label fx:id="statusLabelItem" styleClass="bid-status"
+                       wrapText="true" style="-fx-font-size: 11px;" />
+
+                <Separator style="-fx-padding: 4 0;" />
+
+                <!-- Create new item sub-form -->
+                <Label styleClass="section-title" text="Create New Item"
+                       style="-fx-font-size: 14px;" />
+
+                <VBox spacing="12"
+                      style="-fx-background-color: white;
+                             -fx-background-radius: 8;
+                             -fx-effect: dropshadow(three-pass-box,
+                                         rgba(0,0,0,0.05), 10, 0, 0, 4);
+                             -fx-padding: 18;">
+                    <TextField fx:id="itemNameField"
+                               promptText="Item name"
+                               styleClass="search-input"
+                               maxWidth="Infinity" />
+                    <TextArea fx:id="itemDescField"
+                              promptText="Description"
+                              styleClass="search-input"
+                              prefHeight="80" wrapText="true"
+                              maxWidth="Infinity" />
+                    <!-- Image upload row -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <!-- Thumbnail preview -->
+                        <StackPane fx:id="imagePreviewPane"
+                                   prefWidth="52" prefHeight="52" minWidth="52" minHeight="52"
+                                   style="-fx-background-color: #f5f5f5;
+                                          -fx-background-radius: 6;
+                                          -fx-border-color: #ddd;
+                                          -fx-border-radius: 6;
+                                          -fx-border-width: 1;">
+                            <ImageView fx:id="imagePreview"
+                                       fitWidth="50" fitHeight="50"
+                                       preserveRatio="true" smooth="true"
+                                       visible="false" />
+                            <Label fx:id="imagePreviewPlaceholder" text="🖼"
+                                   style="-fx-font-size: 20px; -fx-text-fill: #ccc;" />
+                        </StackPane>
+
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Button fx:id="uploadImageBtn"
+                                    text="📁  UPLOAD IMAGE"
+                                    onAction="#onUploadImage"
+                                    maxWidth="Infinity"
+                                    style="-fx-background-color: #f5f5f5;
+                                           -fx-text-fill: #333;
+                                           -fx-font-size: 10px; -fx-font-weight: bold;
+                                           -fx-cursor: hand;
+                                           -fx-background-radius: 4;
+                                           -fx-border-color: #ddd; -fx-border-radius: 4;
+                                           -fx-border-width: 1; -fx-padding: 7 12 7 12;" />
+                            <Label fx:id="imageFileLabel"
+                                   text="No image selected"
+                                   style="-fx-font-size: 10px; -fx-text-fill: #aaa;
+                                          -fx-font-style: italic;" />
+                        </VBox>
+
+                        <!-- Clear button — only visible once a file is chosen -->
+                        <Button fx:id="clearImageBtn" text="✕"
+                                onAction="#onClearImage"
+                                visible="false" managed="false"
+                                style="-fx-background-color: #fde8e8;
+                                       -fx-text-fill: #c62828;
+                                       -fx-font-size: 11px; -fx-font-weight: bold;
+                                       -fx-cursor: hand;
+                                       -fx-background-radius: 4;
+                                       -fx-border-color: #f5c6c6; -fx-border-radius: 4;
+                                       -fx-border-width: 1; -fx-padding: 6 10 6 10;" />
+                    </HBox>
+                    <ComboBox fx:id="itemCategoryCombo"
+                              styleClass="search-input"
+                              maxWidth="Infinity" />
+                    <Button text="CREATE ITEM" onAction="#onCreateItem"
+                            maxWidth="Infinity"
+                            styleClass="btn-primary"
+                            style="-fx-font-size: 10px; -fx-font-weight: bold;
+                                   -fx-cursor: hand;" />
+                </VBox>
+
+            </VBox>
+
+            <!-- ─── PANEL 3: Manage Auctions ─── -->
+            <VBox fx:id="panelManageAuction" spacing="16"
+                  visible="false" managed="false"
+                  style="-fx-padding: 22 28 22 22;">
+
+                <!-- Header -->
+                <HBox alignment="BOTTOM_LEFT">
+                    <VBox spacing="5">
+                        <Label styleClass="section-title" text="Manage Auctions"
+                               style="-fx-font-size: 20px;" />
+                        <Label styleClass="section-desc"
+                               text="View your active lots and schedule new auctions."
+                               style="-fx-font-size: 11px;" />
+                    </VBox>
+                </HBox>
+
+                <!-- Auction table -->
+                <TableView fx:id="auctionTable" VBox.vgrow="ALWAYS" styleClass="data-table"
+                           prefHeight="220">
                     <columns>
                         <TableColumn fx:id="colItem"   text="ITEM"   prefWidth="200" />
                         <TableColumn fx:id="colPrice"  text="PRICE"  prefWidth="95" />
@@ -133,6 +256,7 @@
                     </placeholder>
                 </TableView>
 
+                <!-- Auction action buttons -->
                 <HBox spacing="10">
                     <Button text="⛔  CANCEL SELECTED" onAction="#onCancelAuction"
                             styleClass="btn-danger"
@@ -141,135 +265,63 @@
                 </HBox>
 
                 <Label fx:id="statusLabel" styleClass="bid-status"
-                       wrapText="true"
-                       style="-fx-font-size: 11px;" />
+                       wrapText="true" style="-fx-font-size: 11px;" />
+
+                <Separator style="-fx-padding: 4 0;" />
+
+                <!-- Create new auction sub-form -->
+                <Label styleClass="section-title" text="Create New Auction"
+                       style="-fx-font-size: 14px;" />
+
+                <VBox spacing="12"
+                      style="-fx-background-color: white;
+                             -fx-background-radius: 8;
+                             -fx-effect: dropshadow(three-pass-box,
+                                         rgba(0,0,0,0.05), 10, 0, 0, 4);
+                             -fx-padding: 18;">
+                    <ComboBox fx:id="itemCombo"
+                              maxWidth="Infinity"
+                              styleClass="search-input" />
+                    <TextField fx:id="startPriceField"
+                               promptText="Starting price ($)"
+                               styleClass="search-input"
+                               maxWidth="Infinity" />
+                    <HBox spacing="6" alignment="CENTER_LEFT">
+                        <TextField fx:id="startTimeField"
+                                   styleClass="search-input"
+                                   HBox.hgrow="ALWAYS"
+                                   editable="false"
+                                   promptText="Click 📅 to pick a start time  (blank = now)" />
+                        <Button text="📅" onAction="#onPickStartTime"
+                                style="-fx-font-size: 14px; -fx-cursor: hand;
+                                       -fx-background-color: #f5f5f5;
+                                       -fx-background-radius: 4;
+                                       -fx-border-color: #ddd; -fx-border-radius: 4;
+                                       -fx-padding: 5 9 5 9;" />
+                    </HBox>
+                    <HBox spacing="6" alignment="CENTER_LEFT">
+                        <TextField fx:id="endTimeField"
+                                   styleClass="search-input"
+                                   HBox.hgrow="ALWAYS"
+                                   editable="false"
+                                   promptText="Click 📅 to pick an end time" />
+                        <Button text="📅" onAction="#onPickEndTime"
+                                style="-fx-font-size: 14px; -fx-cursor: hand;
+                                       -fx-background-color: #f5f5f5;
+                                       -fx-background-radius: 4;
+                                       -fx-border-color: #ddd; -fx-border-radius: 4;
+                                       -fx-padding: 5 9 5 9;" />
+                    </HBox>
+                    <Label fx:id="statusLabelAuction" styleClass="bid-status"
+                           wrapText="true" style="-fx-font-size: 11px;" />
+                    <Button text="CREATE AUCTION" onAction="#onCreateAuction"
+                            maxWidth="Infinity"
+                            styleClass="btn-primary"
+                            style="-fx-font-size: 10px; -fx-font-weight: bold;
+                                   -fx-cursor: hand;" />
+                </VBox>
 
             </VBox>
-
-            <!-- ─── PANEL 2: New Item form ─── -->
-            <ScrollPane fx:id="panelNewItem" fitToWidth="true" hbarPolicy="NEVER"
-                        visible="false" managed="false"
-                        style="-fx-background-color: transparent; -fx-background: transparent;">
-                <VBox spacing="20" style="-fx-padding: 22 28 22 22;" maxWidth="560">
-
-                    <HBox alignment="BOTTOM_LEFT">
-                        <VBox spacing="5">
-                            <Label styleClass="section-title" text="New Item"
-                                   style="-fx-font-size: 20px;" />
-                            <Label styleClass="section-desc"
-                                   text="Register an item to list at auction."
-                                   style="-fx-font-size: 11px;" />
-                        </VBox>
-                    </HBox>
-
-                    <VBox spacing="12"
-                          style="-fx-background-color: white;
-                                 -fx-background-radius: 8;
-                                 -fx-effect: dropshadow(three-pass-box,
-                                             rgba(0,0,0,0.05), 10, 0, 0, 4);
-                                 -fx-padding: 18;">
-                        <Separator />
-                        <TextField fx:id="itemNameField"
-                                   promptText="Item name"
-                                   styleClass="search-input"
-                                   maxWidth="Infinity" />
-                        <TextArea fx:id="itemDescField"
-                                  promptText="Description"
-                                  styleClass="search-input"
-                                  prefHeight="90" wrapText="true"
-                                  maxWidth="Infinity" />
-                        <TextField fx:id="itemImageField"
-                                   promptText="Image URL or local file path"
-                                   styleClass="search-input"
-                                   maxWidth="Infinity" />
-                        <HBox spacing="10" alignment="CENTER_LEFT">
-                            <ComboBox fx:id="itemCategoryCombo"
-                                      styleClass="search-input"
-                                      HBox.hgrow="ALWAYS" maxWidth="Infinity" />
-                            <TextField fx:id="itemExtraField"
-                                       promptText="Extra info (JSON)"
-                                       styleClass="search-input"
-                                       HBox.hgrow="ALWAYS" />
-                        </HBox>
-                        <Label fx:id="statusLabelItem" styleClass="bid-status"
-                               wrapText="true" style="-fx-font-size: 11px;" />
-                        <Button text="CREATE ITEM" onAction="#onCreateItem"
-                                maxWidth="Infinity"
-                                styleClass="btn-primary"
-                                style="-fx-font-size: 10px; -fx-font-weight: bold;
-                                       -fx-cursor: hand;" />
-                    </VBox>
-
-                </VBox>
-            </ScrollPane>
-
-            <!-- ─── PANEL 3: New Auction form ─── -->
-            <ScrollPane fx:id="panelNewAuction" fitToWidth="true" hbarPolicy="NEVER"
-                        visible="false" managed="false"
-                        style="-fx-background-color: transparent; -fx-background: transparent;">
-                <VBox spacing="20" style="-fx-padding: 22 28 22 22;" maxWidth="560">
-
-                    <HBox alignment="BOTTOM_LEFT">
-                        <VBox spacing="5">
-                            <Label styleClass="section-title" text="New Auction"
-                                   style="-fx-font-size: 20px;" />
-                            <Label styleClass="section-desc"
-                                   text="Schedule a live auction for one of your items."
-                                   style="-fx-font-size: 11px;" />
-                        </VBox>
-                    </HBox>
-
-                    <VBox spacing="12"
-                          style="-fx-background-color: white;
-                                 -fx-background-radius: 8;
-                                 -fx-effect: dropshadow(three-pass-box,
-                                             rgba(0,0,0,0.05), 10, 0, 0, 4);
-                                 -fx-padding: 18;">
-                        <Separator />
-                        <ComboBox fx:id="itemCombo"
-                                  maxWidth="Infinity"
-                                  styleClass="search-input" />
-                        <TextField fx:id="startPriceField"
-                                   promptText="Starting price ($)"
-                                   styleClass="search-input"
-                                   maxWidth="Infinity" />
-                        <HBox spacing="6" alignment="CENTER_LEFT">
-                            <TextField fx:id="startTimeField"
-                                       styleClass="search-input"
-                                       HBox.hgrow="ALWAYS"
-                                       editable="false"
-                                       promptText="Click 📅 to pick a start time  (blank = now)" />
-                            <Button text="📅" onAction="#onPickStartTime"
-                                    style="-fx-font-size: 14px; -fx-cursor: hand;
-                                           -fx-background-color: #f5f5f5;
-                                           -fx-background-radius: 4;
-                                           -fx-border-color: #ddd; -fx-border-radius: 4;
-                                           -fx-padding: 5 9 5 9;" />
-                        </HBox>
-                        <HBox spacing="6" alignment="CENTER_LEFT">
-                            <TextField fx:id="endTimeField"
-                                       styleClass="search-input"
-                                       HBox.hgrow="ALWAYS"
-                                       editable="false"
-                                       promptText="Click 📅 to pick an end time" />
-                            <Button text="📅" onAction="#onPickEndTime"
-                                    style="-fx-font-size: 14px; -fx-cursor: hand;
-                                           -fx-background-color: #f5f5f5;
-                                           -fx-background-radius: 4;
-                                           -fx-border-color: #ddd; -fx-border-radius: 4;
-                                           -fx-padding: 5 9 5 9;" />
-                        </HBox>
-                        <Label fx:id="statusLabelAuction" styleClass="bid-status"
-                               wrapText="true" style="-fx-font-size: 11px;" />
-                        <Button text="CREATE AUCTION" onAction="#onCreateAuction"
-                                maxWidth="Infinity"
-                                styleClass="btn-primary"
-                                style="-fx-font-size: 10px; -fx-font-weight: bold;
-                                       -fx-cursor: hand;" />
-                    </VBox>
-
-                </VBox>
-            </ScrollPane>
 
         </StackPane>
     </center>

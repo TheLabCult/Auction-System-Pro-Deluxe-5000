@@ -69,6 +69,26 @@ public final class ItemService {
     }
 
     /**
+     * Delete an item owned by the given seller.
+     * Blocked if the item is currently in an OPEN or RUNNING auction.
+     *
+     * @throws AuctionException if the requester is not the item's owner,
+     *                          or if an active auction references this item
+     */
+    public void deleteItem(long itemId, User requester) {
+        Item item = getItem(itemId); // throws AuctionException if not found
+
+        if (item.getSellerId() != requester.getId())
+            throw new AuctionException("You do not own this item");
+
+        if (itemDAO.hasActiveAuction(itemId))
+            throw new AuctionException(
+                    "Cannot delete item — it is part of an ongoing auction");
+
+        itemDAO.delete(itemId);
+    }
+
+    /**
      * Fetch a single item by its primary key.
      * Used by ClientHandler when a Seller creates an Auction:
      *   CreateAuctionRequest carries an itemId; this method resolves it to a full Item.
@@ -89,5 +109,19 @@ public final class ItemService {
      */
     public List<Item> getItemsBySeller(long sellerId) {
         return itemDAO.findBySellerId(sellerId);
+    }
+
+    /**
+     * Update the imageUrl of an existing item.
+     * Called after a Seller successfully uploads an image via UPLOAD_AUCTION_IMAGE.
+     *
+     * @param itemId   the item whose image should be updated
+     * @param imageUrl the saved file path or URL to persist
+     * @throws AuctionException if no item with the given id exists
+     */
+    public void updateImageUrl(long itemId, String imageUrl) {
+        getItem(itemId);
+        itemDAO.updateImageUrl(itemId,
+                imageUrl == null || imageUrl.isBlank() ? null : imageUrl.trim());
     }
 }

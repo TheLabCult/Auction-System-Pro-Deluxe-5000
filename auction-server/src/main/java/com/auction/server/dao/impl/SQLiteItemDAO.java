@@ -52,6 +52,34 @@ public final class SQLiteItemDAO implements ItemDAO {
     }
 
     @Override
+    public synchronized void delete(long itemId) {
+        String sql = "DELETE FROM items WHERE id = ?";
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
+            ps.setLong(1, itemId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to delete item " + itemId, e);
+        }
+    }
+
+    @Override
+    public synchronized boolean hasActiveAuction(long itemId) {
+        // OPEN and RUNNING are the only statuses where a deletion should be blocked.
+        // FINISHED, CANCELED, and PAID auctions are terminal — safe to delete the item.
+        String sql = """
+        SELECT COUNT(*) FROM auctions
+        WHERE item_id = ? AND status IN ('OPEN', 'RUNNING')
+    """;
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
+            ps.setLong(1, itemId);
+            ResultSet rs = ps.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to check active auction for item " + itemId, e);
+        }
+    }
+
+    @Override
     public synchronized Optional<Item> findById(long id) {
         // JOIN to get seller_name without a second query.
         String sql = """
@@ -79,6 +107,18 @@ public final class SQLiteItemDAO implements ItemDAO {
             ps.setLong(1, sellerId);
             return mapList(ps.executeQuery());
         } catch (SQLException e) { throw new RuntimeException(e); }
+    }
+
+    @Override
+    public void updateImageUrl(long itemId, String imageUrl) {
+        String sql = "UPDATE items SET image_url = ? WHERE id = ?";
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
+            ps.setString(1, imageUrl);
+            ps.setLong(2, itemId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update image URL for item " + itemId, e);
+        }
     }
 
     private List<Item> mapList(ResultSet rs) throws SQLException {

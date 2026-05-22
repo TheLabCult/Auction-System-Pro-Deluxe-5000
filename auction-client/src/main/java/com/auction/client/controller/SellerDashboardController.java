@@ -5,8 +5,11 @@ package com.auction.client.controller;
  FILE ROLE: Controller for the seller dashboard screen (seller_dashboard.fxml).
 
  Two panels side-by-side:
- LEFT:  "My Auctions" TableView showing the seller's own auctions.
- RIGHT: Two form cards — "New Item" and "New Auction".
+ LEFT:  Sidebar with "Manage Items" and "Manage Auction" sections.
+ RIGHT: Two content panels — "Manage Items" and "Manage Auction".
+
+ "Manage Items" mirrors the original panel: item table + create-item sub-form.
+ "Manage Auction" mirrors the same layout: auction table + create-auction sub-form.
 
  Implements Refreshable: refresh() reloads both the auction list and the item
  ComboBox (via loadMyAuctions() and loadMyItems()) each time the screen is visited.
@@ -22,6 +25,7 @@ package com.auction.client.controller;
 
 import com.auction.client.network.ServerConnection;
 import com.auction.client.session.ClientSession;
+import com.auction.client.controller.ItemDetailDialogController;
 import com.auction.client.util.AlertUtil;
 import com.auction.client.util.SceneManager;
 import com.auction.common.dto.AuctionDTO;
@@ -48,6 +52,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.io.File;
+import java.nio.file.Files;
+import java.util.Base64;
 
 public final class SellerDashboardController implements SceneManager.Refreshable {
 
@@ -60,11 +67,18 @@ public final class SellerDashboardController implements SceneManager.Refreshable
     @FXML private Label                          userLabel;
 
     // ── Create item form ──────────────────────────────────────────────────────
-    @FXML private TextField     itemNameField;
-    @FXML private TextArea      itemDescField;
-    @FXML private ComboBox<String> itemCategoryCombo;
-    @FXML private TextField     itemImageField;
-    @FXML private TextField     itemExtraField;
+    @FXML private TextField            itemNameField;
+    @FXML private TextArea             itemDescField;
+    @FXML private ComboBox<String>     itemCategoryCombo;
+
+    // ── Image upload controls ─────────────────────────────────────────────────
+    @FXML private javafx.scene.image.ImageView imagePreview;
+    @FXML private javafx.scene.control.Label   imageFileLabel;
+    @FXML private javafx.scene.control.Label   imagePreviewPlaceholder;
+    @FXML private javafx.scene.control.Button  clearImageBtn;
+
+    /** Base64 data-URI of the chosen image, or null if none selected. */
+    private String selectedImageDataUri = null;
 
     // ── Create auction form ───────────────────────────────────────────────────
     @FXML private ComboBox<ItemDTO> itemCombo;
@@ -86,15 +100,20 @@ public final class SellerDashboardController implements SceneManager.Refreshable
     @FXML private Label statusLabelAuction;
 
     // ── Sidebar toggle items ──────────────────────────────────────────────────
-    @FXML private javafx.scene.layout.HBox sidebarMyLots;
     @FXML private javafx.scene.layout.HBox sidebarNewItem;
-    @FXML private javafx.scene.layout.HBox sidebarNewAuction;
+    @FXML private javafx.scene.layout.HBox sidebarManageAuction;
     @FXML private javafx.scene.layout.HBox sidebarAllAuctions;
 
     // ── Content panels ────────────────────────────────────────────────────────
-    @FXML private javafx.scene.layout.VBox  panelMyLots;
-    @FXML private ScrollPane               panelNewItem;
-    @FXML private ScrollPane               panelNewAuction;
+    @FXML private javafx.scene.layout.VBox  panelNewItem;
+    @FXML private javafx.scene.layout.VBox  panelManageAuction;
+
+    // ── Manage items table ────────────────────────────────────────────────────
+    @FXML private TableView<ItemDTO>               itemTable;
+    @FXML private TableColumn<ItemDTO, String>     colItemName;
+    @FXML private TableColumn<ItemDTO, String>     colItemCategory;
+    @FXML private TableColumn<ItemDTO, String>     colItemAuctions;
+    @FXML private TableColumn<ItemDTO, String>     colItemStatus;
 
     private final ObservableList<AuctionDTO> myAuctions = FXCollections.observableArrayList();
     private final ObservableList<ItemDTO>    myItems    = FXCollections.observableArrayList();
@@ -115,6 +134,30 @@ public final class SellerDashboardController implements SceneManager.Refreshable
         itemCategoryCombo.getItems().addAll("ELECTRONICS", "ART", "VEHICLE");
         itemCategoryCombo.setValue("ELECTRONICS");
 
+        // Item management table
+        colItemName.setCellValueFactory(c ->
+                new SimpleStringProperty(c.getValue().getName()));
+        colItemCategory.setCellValueFactory(c ->
+                new SimpleStringProperty(c.getValue().getCategory()));
+        // AUCTIONS column: count how many of the seller's auctions reference this item
+        colItemAuctions.setCellValueFactory(c -> {
+            long count = myAuctions.stream()
+                    .filter(a -> a.getItem() != null
+                            && a.getItem().getId() == c.getValue().getId())
+                    .count();
+            return new SimpleStringProperty(count > 0 ? String.valueOf(count) : "—");
+        });
+        // STATUS column: flag if the item is in an active (OPEN/RUNNING) auction
+        colItemStatus.setCellValueFactory(c -> {
+            boolean active = myAuctions.stream()
+                    .filter(a -> a.getItem() != null
+                            && a.getItem().getId() == c.getValue().getId())
+                    .anyMatch(a -> "OPEN".equals(a.getStatus())
+                            || "RUNNING".equals(a.getStatus()));
+            return new SimpleStringProperty(active ? "🔒 IN AUCTION" : "✅ FREE");
+        });
+        itemTable.setItems(myItems);
+
         itemCombo.setItems(myItems);
         itemCombo.setConverter(new javafx.util.StringConverter<>() {
             @Override public String toString(ItemDTO i) { return i == null ? "" : i.getName(); }
@@ -129,6 +172,13 @@ public final class SellerDashboardController implements SceneManager.Refreshable
         endTimeField.setEditable(false);
         endTimeField.setPromptText("Click 📅 to pick an end time");
         endTimeField.setStyle("-fx-cursor: default;");
+
+        // ── Double-click on an item row → open detail dialog ──────────────────
+        itemTable.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                openItemDetail();
+            }
+        });
     }
 
     @Override
@@ -145,17 +195,16 @@ public final class SellerDashboardController implements SceneManager.Refreshable
         String name     = itemNameField.getText().trim();
         String desc     = itemDescField.getText().trim();
         String category = itemCategoryCombo.getValue();
-        String imageUrl = itemImageField.getText().trim();
-        String extra    = itemExtraField.getText().trim();
 
         if (name.isEmpty()) { statusLabelItem.setText("Item name is required."); return; }
 
         ServerConnection conn = ClientSession.getInstance().getConnection();
         CreateItemRequest req = new CreateItemRequest();
-        req.name = name; req.description = desc;
-        req.category = category;
-        req.imageUrl = imageUrl.isEmpty() ? null : imageUrl;
-        req.extraData = extra;
+        req.name      = name;
+        req.description = desc;
+        req.category  = category;
+        req.imageUrl  = selectedImageDataUri;   // null when no image chosen
+        req.extraData = null;
 
         Message msg = Message.of(MessageType.CREATE_ITEM, req, conn.getGson());
         conn.send(msg).whenCompleteAsync((resp, ex) -> Platform.runLater(() -> {
@@ -166,12 +215,78 @@ public final class SellerDashboardController implements SceneManager.Refreshable
             }
             ItemDTO created = resp.parsePayload(conn.getGson(), ItemDTO.class);
             myItems.add(created);
+            itemTable.refresh();
             statusLabelItem.setText("Item '" + created.getName() + "' created.");
             itemNameField.clear();
             itemDescField.clear();
-            itemImageField.clear();
-            itemExtraField.clear();
+            clearImageState();   // reset the upload widget
         }));
+    }
+
+    // ── Image upload helpers ──────────────────────────────────────────────────
+
+    @FXML
+    private void onUploadImage() {
+        javafx.stage.FileChooser chooser = new javafx.stage.FileChooser();
+        chooser.setTitle("Select Item Image");
+        chooser.getExtensionFilters().add(
+                new javafx.stage.FileChooser.ExtensionFilter(
+                        "Image files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.bmp"));
+
+        File file = chooser.showOpenDialog(itemNameField.getScene().getWindow());
+        if (file == null) return;   // user cancelled
+
+        try {
+            byte[] bytes = Files.readAllBytes(file.toPath());
+            String mime  = probeImageMime(file.getName());
+            selectedImageDataUri = "data:" + mime + ";base64," + Base64.getEncoder().encodeToString(bytes);
+
+            // Update preview thumbnail
+            javafx.scene.image.Image img =
+                    new javafx.scene.image.Image(file.toURI().toString(), true);
+            imagePreview.setImage(img);
+            imagePreview.setVisible(true);
+            imagePreviewPlaceholder.setVisible(false);
+
+            // Update label & show clear button
+            String label = file.getName().length() > 28
+                    ? file.getName().substring(0, 25) + "…"
+                    : file.getName();
+            imageFileLabel.setText(label);
+            imageFileLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #333; -fx-font-style: normal;");
+            clearImageBtn.setVisible(true);
+            clearImageBtn.setManaged(true);
+
+        } catch (Exception e) {
+            statusLabelItem.setText("Could not read image: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onClearImage() {
+        clearImageState();
+    }
+
+    /** Resets the image upload widget back to its empty state. */
+    private void clearImageState() {
+        selectedImageDataUri = null;
+        imagePreview.setImage(null);
+        imagePreview.setVisible(false);
+        imagePreviewPlaceholder.setVisible(true);
+        imageFileLabel.setText("No image selected");
+        imageFileLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #aaa; -fx-font-style: italic;");
+        clearImageBtn.setVisible(false);
+        clearImageBtn.setManaged(false);
+    }
+
+    /** Returns a best-effort MIME type from the file extension. */
+    private static String probeImageMime(String filename) {
+        String lower = filename.toLowerCase();
+        if (lower.endsWith(".png"))  return "image/png";
+        if (lower.endsWith(".gif"))  return "image/gif";
+        if (lower.endsWith(".webp")) return "image/webp";
+        if (lower.endsWith(".bmp"))  return "image/bmp";
+        return "image/jpeg";   // default for .jpg / .jpeg and unknowns
     }
 
     // ── Date-time picker openers (called by the 📅 buttons in FXML) ──────────
@@ -236,6 +351,14 @@ public final class SellerDashboardController implements SceneManager.Refreshable
     private void onCancelAuction() {
         AuctionDTO selected = auctionTable.getSelectionModel().getSelectedItem();
         if (selected == null) { statusLabel.setText("Select an auction to cancel."); return; }
+
+        String status = selected.getStatus();
+        if (!"OPEN".equals(status) && !"RUNNING".equals(status)) {
+            statusLabel.setText("Cannot cancel auction #" + selected.getId()
+                    + " — it is already " + status.toLowerCase() + ".");
+            return;
+        }
+
         if (!AlertUtil.confirm("Cancel Auction", "Cancel auction #" + selected.getId() + "?")) return;
 
         ServerConnection conn = ClientSession.getInstance().getConnection();
@@ -253,11 +376,75 @@ public final class SellerDashboardController implements SceneManager.Refreshable
         }));
     }
 
+    // ── View item detail ──────────────────────────────────────────────────────
+
+    @FXML
+    private void onViewItemDetail() {
+        openItemDetail();
+    }
+
+    /** Shared logic used by both the button and the double-click handler. */
+    private void openItemDetail() {
+        ItemDTO selected = itemTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            statusLabelItem.setText("Select an item to view its details.");
+            return;
+        }
+        ItemDetailDialogController.show(
+                itemTable.getScene().getWindow(),
+                selected,
+                myAuctions
+        );
+    }
+
+    // ── Delete item ───────────────────────────────────────────────────────────
+
+    @FXML
+    private void onDeleteItem() {
+        ItemDTO selected = itemTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            statusLabelItem.setText("Select an item to delete.");
+            return;
+        }
+
+        // Check locally first — gives instant feedback without a server round-trip
+        boolean activeLocally = myAuctions.stream()
+                .filter(a -> a.getItem() != null
+                        && a.getItem().getId() == selected.getId())
+                .anyMatch(a -> "OPEN".equals(a.getStatus())
+                        || "RUNNING".equals(a.getStatus()));
+        if (activeLocally) {
+            statusLabelItem.setText(
+                    "Cannot delete '" + selected.getName() + "' — it is part of an ongoing auction.");
+            return;
+        }
+
+        if (!AlertUtil.confirm("Delete Item",
+                "Permanently delete '" + selected.getName() + "'?")) return;
+
+        ServerConnection conn = ClientSession.getInstance().getConnection();
+        Message msg = Message.of(MessageType.DELETE_ITEM,
+                new DeleteItemRequest(selected.getId()), conn.getGson());
+
+        conn.send(msg).whenCompleteAsync((resp, ex) -> Platform.runLater(() -> {
+            if (ex != null) {
+                statusLabelItem.setText("Error: " + ex.getMessage());
+                return;
+            }
+            if (resp.getType() == MessageType.ERROR) {
+                statusLabelItem.setText(
+                        resp.parsePayload(conn.getGson(), ErrorResponse.class).message);
+                return;
+            }
+            myItems.remove(selected);
+            statusLabelItem.setText("Item '" + selected.getName() + "' deleted.");
+        }));
+    }
+
     // ── Sidebar navigation ────────────────────────────────────────────────────
 
-    @FXML private void onSidebarMyLots()     { showPanel(0); }
-    @FXML private void onSidebarNewItem()    { showPanel(1); }
-    @FXML private void onSidebarNewAuction() { showPanel(2); }
+    @FXML private void onSidebarNewItem()        { showPanel(0); }
+    @FXML private void onSidebarManageAuction()  { showPanel(1); }
 
     @FXML
     private void onSidebarAllAuctions() {
@@ -274,17 +461,16 @@ public final class SellerDashboardController implements SceneManager.Refreshable
     }
 
     /**
-     * Shows one of the three content panels and updates the sidebar active highlight.
-     * @param index 0 = MY LOTS, 1 = NEW ITEM, 2 = NEW AUCTION
+     * Shows one of the two content panels and updates the sidebar active highlight.
+     * @param index 0 = MANAGE ITEMS, 1 = MANAGE AUCTION
      */
     private void showPanel(int index) {
         // Toggle panel visibility — managed=false removes the node from layout when hidden.
-        panelMyLots    .setVisible(index == 0); panelMyLots    .setManaged(index == 0);
-        panelNewItem   .setVisible(index == 1); panelNewItem   .setManaged(index == 1);
-        panelNewAuction.setVisible(index == 2); panelNewAuction.setManaged(index == 2);
+        panelNewItem      .setVisible(index == 0); panelNewItem      .setManaged(index == 0);
+        panelManageAuction.setVisible(index == 1); panelManageAuction.setManaged(index == 1);
 
-        // Update sidebar active highlight (only the 3 panel items; allAuctions is never "active").
-        javafx.scene.layout.HBox[] items = { sidebarMyLots, sidebarNewItem, sidebarNewAuction };
+        // Update sidebar active highlight.
+        javafx.scene.layout.HBox[] items = { sidebarNewItem, sidebarManageAuction };
         for (int i = 0; i < items.length; i++) {
             items[i].getStyleClass().removeAll("category-item-active", "category-item");
             items[i].getStyleClass().add(i == index ? "category-item-active" : "category-item");
@@ -406,6 +592,8 @@ public final class SellerDashboardController implements SceneManager.Refreshable
                             com.auction.common.request.Responses.ItemsResponse.class);
             if (r.items != null) {
                 myItems.setAll(r.items);
+                // Refresh item table so STATUS/AUCTIONS columns reflect latest auction data
+                itemTable.refresh();
             }
         }));
     }
