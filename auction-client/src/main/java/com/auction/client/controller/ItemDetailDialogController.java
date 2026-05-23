@@ -27,7 +27,7 @@ import java.util.OptionalDouble;
  * Open via the static {@link #show(Window, ItemDTO, List)} factory —
  * no need to instantiate manually.
  */
-public final class ItemDetailDialogController {
+public class ItemDetailDialogController {
 
     // ── Header ─────────────────────────────────────────────────────────────────
     @FXML private Label titleLabel;
@@ -122,7 +122,7 @@ public final class ItemDetailDialogController {
         categoryBadge.setText(item.getCategory() != null ? item.getCategory() : "");
 
         // ── Image ────────────────────────────────────────────────────────────
-        loadImage(item.getImageUrl());
+        loadImage(item.getImageUrl(), item.getCategory());
 
         // ── Description ──────────────────────────────────────────────────────
         String desc = item.getDescription();
@@ -179,9 +179,9 @@ public final class ItemDetailDialogController {
      *   - bare path                  → converted to file URI
      *   - null / blank               → placeholder
      */
-    private void loadImage(String source) {
+    private void loadImage(String source, String category) {
         if (source == null || source.isBlank()) {
-            applyImagePlaceholder();
+            applyImagePlaceholder(category);
             return;
         }
         String s = source.trim();
@@ -189,33 +189,33 @@ public final class ItemDetailDialogController {
             if (s.startsWith("data:")) {
                 // Base64 data URI — JavaFX Image can't load these directly
                 int comma = s.indexOf(',');
-                if (comma < 0) { applyImagePlaceholder(); return; }
+                if (comma < 0) { applyImagePlaceholder(category); return; }
                 byte[] bytes = java.util.Base64.getDecoder().decode(s.substring(comma + 1));
                 Image img = new Image(new java.io.ByteArrayInputStream(bytes));
-                if (!img.isError()) applyImage(img); else applyImagePlaceholder();
+                if (!img.isError()) applyImage(img); else applyImagePlaceholder(category);
             } else if (s.startsWith("http://") || s.startsWith("https://")) {
                 Image img = new Image(s, true);
                 img.errorProperty().addListener((o, old, err) -> {
-                    if (err) javafx.application.Platform.runLater(this::applyImagePlaceholder);
+                    if (err) javafx.application.Platform.runLater(() -> applyImagePlaceholder(category));
                 });
                 img.progressProperty().addListener((o, old, prog) -> {
                     if (prog.doubleValue() >= 1.0 && !img.isError())
                         javafx.application.Platform.runLater(() -> applyImage(img));
                 });
                 if (img.getProgress() >= 1.0) {
-                    if (!img.isError()) applyImage(img); else applyImagePlaceholder();
+                    if (!img.isError()) applyImage(img); else applyImagePlaceholder(category);
                 }
             } else if (s.startsWith("file:/") || s.startsWith("jar:")) {
                 Image img = new Image(s);
-                if (!img.isError()) applyImage(img); else applyImagePlaceholder();
+                if (!img.isError()) applyImage(img); else applyImagePlaceholder(category);
             } else {
                 // Bare file path fallback
                 String uri = java.nio.file.Path.of(s).toAbsolutePath().toUri().toString();
                 Image img = new Image(uri);
-                if (!img.isError()) applyImage(img); else applyImagePlaceholder();
+                if (!img.isError()) applyImage(img); else applyImagePlaceholder(category);
             }
         } catch (Exception e) {
-            applyImagePlaceholder();
+            applyImagePlaceholder(category);
         }
     }
 
@@ -227,12 +227,18 @@ public final class ItemDetailDialogController {
         noImageLabel.setManaged(false);
     }
 
-    private void applyImagePlaceholder() {
-        itemImage.setImage(null);
-        itemImage.setVisible(false);
-        itemImage.setManaged(false);
-        noImageLabel.setVisible(true);
-        noImageLabel.setManaged(true);
+    private void applyImagePlaceholder(String category) {
+        String cat = (category != null) ? category.toLowerCase() : "electronics";
+        String path = "/com/auction/client/images/placeholder_" + cat + ".png";
+        java.io.InputStream stream = getClass().getResourceAsStream(path);
+        if (stream != null) {
+            Image placeholder = new Image(stream);
+            itemImage.setImage(placeholder);
+            itemImage.setVisible(true);
+            itemImage.setManaged(true);
+        }
+        noImageLabel.setVisible(false);
+        noImageLabel.setManaged(false);
     }
 
     /** Prepends a coloured emoji to the raw status string. */

@@ -358,14 +358,8 @@ public final class ClientHandler implements Runnable, AuctionObserver {
     }
 
     /**
-     * Save an image uploaded by a Seller and update the auction item's imageUrl.
-     *
-     * Flow:
-     *   1. Verify the caller is the seller who owns this auction.
-     *   2. Decode the Base64 payload and write it to the images' directory.
-     *   3. Tell ItemService the new URL so it is persisted and returned in future
-     *      GET_AUCTION_DETAIL responses.
-     *   4. Reply with the saved URL so the client can update its ImageView immediately.
+     * Save the uploaded image as a base64 data URI directly on the item,
+     * removing the need for any server-side file storage.
      */
     private void handleUploadAuctionImage(Message msg) {
         requireAuth();
@@ -373,35 +367,18 @@ public final class ClientHandler implements Runnable, AuctionObserver {
 
         UploadAuctionImageRequest req = msg.parsePayload(gson, UploadAuctionImageRequest.class);
 
-        // 1. Ownership check — only the auction's own seller may upload
+        // Ownership check — only the auction's own seller may upload
         Auction auction = auctionService.getAuction(req.auctionId);
         if (auction.getSellerId() != currentUser.getId()) {
             throw new AuthException("You do not own this auction");
         }
 
-        // 2. Decode Base64 → bytes and persist to disk
-        byte[] imageBytes = java.util.Base64.getDecoder().decode(req.base64Data);
-        String extension  = req.mimeType.contains("png")  ? ".png"
-                : req.mimeType.contains("gif")  ? ".gif"
-                  : req.mimeType.contains("webp") ? ".webp"
-                    : ".jpg";
-        String filename   = "auction_" + req.auctionId + "_" + System.currentTimeMillis() + extension;
-        java.nio.file.Path imagesDir = java.nio.file.Paths.get("server-data", "images");
+        // Store as a data URI so the client can load it directly without a file path
+        String dataUri = "data:" + req.mimeType + ";base64," + req.base64Data;
+        itemService.updateImageUrl(auction.getItem().getId(), dataUri);
 
-        try {
-            java.nio.file.Files.createDirectories(imagesDir);
-            java.nio.file.Path dest = imagesDir.resolve(filename);
-            java.nio.file.Files.write(dest, imageBytes);
-
-            String savedUrl = dest.toAbsolutePath().toString();
-            itemService.updateImageUrl(auction.getItem().getId(), savedUrl);
-
-            send(Message.reply(msg.getRequestId(),
-                    MessageType.UPLOAD_AUCTION_IMAGE_RESPONSE, savedUrl, gson));
-
-        } catch (java.io.IOException e) {
-            throw new AuctionException("Failed to save image: " + e.getMessage());
-        }
+        send(Message.reply(msg.getRequestId(),
+                MessageType.UPLOAD_AUCTION_IMAGE_RESPONSE, dataUri, gson));
     }
 
     // ── Watch / Unwatch ───────────────────────────────────────────────────────

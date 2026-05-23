@@ -435,8 +435,11 @@ public final class AuctionDetailController implements BroadcastListener {
     }
 
     private void showItemImage(String imageSource) {
+        // Grab the current category label text for placeholder fallback
+        String category = labelCategory.getText();
+
         if (imageSource == null || imageSource.isBlank()) {
-            setImagePlaceholder("No product image.");
+            setImagePlaceholder(category);
             return;
         }
 
@@ -449,18 +452,18 @@ public final class AuctionDetailController implements BroadcastListener {
                 // Format: "data:<mime>;base64,<encoded>"
                 int commaIdx = trimmed.indexOf(',');
                 if (commaIdx < 0) {
-                    setImagePlaceholder("Invalid image data.");
+                    setImagePlaceholder(category);
                     return;
                 }
                 byte[] bytes = Base64.getDecoder().decode(trimmed.substring(commaIdx + 1));
                 Image image = new Image(new java.io.ByteArrayInputStream(bytes));
                 if (image.isError()) {
-                    setImagePlaceholder("Unable to load product image.");
+                    setImagePlaceholder(category);
                 } else {
                     applyImage(image);
                 }
             } catch (Exception e) {
-                setImagePlaceholder("Unable to load product image.");
+                setImagePlaceholder(category);
             }
             return;
         }
@@ -470,21 +473,21 @@ public final class AuctionDetailController implements BroadcastListener {
         if (lower.startsWith("http://") || lower.startsWith("https://")) {
             Image image = new Image(trimmed, true);
             image.errorProperty().addListener((obs, wasError, isError) -> {
-                if (isError) Platform.runLater(() -> setImagePlaceholder("Unable to load product image."));
+                if (isError) Platform.runLater(() -> setImagePlaceholder(category));
             });
             image.progressProperty().addListener((obs, oldVal, newVal) -> {
                 if (newVal.doubleValue() >= 1.0 && !image.isError())
                     Platform.runLater(() -> applyImage(image));
             });
             if (image.getProgress() >= 1.0 && !image.isError()) applyImage(image);
-            else if (image.isError()) setImagePlaceholder("Unable to load product image.");
+            else if (image.isError()) setImagePlaceholder(category);
             return;
         }
 
         // ── file:/ or jar: URI — load directly ───────────────────────────────
         if (lower.startsWith("file:/") || lower.startsWith("jar:")) {
             Image image = new Image(trimmed, true);
-            if (image.isError()) setImagePlaceholder("Unable to load product image.");
+            if (image.isError()) setImagePlaceholder(category);
             else applyImage(image);
             return;
         }
@@ -493,10 +496,10 @@ public final class AuctionDetailController implements BroadcastListener {
         try {
             String uri = Path.of(trimmed).toAbsolutePath().toUri().toString();
             Image image = new Image(uri, true);
-            if (image.isError()) setImagePlaceholder("Unable to load product image.");
+            if (image.isError()) setImagePlaceholder(category);
             else applyImage(image);
         } catch (Exception e) {
-            setImagePlaceholder("Unable to load product image.");
+            setImagePlaceholder(category);
         }
     }
 
@@ -508,13 +511,18 @@ public final class AuctionDetailController implements BroadcastListener {
         itemImagePlaceholder.setVisible(false);
     }
 
-    private void setImagePlaceholder(String message) {
-        itemImageView.setImage(null);
-        itemImageView.setManaged(false);
-        itemImageView.setVisible(false);
-        itemImagePlaceholder.setText(message);
-        itemImagePlaceholder.setManaged(true);
-        itemImagePlaceholder.setVisible(true);
+    private void setImagePlaceholder(String category) {
+        String cat = (category != null) ? category.toLowerCase() : "electronics";
+        String path = "/com/auction/client/images/placeholder_" + cat + ".png";
+        java.io.InputStream stream = getClass().getResourceAsStream(path);
+        if (stream != null) {
+            Image placeholder = new Image(stream);
+            itemImageView.setImage(placeholder);
+            itemImageView.setManaged(true);
+            itemImageView.setVisible(true);
+        }
+        itemImagePlaceholder.setManaged(false);
+        itemImagePlaceholder.setVisible(false);
     }
 
     private void startCountdown() {
