@@ -376,6 +376,36 @@ public final class SellerDashboardController implements SceneManager.Refreshable
         }));
     }
 
+    // ── Mark auction as paid ──────────────────────────────────────────────────
+
+    @FXML
+    private void onMarkAuctionPaid() {
+        AuctionDTO selected = auctionTable.getSelectionModel().getSelectedItem();
+        if (selected == null) { statusLabel.setText("Select an auction to mark as paid."); return; }
+
+        if (!"FINISHED".equals(selected.getStatus())) {
+            statusLabel.setText("Only a finished auction can be marked as paid.");
+            return;
+        }
+
+        if (!AlertUtil.confirm("Mark as Paid",
+                "Mark auction #" + selected.getId() + " as paid?")) return;
+
+        ServerConnection conn = ClientSession.getInstance().getConnection();
+        Message msg = Message.of(MessageType.MARK_AUCTION_PAID,
+                new MarkAuctionPaidRequest(selected.getId()), conn.getGson());
+
+        conn.send(msg).whenCompleteAsync((resp, ex) -> Platform.runLater(() -> {
+            if (ex != null) { statusLabel.setText("Error: " + ex.getMessage()); return; }
+            if (resp.getType() == MessageType.ERROR) {
+                statusLabel.setText(resp.parsePayload(conn.getGson(), ErrorResponse.class).message);
+                return;
+            }
+            statusLabel.setText("Auction #" + selected.getId() + " marked as paid.");
+            loadMyAuctions();
+        }));
+    }
+
     // ── View item detail ──────────────────────────────────────────────────────
 
     @FXML

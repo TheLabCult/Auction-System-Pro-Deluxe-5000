@@ -262,6 +262,10 @@
                             styleClass="btn-danger"
                             style="-fx-font-size: 10px; -fx-font-weight: bold;
                                    -fx-cursor: hand;" />
+                    <Button text="✅  MARK AS PAID" onAction="#onMarkAuctionPaid"
+                            styleClass="btn-primary"
+                            style="-fx-font-size: 10px; -fx-font-weight: bold;
+                                   -fx-cursor: hand;" />
                 </HBox>
 
                 <Label fx:id="statusLabel" styleClass="bid-status"
