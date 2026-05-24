@@ -20,12 +20,15 @@
                    style="-fx-font-size: 15px;" />
 
             <HBox alignment="CENTER" spacing="20">
-                <Label styleClass="nav-link-active" text="AUCTIONS" />
+                <Label fx:id="navAuctions" styleClass="nav-link-active" text="AUCTIONS"
+                       onMouseClicked="#onNavAuctions" style="-fx-cursor: hand;" />
+                <Label fx:id="navSellers"  styleClass="nav-link"        text="SELLERS"
+                       onMouseClicked="#onNavSellers"  style="-fx-cursor: hand;" />
             </HBox>
 
             <Region HBox.hgrow="ALWAYS" />
 
-            <!-- Search box — matches curated.fxml search-box pattern -->
+            <!-- Search box -->
             <HBox alignment="CENTER_LEFT" styleClass="search-box">
                 <Label style="-fx-text-fill: #888;" text="🔍" />
                 <TextField fx:id="searchField"
@@ -88,40 +91,60 @@
 
     <!-- ═══════════════════ CONTENT ═══════════════════ -->
     <center>
-        <VBox spacing="18" style="-fx-padding: 22 28 22 22;">
+        <StackPane>
 
-            <!-- Section header -->
-            <HBox alignment="BOTTOM_LEFT">
-                <VBox spacing="5">
-                    <Label styleClass="section-title" text="Live Auctions"
-                           style="-fx-font-size: 20px;" />
-                    <Label styleClass="section-desc"
-                           text="Double-click any lot to view full details and place a bid."
-                           style="-fx-font-size: 11px;" />
-                </VBox>
-                <Region HBox.hgrow="ALWAYS" />
-                <Button text="VIEW SELECTED" onAction="#onViewDetail"
-                        styleClass="link-view-all"
-                        style="-fx-cursor: hand;" />
-            </HBox>
+            <!-- ── AUCTIONS PANEL ── -->
+            <VBox fx:id="auctionsPanel" spacing="18" style="-fx-padding: 22 28 22 22;">
+                <HBox alignment="BOTTOM_LEFT">
+                    <VBox spacing="5">
+                        <!-- Back breadcrumb — hidden unless filtering by seller -->
+                        <HBox fx:id="sellerBreadcrumb" alignment="CENTER_LEFT" spacing="6"
+                              visible="false" managed="false"
+                              style="-fx-cursor: hand;" onMouseClicked="#onClearSellerFilter">
+                            <Label text="←" style="-fx-text-fill: #888; -fx-font-size: 11px;" />
+                            <Label text="All Sellers" style="-fx-text-fill: #888;
+                                   -fx-font-size: 11px; -fx-underline: true;" />
+                        </HBox>
+                        <Label fx:id="auctionsPanelTitle" styleClass="section-title"
+                               text="Live Auctions" style="-fx-font-size: 20px;" />
+                        <Label fx:id="auctionsPanelDesc" styleClass="section-desc"
+                               text="Click any lot to view full details and place a bid."
+                               style="-fx-font-size: 11px;" />
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                </HBox>
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                            style="-fx-background-color: transparent; -fx-background: transparent;
+                                   -fx-border-color: transparent;">
+                    <FlowPane fx:id="auctionGrid"
+                              hgap="14" vgap="14"
+                              style="-fx-padding: 4 0 20 0; -fx-background-color: transparent;" />
+                </ScrollPane>
+            </VBox>
 
-            <!-- Auction table -->
-            <TableView fx:id="auctionTable" VBox.vgrow="ALWAYS" styleClass="data-table">
-                <columns>
-                    <TableColumn fx:id="colId"     text="#"       prefWidth="55" />
-                    <TableColumn fx:id="colItem"   text="ITEM"    prefWidth="270" />
-                    <TableColumn fx:id="colPrice"  text="PRICE"   prefWidth="120" />
-                    <TableColumn fx:id="colCategory" text="CATEGORY" prefWidth="120" />
-                    <TableColumn fx:id="colStatus" text="STATUS"  prefWidth="120" />
-                    <TableColumn fx:id="colEnds"   text="ENDS"    prefWidth="150" />
-                    <TableColumn fx:id="colWins"   text="WINNER"  prefWidth="120" />
-                </columns>
-                <placeholder>
-                    <Label text="No auctions found." styleClass="table-placeholder" />
-                </placeholder>
-            </TableView>
+            <!-- ── SELLERS PANEL ── -->
+            <VBox fx:id="sellersPanel" spacing="18" style="-fx-padding: 22 28 22 22;"
+                  visible="false" managed="false">
+                <HBox alignment="BOTTOM_LEFT">
+                    <VBox spacing="5">
+                        <Label styleClass="section-title" text="Sellers"
+                               style="-fx-font-size: 20px;" />
+                        <Label styleClass="section-desc"
+                               text="Browse active sellers on the platform."
+                               style="-fx-font-size: 11px;" />
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                </HBox>
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                            style="-fx-background-color: transparent; -fx-background: transparent;
+                                   -fx-border-color: transparent;">
+                    <FlowPane fx:id="sellersGrid"
+                              hgap="14" vgap="14"
+                              style="-fx-padding: 4 0 20 0; -fx-background-color: transparent;" />
+                </ScrollPane>
+            </VBox>
 
-        </VBox>
+        </StackPane>
     </center>
 
 </BorderPane>
