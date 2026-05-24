@@ -21,6 +21,17 @@
                 <Label styleClass="nav-link-active" text="ADMIN PANEL" />
             </HBox>
 
+            <HBox alignment="CENTER" spacing="20">
+                <Label fx:id="navAll"     styleClass="nav-link-active" text="ALL USERS"
+                       style="-fx-cursor: hand;" onMouseClicked="#onNavAll" />
+                <Label fx:id="navAdmins"  styleClass="nav-link"        text="ADMINS"
+                       style="-fx-cursor: hand;" onMouseClicked="#onNavAdmins" />
+                <Label fx:id="navSellers" styleClass="nav-link"        text="SELLERS"
+                       style="-fx-cursor: hand;" onMouseClicked="#onNavSellers" />
+                <Label fx:id="navBidders" styleClass="nav-link"        text="BIDDERS"
+                       style="-fx-cursor: hand;" onMouseClicked="#onNavBidders" />
+            </HBox>
+
             <Region HBox.hgrow="ALWAYS" />
 
             <Label fx:id="userLabel"
@@ -108,19 +119,13 @@
                                -fx-cursor: hand;" />
             </HBox>
 
-            <!-- User table -->
-            <TableView fx:id="userTable" VBox.vgrow="ALWAYS" styleClass="data-table">
-                <columns>
-                    <TableColumn fx:id="colId"       text="ID"       prefWidth="55" />
-                    <TableColumn fx:id="colUsername"  text="USERNAME" prefWidth="180" />
-                    <TableColumn fx:id="colEmail"     text="EMAIL"    prefWidth="240" />
-                    <TableColumn fx:id="colRole"      text="ROLE"     prefWidth="110" />
-                    <TableColumn fx:id="colActive"    text="STATUS"   prefWidth="100" />
-                </columns>
-                <placeholder>
-                    <Label text="No users found." styleClass="table-placeholder" />
-                </placeholder>
-            </TableView>
+            <!-- User card grid -->
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background-color: transparent; -fx-background: transparent;
+                               -fx-border-color: transparent;">
+                <FlowPane fx:id="userGrid" hgap="14" vgap="14"
+                          style="-fx-padding: 4 0 20 0; -fx-background-color: transparent;" />
+            </ScrollPane>
 
             <!-- Action bar -->
             <HBox alignment="CENTER_LEFT" spacing="12">
