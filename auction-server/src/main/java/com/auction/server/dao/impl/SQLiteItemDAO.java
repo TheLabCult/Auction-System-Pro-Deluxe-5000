@@ -53,10 +53,33 @@ public final class SQLiteItemDAO implements ItemDAO {
 
     @Override
     public synchronized void delete(long itemId) {
-        String sql = "DELETE FROM items WHERE id = ?";
-        try (PreparedStatement ps = conn().prepareStatement(sql)) {
-            ps.setLong(1, itemId);
-            ps.executeUpdate();
+        // Must delete in FK dependency order:
+        //   auto_bids → bid_transactions → auctions → items
+        // auto_bids and bid_transactions both reference auctions(id),
+        // and auctions references items(id), so children must go first.
+        // Active auctions (OPEN, RUNNING) are blocked upstream by
+        // hasActiveAuction(), so only terminal rows reach this method.
+        String deleteAutoBids = """
+            DELETE FROM auto_bids WHERE auction_id IN (
+                SELECT id FROM auctions WHERE item_id = ?
+            )
+        """;
+        String deleteBids = """
+            DELETE FROM bid_transactions WHERE auction_id IN (
+                SELECT id FROM auctions WHERE item_id = ?
+            )
+        """;
+        String deleteAuctions = "DELETE FROM auctions WHERE item_id = ?";
+        String deleteItem     = "DELETE FROM items WHERE id = ?";
+
+        try (PreparedStatement pab = conn().prepareStatement(deleteAutoBids);
+             PreparedStatement pb  = conn().prepareStatement(deleteBids);
+             PreparedStatement pa  = conn().prepareStatement(deleteAuctions);
+             PreparedStatement pi  = conn().prepareStatement(deleteItem)) {
+            pab.setLong(1, itemId); pab.executeUpdate();
+            pb .setLong(1, itemId); pb .executeUpdate();
+            pa .setLong(1, itemId); pa .executeUpdate();
+            pi .setLong(1, itemId); pi .executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to delete item " + itemId, e);
         }

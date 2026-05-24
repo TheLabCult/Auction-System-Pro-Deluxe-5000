@@ -59,19 +59,6 @@
                                wrapText="true" />
                     </StackPane>
 
-                    <!-- Seller: upload image button -->
-                    <HBox fx:id="uploadImageBox" alignment="CENTER_RIGHT" spacing="8"
-                          visible="false" managed="false"
-                          style="-fx-padding: 4 0 0 0;">
-                        <Label fx:id="uploadImageStatus" styleClass="bid-status"
-                               style="-fx-font-size: 10px;" />
-                        <Button fx:id="uploadImageButton" text="📷  Upload Image"
-                                onAction="#onUploadImage"
-                                styleClass="btn-secondary"
-                                style="-fx-font-size: 10px; -fx-font-weight: bold;
-                                       -fx-cursor: hand;" />
-                    </HBox>
-
                     <!-- Title + meta -->
                     <Text fx:id="labelTitle" styleClass="section-title"
                           wrappingWidth="370"

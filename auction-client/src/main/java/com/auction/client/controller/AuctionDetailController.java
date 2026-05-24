@@ -25,14 +25,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
 
-import java.io.File;
 import java.io.ByteArrayInputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -67,10 +63,6 @@ public final class AuctionDetailController implements BroadcastListener {
     @FXML private Button autoBidButton;
     @FXML private Label bidStatusLabel;
 
-    @FXML private HBox uploadImageBox;
-    @FXML private Button uploadImageButton;
-    @FXML private Label  uploadImageStatus;
-
     @FXML private TableView<BidDTO> bidTable;
     @FXML private TableColumn<BidDTO, String> colBidder;
     @FXML private TableColumn<BidDTO, String> colAmount;
@@ -85,7 +77,6 @@ public final class AuctionDetailController implements BroadcastListener {
 
     private XYChart.Series<Number, Number> priceSeries;
     private long currentAuctionId;
-    private long currentItemId;       // tracks the item so upload targets the item, not the auction
     private Timer countdownTimer;
     private long endTimeEpochSec;
 
@@ -131,9 +122,6 @@ public final class AuctionDetailController implements BroadcastListener {
         autoBidIncrField.setVisible(canBid);
         autoBidButton.setVisible(canBid);
 
-        boolean isSeller = ClientSession.getInstance().isSeller();
-        uploadImageBox.setVisible(isSeller);
-        uploadImageBox.setManaged(isSeller);
     }
 
     public void loadAuction(long auctionId) {
@@ -185,9 +173,6 @@ public final class AuctionDetailController implements BroadcastListener {
                 auction.getWinnerName() != null ? auction.getWinnerName() : "No bids yet");
         labelStatus.setText(auction.getStatus());
         labelEndTime.setText(formatIso(auction.getEndTime()));
-
-        // Remember the item id so the upload button targets the item, not the auction
-        currentItemId = auction.getItem() != null ? auction.getItem().getId() : -1;
 
         try {
             LocalDateTime end = LocalDateTime.parse(auction.getEndTime());
@@ -340,72 +325,6 @@ public final class AuctionDetailController implements BroadcastListener {
             loadAuctionDetail(currentAuctionId);
             loadBidHistory(currentAuctionId);
         }));
-    }
-
-    @FXML
-    private void onUploadImage() {
-        if (currentItemId < 0) {
-            uploadImageStatus.setText("No item linked to this auction.");
-            return;
-        }
-
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Select Item Image");
-        chooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter(
-                        "Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp"));
-
-        File file = chooser.showOpenDialog(uploadImageButton.getScene().getWindow());
-        if (file == null) return; // user cancelled
-
-        uploadImageButton.setDisable(true);
-        uploadImageStatus.setText("Uploading…");
-
-        new Thread(() -> {
-            try {
-                byte[] bytes    = Files.readAllBytes(file.toPath());
-                String mimeType = detectMimeType(file.getName());
-                String base64   = Base64.getEncoder().encodeToString(bytes);
-
-                ServerConnection conn = ClientSession.getInstance().getConnection();
-                // UploadAuctionImageRequest uses auctionId to look up the item server-side,
-                // then saves the image on the Item — so it's already item-scoped.
-                Message msg = Message.of(
-                        MessageType.UPLOAD_AUCTION_IMAGE,
-                        new UploadAuctionImageRequest(currentAuctionId, mimeType, base64),
-                        conn.getGson());
-
-                conn.send(msg).whenCompleteAsync((resp, ex) -> Platform.runLater(() -> {
-                    uploadImageButton.setDisable(false);
-                    if (ex != null) {
-                        uploadImageStatus.setText("Upload failed: " + ex.getMessage());
-                        return;
-                    }
-                    if (resp.getType() == MessageType.ERROR) {
-                        uploadImageStatus.setText(
-                                resp.parsePayload(conn.getGson(), ErrorResponse.class).message);
-                        return;
-                    }
-                    uploadImageStatus.setText("Image saved to item!");
-                    loadAuctionDetail(currentAuctionId); // refresh so the new image appears
-                }));
-
-            } catch (Exception ex) {
-                Platform.runLater(() -> {
-                    uploadImageButton.setDisable(false);
-                    uploadImageStatus.setText("Error reading file: " + ex.getMessage());
-                });
-            }
-        }, "image-upload-thread").start();
-    }
-
-    /** Returns a basic MIME type string based on the file extension. */
-    private String detectMimeType(String filename) {
-        String lower = filename.toLowerCase();
-        if (lower.endsWith(".png"))  return "image/png";
-        if (lower.endsWith(".gif"))  return "image/gif";
-        if (lower.endsWith(".webp")) return "image/webp";
-        return "image/jpeg"; // default for .jpg / .jpeg
     }
 
     @FXML
