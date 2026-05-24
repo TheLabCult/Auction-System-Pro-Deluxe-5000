@@ -51,6 +51,8 @@ public enum MessageType {
     SELLER_ITEMS_RESPONSE,  // server → client: list of seller's ItemDTOs
     UPLOAD_AUCTION_IMAGE,         // client → server: seller uploads image for their auction's item
     UPLOAD_AUCTION_IMAGE_RESPONSE, // server → client: returns the saved image URL
+    UPLOAD_ITEM_IMAGE,            // client → server: seller uploads image directly by item id
+    UPLOAD_ITEM_IMAGE_RESPONSE,   // server → client: returns the saved image data URI
 
     // ── Admin operations ───────────────────────────────────────────────────────
     GET_USERS,   // client → server: fetch all registered users (admin only)

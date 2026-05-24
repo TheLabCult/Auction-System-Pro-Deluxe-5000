@@ -418,7 +418,8 @@ public final class SellerDashboardController implements SceneManager.Refreshable
         }
         ItemDTO selected = selectedItem;
 
-        // Check locally first — gives instant feedback without a server round-trip
+        // Check locally first — gives instant feedback without a server round-trip.
+        // Only FREE items (no auctions, or all PAID/CANCELED) may be deleted.
         boolean activeLocally = myAuctions.stream()
                 .filter(a -> a.getItem() != null
                         && a.getItem().getId() == selected.getId())
@@ -429,6 +430,23 @@ public final class SellerDashboardController implements SceneManager.Refreshable
                     "Cannot delete '" + selected.getName() + "' — it is part of an ongoing auction.");
             return;
         }
+
+        boolean pendingLocally = myAuctions.stream()
+                .filter(a -> a.getItem() != null
+                        && a.getItem().getId() == selected.getId())
+                .anyMatch(a -> "FINISHED".equals(a.getStatus()));
+        if (pendingLocally) {
+            statusLabelItem.setText(
+                    "Cannot delete '" + selected.getName() + "' — auction payment is still pending.");
+            return;
+        }
+
+        // Collect any past (PAID / CANCELED) auctions linked to this item
+        // so they can be removed from the local list after a successful delete.
+        List<AuctionDTO> linkedAuctions = myAuctions.stream()
+                .filter(a -> a.getItem() != null
+                        && a.getItem().getId() == selected.getId())
+                .collect(java.util.stream.Collectors.toList());
 
         if (!AlertUtil.confirm("Delete Item",
                 "Permanently delete '" + selected.getName() + "'?")) return;
@@ -448,6 +466,8 @@ public final class SellerDashboardController implements SceneManager.Refreshable
                 return;
             }
             myItems.remove(selected);
+            // Also remove any linked past auctions from the local auction list
+            myAuctions.removeAll(linkedAuctions);
             selectedItem = null;
             statusLabelItem.setText("Item '" + selected.getName() + "' deleted.");
         }));
@@ -680,13 +700,24 @@ public final class SellerDashboardController implements SceneManager.Refreshable
         long auctionCount = myAuctions.stream()
                 .filter(a -> a.getItem() != null && a.getItem().getId() == item.getId())
                 .count();
+
+        // Determine item availability status:
+        //   IN AUCTION  – has an OPEN or RUNNING auction (locked)
+        //   PENDING     – has a FINISHED auction awaiting payment (cannot delete)
+        //   FREE        – no auctions, or all auctions are PAID or CANCELED (can delete)
         boolean inAuction = myAuctions.stream()
                 .filter(a -> a.getItem() != null && a.getItem().getId() == item.getId())
                 .anyMatch(a -> "OPEN".equals(a.getStatus()) || "RUNNING".equals(a.getStatus()));
+        boolean hasPending = !inAuction && myAuctions.stream()
+                .filter(a -> a.getItem() != null && a.getItem().getId() == item.getId())
+                .anyMatch(a -> "FINISHED".equals(a.getStatus()));
 
-        Label statusBadge = new Label(inAuction ? "🔒 IN AUCTION" : "✅ FREE");
+        String badgeText  = inAuction ? "🔒 IN AUCTION" : hasPending ? "⏳ PENDING" : "✅ FREE";
+        String badgeColor = inAuction ? "#D93025"        : hasPending ? "#E65100"    : "#2E7D32";
+
+        Label statusBadge = new Label(badgeText);
         statusBadge.setStyle("-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: "
-                + (inAuction ? "#D93025" : "#2E7D32") + ";");
+                + badgeColor + ";");
 
         Label countLabel = new Label("🔨 " + auctionCount + " auction" + (auctionCount == 1 ? "" : "s"));
         countLabel.getStyleClass().add("card-meta");

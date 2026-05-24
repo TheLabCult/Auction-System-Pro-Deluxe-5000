@@ -183,6 +183,7 @@ public final class ClientHandler implements Runnable, AuctionObserver {
                 case GET_SELLER_AUCTIONS -> handleGetSellerAuctions(msg);
                 case GET_SELLER_ITEMS    -> handleGetSellerItems(msg);
                 case UPLOAD_AUCTION_IMAGE -> handleUploadAuctionImage(msg);
+                case UPLOAD_ITEM_IMAGE   -> handleUploadItemImage(msg);
                 case GET_USERS           -> handleGetUsers(msg);
                 case BAN_USER            -> handleBanUser(msg);
                 case UNBAN_USER          -> handleUnbanUser(msg);
@@ -379,6 +380,29 @@ public final class ClientHandler implements Runnable, AuctionObserver {
 
         send(Message.reply(msg.getRequestId(),
                 MessageType.UPLOAD_AUCTION_IMAGE_RESPONSE, dataUri, gson));
+    }
+
+    /**
+     * Save an uploaded image directly against an item by its id.
+     * Ownership is verified — only the item's own seller may update it.
+     */
+    private void handleUploadItemImage(Message msg) {
+        requireAuth();
+        requireSeller();
+
+        UploadItemImageRequest req = msg.parsePayload(gson, UploadItemImageRequest.class);
+
+        // Ownership check — only the item's own seller may upload
+        Item item = itemService.getItem(req.itemId);
+        if (item.getSellerId() != currentUser.getId()) {
+            throw new AuthException("You do not own this item");
+        }
+
+        String dataUri = "data:" + req.mimeType + ";base64," + req.base64Data;
+        itemService.updateImageUrl(req.itemId, dataUri);
+
+        send(Message.reply(msg.getRequestId(),
+                MessageType.UPLOAD_ITEM_IMAGE_RESPONSE, dataUri, gson));
     }
 
     // ── Watch / Unwatch ───────────────────────────────────────────────────────

@@ -1,8 +1,15 @@
 package com.auction.client.controller;
 
+import com.auction.client.network.ServerConnection;
+import com.auction.client.session.ClientSession;
 import com.auction.client.util.SceneManager;
 import com.auction.common.dto.AuctionDTO;
 import com.auction.common.dto.ItemDTO;
+import com.auction.common.protocol.Message;
+import com.auction.common.protocol.MessageType;
+import com.auction.common.request.Requests.*;
+import com.auction.common.request.Responses.ErrorResponse;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,11 +19,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.OptionalDouble;
@@ -52,8 +63,15 @@ public class ItemDetailDialogController {
     @FXML private TableColumn<AuctionDTO, String> colAucPrice;
     @FXML private TableColumn<AuctionDTO, String> colAucEnds;
 
+    // ── Update image (seller only) ─────────────────────────────────────────────
+    @FXML private Button updateImageButton;
+    @FXML private Label  updateImageStatus;
+
     // ── Stage reference (for CLOSE button) ────────────────────────────────────
     private Stage stage;
+
+    /** The item currently being displayed — used by onUpdateImage(). */
+    private ItemDTO currentItem;
 
     // ──────────────────────────────────────────────────────────────────────────
     // Public factory
@@ -116,6 +134,15 @@ public class ItemDetailDialogController {
         List<AuctionDTO> itemAuctions = allAuctions.stream()
                 .filter(a -> a.getItem() != null && a.getItem().getId() == item.getId())
                 .toList();
+
+        currentItem = item;
+
+        // Show the Update Image button only to sellers
+        boolean isSeller = ClientSession.getInstance().isSeller();
+        updateImageButton.setVisible(isSeller);
+        updateImageButton.setManaged(isSeller);
+        updateImageStatus.setVisible(isSeller);
+        updateImageStatus.setManaged(isSeller);
 
         // ── Header ──────────────────────────────────────────────────────────
         titleLabel.setText(item.getName());
@@ -263,6 +290,71 @@ public class ItemDetailDialogController {
     // ──────────────────────────────────────────────────────────────────────────
     // FXML handlers
     // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Opens a file chooser so the seller can replace the item's image.
+     * Sends an UPLOAD_ITEM_IMAGE message and refreshes the displayed image on success.
+     */
+    @FXML
+    private void onUpdateImage() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select New Item Image");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(
+                        "Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp"));
+
+        File file = chooser.showOpenDialog(updateImageButton.getScene().getWindow());
+        if (file == null) return; // user cancelled
+
+        updateImageButton.setDisable(true);
+        updateImageStatus.setText("Uploading…");
+
+        new Thread(() -> {
+            try {
+                byte[] bytes    = Files.readAllBytes(file.toPath());
+                String mimeType = detectMimeType(file.getName());
+                String base64   = Base64.getEncoder().encodeToString(bytes);
+                String dataUri  = "data:" + mimeType + ";base64," + base64;
+
+                ServerConnection conn = ClientSession.getInstance().getConnection();
+                Message msg = Message.of(
+                        MessageType.UPLOAD_ITEM_IMAGE,
+                        new UploadItemImageRequest(currentItem.getId(), mimeType, base64),
+                        conn.getGson());
+
+                conn.send(msg).whenCompleteAsync((resp, ex) -> Platform.runLater(() -> {
+                    updateImageButton.setDisable(false);
+                    if (ex != null) {
+                        updateImageStatus.setText("Upload failed: " + ex.getMessage());
+                        return;
+                    }
+                    if (resp.getType() == MessageType.ERROR) {
+                        updateImageStatus.setText(
+                                resp.parsePayload(conn.getGson(), ErrorResponse.class).message);
+                        return;
+                    }
+                    updateImageStatus.setText("Image updated!");
+                    // Refresh the displayed image immediately using the local data URI
+                    loadImage(dataUri, currentItem.getCategory());
+                }));
+
+            } catch (Exception ex) {
+                Platform.runLater(() -> {
+                    updateImageButton.setDisable(false);
+                    updateImageStatus.setText("Error reading file: " + ex.getMessage());
+                });
+            }
+        }, "item-image-upload-thread").start();
+    }
+
+    /** Returns a basic MIME type string based on the file extension. */
+    private static String detectMimeType(String filename) {
+        String lower = filename.toLowerCase();
+        if (lower.endsWith(".png"))  return "image/png";
+        if (lower.endsWith(".gif"))  return "image/gif";
+        if (lower.endsWith(".webp")) return "image/webp";
+        return "image/jpeg"; // default for .jpg / .jpeg
+    }
 
     @FXML
     private void onClose() {

@@ -247,4 +247,23 @@ public final class Requests {
             this.base64Data = base64Data;
         }
     }
+
+    /**
+     * Payload for MessageType.UPLOAD_ITEM_IMAGE.
+     * Only the seller who owns the item may send this.
+     * Used by the Item Detail dialog to update an item's image directly by item id,
+     * without needing an auction context (unlike UploadAuctionImageRequest).
+     */
+    public static final class UploadItemImageRequest {
+        public long   itemId;     // item whose image should be updated
+        public String mimeType;   // e.g. "image/png", "image/jpeg"
+        public String base64Data; // Base64-encoded raw image bytes (no data-URI prefix)
+
+        public UploadItemImageRequest() {}
+        public UploadItemImageRequest(long itemId, String mimeType, String base64Data) {
+            this.itemId     = itemId;
+            this.mimeType   = mimeType;
+            this.base64Data = base64Data;
+        }
+    }
 }
