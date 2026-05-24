@@ -92,8 +92,13 @@
                             <PasswordField fx:id="passwordField" promptText="••••••••" style="-fx-background-color: #EFEFEF; -fx-padding: 14; -fx-background-radius: 6; -fx-font-size: 14px;" />
                         </VBox>
 
+                        <Label fx:id="statusLabel"
+                               minHeight="18.0"
+                               maxWidth="Infinity"
+                               style="-fx-font-size: 12px; -fx-text-fill: #D93025;"
+                               wrapText="true" />
+
                         <Button fx:id="loginButton" maxWidth="Infinity" onAction="#onLogin" prefHeight="47.0" prefWidth="339.0" style="-fx-background-color: black; -fx-text-fill: white; -fx-padding: 15; -fx-background-radius: 6; -fx-font-weight: bold; -fx-font-size: 13px; -fx-cursor: hand;" text="Login" textAlignment="CENTER" VBox.vgrow="ALWAYS" />
-                        <Label fx:id="statusLabel" prefHeight="17.0" prefWidth="353.0" textFill="#eb0505" />
 
                         <HBox alignment="CENTER" style="-fx-padding: 20 0 0 0;">
                             <TextFlow textAlignment="CENTER">
