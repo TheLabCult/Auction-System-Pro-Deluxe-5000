@@ -311,6 +311,25 @@ mvn -pl auction-client javafx:run
 mvn -pl auction-common,auction-server test
 ```
 
+## Use executable file:
+
+### One machine: 
+1. Run AuctionServer.exe: ```./dist/AuctionServer/AuctionServer.exe```
+2. Run AuctionClient.exe: ```./dist/AuctionClient/AuctionClient.exe```
+
+### Multiple machine: (download the whole folder, not just the exe file)
+- On server machine, download the folder: AuctionServer 
+- On client machine, download the folder: AuctionClient
+
+How to run:
+1. On server machine, find  its LAN IP:
+```ipconfig```
+Look for something like: IPv4 Address: 192.168.1.10
+2. Start the server (just click the exe file)
+3. Start client (replace 192.168.1.10 by the IPv4 Address above): 
+```.\AuctionClient.exe -Dserver.host=192.168.1.10 -Dserver.port=9090```
+4. Allow port TCP 9090 through firewall if needed
+
 ---
 
 ## Default Admin Account
