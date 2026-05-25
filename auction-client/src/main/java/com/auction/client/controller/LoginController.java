@@ -55,6 +55,12 @@ public final class LoginController {
     @FXML private Button        loginButton;   // triggers onLogin()
     @FXML private Label         statusLabel;   // displays errors below the button
 
+    @FXML
+    private void initialize() {
+        statusLabel.setVisible(false);
+        statusLabel.managedProperty().bind(statusLabel.visibleProperty());
+    }
+
     /** Called when the user clicks LOG IN (declared as onAction="#onLogin" in FXML). */
     @FXML
     private void onLogin() {
@@ -63,12 +69,12 @@ public final class LoginController {
 
         // Client-side pre-validation — avoids an unnecessary network round-trip.
         if (username.isEmpty() || password.isEmpty()) {
-            statusLabel.setText("Please enter username and password.");
+            showStatus("Please enter username and password.");
             return;
         }
 
         loginButton.setDisable(true);  // prevent double-click spam
-        statusLabel.setText("Connecting…");
+        hideStatus();
 
         ServerConnection conn = ClientSession.getInstance().getConnection();
         // Wrap the LoginRequest in a Message envelope with a fresh UUID requestId.
@@ -80,13 +86,15 @@ public final class LoginController {
             loginButton.setDisable(false); // re-enable regardless of outcome
 
             if (ex != null) { // network error (server unreachable, connection dropped)
-                statusLabel.setText("Connection error: " + ex.getMessage());
+                showStatus("Connection error: " + ex.getMessage());
                 return;
             }
             if (response.getType() == MessageType.ERROR) {
                 // Server rejected the login — display the reason from ErrorResponse.message.
                 String err = response.parsePayload(conn.getGson(), ErrorResponse.class).message;
-                statusLabel.setText(err);
+                showStatus("Account is banned".equals(err)
+                        ? err
+                        : "incorrect username or password");
                 return;
             }
             // Success — parse the UserDTO, store in session, navigate.
@@ -110,5 +118,15 @@ public final class LoginController {
             case "ADMIN"  -> SceneManager.switchTo(SceneManager.View.ADMIN_PANEL);
             default       -> SceneManager.switchTo(SceneManager.View.AUCTION_LIST);
         }
+    }
+
+    private void showStatus(String message) {
+        statusLabel.setText(message);
+        statusLabel.setVisible(true);
+    }
+
+    private void hideStatus() {
+        statusLabel.setText("");
+        statusLabel.setVisible(false);
     }
 }

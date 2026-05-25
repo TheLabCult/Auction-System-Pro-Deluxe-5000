@@ -137,12 +137,18 @@ public class ItemDetailDialogController {
 
         currentItem = item;
 
-        // Show the Update Image button only to sellers
+        long liveCount = itemAuctions.stream()
+                .filter(a -> "OPEN".equals(a.getStatus()) || "RUNNING".equals(a.getStatus()))
+                .count();
+
+        // Show the Update Image button only when the image is still editable.
         boolean isSeller = ClientSession.getInstance().isSeller();
-        updateImageButton.setVisible(isSeller);
-        updateImageButton.setManaged(isSeller);
+        boolean canUpdateImage = isSeller && liveCount == 0;
+        updateImageButton.setVisible(canUpdateImage);
+        updateImageButton.setManaged(canUpdateImage);
         updateImageStatus.setVisible(isSeller);
         updateImageStatus.setManaged(isSeller);
+        updateImageStatus.setText(canUpdateImage ? "" : "Image locked while auction is active.");
 
         // ── Header ──────────────────────────────────────────────────────────
         titleLabel.setText(item.getName());
@@ -176,9 +182,6 @@ public class ItemDetailDialogController {
                 ? String.format("$%.0f", highest.getAsDouble())
                 : "—");
 
-        long liveCount = itemAuctions.stream()
-                .filter(a -> "OPEN".equals(a.getStatus()) || "RUNNING".equals(a.getStatus()))
-                .count();
         activeAuctionLabel.setText(liveCount > 0 ? String.valueOf(liveCount) : "—");
 
         // ── Auction history table ────────────────────────────────────────────

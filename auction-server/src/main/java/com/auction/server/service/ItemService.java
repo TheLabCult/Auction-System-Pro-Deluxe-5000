@@ -117,10 +117,15 @@ public final class ItemService {
      *
      * @param itemId   the item whose image should be updated
      * @param imageUrl the saved file path or URL to persist
-     * @throws AuctionException if no item with the given id exists
+     * @throws AuctionException if no item with the given id exists, or if an
+     *                          active auction references this item
      */
     public void updateImageUrl(long itemId, String imageUrl) {
         getItem(itemId);
+        if (itemDAO.hasActiveAuction(itemId)) {
+            throw new AuctionException(
+                    "Cannot update item image - it is part of an ongoing auction");
+        }
         itemDAO.updateImageUrl(itemId,
                 imageUrl == null || imageUrl.isBlank() ? null : imageUrl.trim());
     }

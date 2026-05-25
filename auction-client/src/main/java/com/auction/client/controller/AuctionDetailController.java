@@ -15,17 +15,27 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 import java.io.ByteArrayInputStream;
@@ -79,6 +89,7 @@ public final class AuctionDetailController implements BroadcastListener {
     private long currentAuctionId;
     private Timer countdownTimer;
     private long endTimeEpochSec;
+    private boolean fullImageAvailable;
 
     @FXML
     private void initialize() {
@@ -114,6 +125,9 @@ public final class AuctionDetailController implements BroadcastListener {
         });
         yAxis.setForceZeroInRange(false);
         yAxis.setLabel("Price ($)");
+
+        itemImageView.setOnMouseClicked(event -> openFullImage());
+        Tooltip.install(itemImageView, new Tooltip("Click to view full image"));
 
         boolean canBid = ClientSession.getInstance().isBidder();
         bidAmountField.setVisible(canBid);
@@ -163,8 +177,8 @@ public final class AuctionDetailController implements BroadcastListener {
 
     private void populateDetails(AuctionDTO auction) {
         labelTitle.setText(auction.getItem() != null ? auction.getItem().getName() : "N/A");
-        showItemImage(auction.getItem() != null ? auction.getItem().getImageUrl() : null);
         labelCategory.setText(auction.getItem() != null ? auction.getItem().getCategory() : "");
+        showItemImage(auction.getItem() != null ? auction.getItem().getImageUrl() : null);
         labelDescription.setText(
                 auction.getItem() != null ? auction.getItem().getDescription() : "");
         labelSeller.setText(auction.getSellerName());
@@ -426,6 +440,8 @@ public final class AuctionDetailController implements BroadcastListener {
         itemImageView.setImage(image);
         itemImageView.setManaged(true);
         itemImageView.setVisible(true);
+        itemImageView.setStyle("-fx-cursor: hand;");
+        fullImageAvailable = true;
         itemImagePlaceholder.setManaged(false);
         itemImagePlaceholder.setVisible(false);
     }
@@ -440,8 +456,69 @@ public final class AuctionDetailController implements BroadcastListener {
             itemImageView.setManaged(true);
             itemImageView.setVisible(true);
         }
+        itemImageView.setStyle("");
+        fullImageAvailable = false;
         itemImagePlaceholder.setManaged(false);
         itemImagePlaceholder.setVisible(false);
+    }
+
+    private void openFullImage() {
+        Image image = itemImageView.getImage();
+        if (!fullImageAvailable || image == null || image.isError()) {
+            return;
+        }
+
+        Bounds imageScreenBounds = itemImageView.localToScreen(itemImageView.getBoundsInLocal());
+        Rectangle2D screenBounds = Screen
+                .getScreensForRectangle(
+                        imageScreenBounds.getMinX(),
+                        imageScreenBounds.getMinY(),
+                        imageScreenBounds.getWidth(),
+                        imageScreenBounds.getHeight())
+                .stream()
+                .findFirst()
+                .orElse(Screen.getPrimary())
+                .getVisualBounds();
+        double maxWindowWidth = screenBounds.getWidth() * 0.92;
+        double maxWindowHeight = screenBounds.getHeight() * 0.92;
+        double sceneWidth = Math.min(Math.max(image.getWidth() + 48, 640), maxWindowWidth);
+        double sceneHeight = Math.min(Math.max(image.getHeight() + 48, 480), maxWindowHeight);
+        double imageFitWidth = Math.max(320, sceneWidth - 36);
+        double imageFitHeight = Math.max(240, sceneHeight - 36);
+
+        ImageView fullImageView = new ImageView(image);
+        fullImageView.setPreserveRatio(true);
+        fullImageView.setSmooth(true);
+        fullImageView.setFitWidth(imageFitWidth);
+        fullImageView.setFitHeight(imageFitHeight);
+
+        StackPane imagePane = new StackPane(fullImageView);
+        imagePane.setStyle("-fx-background-color: #111111; -fx-padding: 18;");
+
+        ScrollPane scrollPane = new ScrollPane(imagePane);
+        scrollPane.setPannable(true);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setStyle("-fx-background: #111111; -fx-background-color: #111111;");
+
+        Stage stage = new Stage();
+        stage.initOwner(itemImageView.getScene().getWindow());
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle(labelTitle.getText() == null || labelTitle.getText().isBlank()
+                ? "Full Image"
+                : labelTitle.getText());
+        Scene scene = new Scene(scrollPane, sceneWidth, sceneHeight);
+        scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                stage.close();
+            }
+        });
+        stage.setScene(scene);
+        stage.setMinWidth(640);
+        stage.setMinHeight(480);
+        stage.setX(screenBounds.getMinX() + (screenBounds.getWidth() - sceneWidth) / 2);
+        stage.setY(screenBounds.getMinY() + (screenBounds.getHeight() - sceneHeight) / 2);
+        stage.show();
     }
 
     private void startCountdown() {
