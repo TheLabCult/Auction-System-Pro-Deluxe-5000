@@ -322,13 +322,23 @@ mvn -pl auction-common,auction-server test
 - On client machine, download the folder: AuctionClient
 
 How to run:
+0. Allow port TCP 9090 through firewall if needed
 1. On server machine, find  its LAN IP:
 ```ipconfig```
 Look for something like: IPv4 Address: 192.168.1.10
 2. Start the server (just click the exe file)
 3. Start client (replace 192.168.1.10 by the IPv4 Address above): 
 ```.\AuctionClient.exe -Dserver.host=192.168.1.10 -Dserver.port=9090```
-4. Allow port TCP 9090 through firewall if needed
+
+
+### Allow one TCP port through firewall on Windows: (don't know Macos ye)
+1. Open start menu, go to Windows Defender Firewall with Advanced Security
+2. Click Inbound Rule -> New Rule
+3. Choose Port -> click Next
+4. Select TCP, enter ```9090```, click Next
+5. Click Allow the connection, click Next
+6. Choose when the rule applies. On Wifi, ensure Private is checked. (Uncheck Public for better security if you don't absolutely trust the network)
+7. Give the rule a name and Finish.
 
 ---
 
