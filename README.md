@@ -303,7 +303,10 @@ mvn install
 java -jar auction-server/target/auction-server-1.0.0-fat.jar
 
 # Start client
-mvn -pl auction-client javafx:run
+java -jar auction-client/target/auction-client-1.0.0-fat.jar
+
+# Start client against another server
+java -Dserver.host=192.168.1.10 -Dserver.port=9090 -jar auction-client/target/auction-client-1.0.0-fat.jar
 
 # Login: admin / admin
 

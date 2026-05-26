@@ -16,5 +16,6 @@ com\auction\client\util\SceneManager$Refreshable.class
 com\auction\client\util\SceneManager.class
 com\auction\client\controller\AuctionDetailController$1.class
 com\auction\client\controller\LoginController.class
+com\auction\client\ClientLauncher.class
 com\auction\client\network\ServerConnection$BroadcastListener.class
 com\auction\client\controller\AuctionDetailController.class

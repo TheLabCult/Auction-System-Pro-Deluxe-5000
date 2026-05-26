@@ -29,7 +29,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>com.auction.client.ClientMain</mainClass>
+                  <mainClass>com.auction.client.ClientLauncher</mainClass>
                 </transformer>
               </transformers>
               <shadedArtifactAttached>true</shadedArtifactAttached>
