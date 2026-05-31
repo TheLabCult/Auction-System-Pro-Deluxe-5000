@@ -183,7 +183,38 @@ java-options=-Dserver.port=9090
 - Báo cáo PDF: [Bao_cao_bai_tap_lon_Auction_System.pdf](./Bao_cao_btl.pdf)
 - Video demo: [Video Demo.mp4](./Video%20Demo.mp4)
 
-## 8. Cây thư mục đầy đủ bổ sung cho mục 3 - cấu trúc thư mục
+## 8. Một số điều thêm
+
+### Powershell command đã sử dụng để đóng gói file exe
+1. Đóng gói client
+```powershell
+jpackage `
+  --type app-image `
+  --name AuctionClient `
+  --input auction-client\target `
+  --main-jar auction-client-1.0.0-fat.jar `
+  --main-class com.auction.client.ClientMain `
+  --module-path "C:\path\to\javafx-jmods-21.0.2" `
+  --add-modules javafx.controls,javafx.fxml `
+  --dest dist
+```
+- Lưu ý: javafx ở đây là dùng jmods, không có trong javafx sdk, phải tải thêm nếu cần
+
+2. Đóng gói server
+```powershell
+jpackage `
+  --type app-image `
+  --name AuctionServer `
+  --input auction-server\target `
+  --main-jar auction-server-1.0.0-fat.jar `
+  --main-class com.auction.server.ServerMain `
+  --win-console `
+  --dest dist
+```
+- Lưu ý: ```--win-console``` là để khởi động server và tạo cửa sổ terminal của server chạy trên đó, khi muốn tắt server thì Ctrl + C là xong. Nếu không có cửa sổ terminal của server thì khi muốn tắt server lại phải vào trong task manager để tìm AuctionServer.exe và tắt.
+
+
+### Lấy cây thư mục đầy đủ của project
 
 Lệnh Bash (không phải Powershell):
 ```tree -I "node_modules|.git|build|dist|target|*.log|apache-maven-3.9.15|resources|sqlite|*.docx|*.pdf"```
