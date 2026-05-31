@@ -1,365 +1,191 @@
-# Online Auction System
+# FINAL - Auction System Pro Deluxe 5000
 
-A full-stack Java desktop application: real-time online auction platform built with
-**JavaFX 21**, **SQLite JDBC**, **TCP sockets**, and a strict layered architecture.
+## 1. Mô tả bài toán và phạm vi hệ thống
 
----
+Auction System Pro Deluxe 5000 là app đấu giá trực tuyến dạng client-server. Server quản lý dữ liệu, giao tiếp với database, chứa nghiệp vụ đấu giá; Client là ứng dụng JavaFX để người dùng đăng nhập, xem phiên đấu giá và sử dụng theo vai trò.
 
-## Design Rationale
+Hệ thống đã thực hiện:
 
-### Why TCP Sockets (not REST)?
+- Có người dùng theo vai trò `BIDDER`, `SELLER`, `ADMIN`.
+- Quản lý sản phẩm và phiên đấu giá.
+- Đặt giá thủ công, auto-bidding, cập nhật giá realtime.
+- Tự động kết thúc phiên đấu giá theo thời gian.
+- Anti-sniping: gia hạn phiên khi có bid sát thời điểm kết thúc.
+- Giao diện desktop JavaFX/FXML cho đăng nhập, đăng ký, đấu giá, dashboard seller và admin panel.
+- Lưu trữ dữ liệu bằng SQLite, chỉ server truy cập database.
 
-REST is request-response only. The core requirement of this system is that
-**all watching clients see a new bid immediately** without polling. REST would
-require each client to poll every second — wasteful and laggy. A persistent TCP
-connection lets the server *push* bid events the instant they are accepted.
-The trade-off: more complex client code (CompletableFuture correlation + broadcast
-routing) versus simpler HTTP verbs. The payoff is sub-millisecond latency for
-bid broadcasts.
+## 2. Công nghệ sử dụng, môi trường chạy và yêu cầu cài đặt
 
-### Why SQLite (not a full RDBMS)?
+### Công nghệ sử dụng
 
-SQLite is zero-configuration: no server process, no install, one file. For a
-desktop application with one server process, it is perfectly appropriate.
-The concurrency ceiling (one writer at a time) is handled by `synchronized` DAO
-methods. The `DatabaseManager` exposes a `resetForTesting()` hook so tests can
-point at a temp file without touching production data.
+- Java 17
+- JavaFX 21
+- Maven
+- SQLite và SQLite JDBC
+- TCP Socket với message JSON 
+- Gson 2.10.1.
+- SLF4J 2.0.9.
+- JUnit 5.10.0 và Mockito 5.6.0 cho kiểm thử.
 
-### Why Manual Dependency Injection (not Spring)?
+### Môi trường chạy
 
-The dependency graph is shallow (DAO → Service → Handler, 3 layers). A DI
-framework would add classpath scanning, annotation processing, and startup time
-for no meaningful benefit. Manual wiring in `AuctionServer`'s constructor makes
-every dependency explicit and traceable in one place.
+- Hệ điều hành khuyến nghị: Windows (các hướng dẫn trong đây đều là cho Windows như là các lệnh Powershell)
+- Nếu chạy bằng file `.jar`: cần JDK 17 trở lên.
+- Nếu chạy bằng bản đóng gói `.exe` trong `dist/`: không cần JDK
+- Maven có thể dùng bản cài sẵn trên máy hoặc Maven đi kèm repo tại `apache-maven-3.9.15/`.
+- Server mặc định lắng nghe TCP port `9090`.
 
-### Concurrency: Why Per-Auction `ReentrantLock`?
 
-A global `synchronized` block would serialise ALL bids across ALL auctions.
-A per-auction `ReentrantLock` stored in a `ConcurrentHashMap` means:
-- Bidding on auction #1 never blocks bidding on auction #2.
-- Within one auction, bids are strictly serialised (no lost-update, no two winners).
-- The `fair=true` flag prevents bid starvation: fast-retrying clients don't skip slow ones.
+### Yêu cầu cài đặt
 
-### Why `volatile` on `Auction` fields?
+Nếu build từ source code:
 
-`volatile` guarantees that a write by thread A (BidService, holding the lock)
-is immediately visible to thread B (the scheduler thread, not holding the lock).
-Without it, the scheduler might read a stale CPU-cached `endTime` and close the
-auction at the wrong time. `volatile` does not make compound operations atomic —
-that still requires the `ReentrantLock`.
-
-### Why `CompletableFuture` on the client?
-
-Blocking the JavaFX Application Thread waiting for a network response freezes
-the UI (no repaints, no button clicks). `CompletableFuture.whenCompleteAsync`
-fires a callback when the response arrives, keeping the FX thread free.
-`Platform.runLater()` inside the callback schedules the actual UI update back
-on the FX thread, which is the only thread allowed to touch UI components.
-
-### Design Pattern Choices
-
-| Pattern | Where | Why chosen |
-|---|---|---|
-| **Singleton** | `DatabaseManager`, `AuctionEventBus`, `ClientSession` | One shared instance needed across many independently-created objects; avoids passing through constructors |
-| **Factory Method** | `ItemFactory`, `UserFactory` | Centralises subclass instantiation; adding a new category/role requires one change here, zero changes elsewhere |
-| **Observer** | `AuctionObserver` ← `ClientHandler`; `AuctionEventBus` fan-out | Decouples `BidService` from the network layer; BidService doesn't know how many clients are watching or how to write to a socket |
-| **DAO** | All five `SQLite*DAO` classes | Isolates SQL from business logic; services test with mock DAOs, no database needed |
-| **Strategy** (implicit) | `BidService.resolveAutoBids()` PriorityQueue comparator | The tie-breaking rule (maxBid DESC, registeredAt ASC) is a pluggable comparison strategy |
-| **MVC** | Client (FXML + Controller) and Server (Handler → Service → DAO) | Separates display (FXML), user-action handling (Controller), and business logic (Service) |
-
----
-
-## Reading Order
-
-Read the files in this order to understand the system from foundations to features.
-
-### Step 1 — The Protocol (what travels over the wire)
-
-Start here to understand the shared language between client and server.
-All communication is newline-delimited JSON; every message is one `Message` object.
-
-```
-auction-common/
-  protocol/
-    MessageType.java   ← every possible action/event (the "verb" of the protocol)
-    Message.java       ← the envelope (requestId + type + payload)
-  request/
-    EmptyPayload.java  ← why this exists (Gson null-payload bug)
-    Requests.java      ← all client→server payload classes (one per MessageType)
-    Responses.java     ← all server→client payload classes
-  dto/
-    UserDTO.java       ← user without passwordHash
-    ItemDTO.java       ← item with category + extraData
-    AuctionDTO.java    ← auction with embedded ItemDTO + current price/leader
-    BidDTO.java        ← single bid with dual timestamp (display + chart)
-```
-
-### Step 2 — The Domain Model (what exists in the server's world)
-
-These are pure Java objects with no SQL and no network code.
-Read them to understand what the system is modelling.
-
-```
-auction-server/model/
-  Entity.java         ← abstract root: id + createdAt + printInfo()
-  UserRole.java       ← BIDDER / SELLER / ADMIN
-  User.java           ← abstract: canBid(), canSell(), getRole()
-  Bidder.java         ← canBid()=true, canSell()=false
-  Seller.java         ← canBid()=false, canSell()=true
-  Admin.java          ← canBid()=false, canSell()=false
-  ItemCategory.java   ← ELECTRONICS / ART / VEHICLE
-  Item.java           ← abstract: getCategory(), extraData blob
-  Electronics.java    ← getCategory()=ELECTRONICS
-  Art.java            ← getCategory()=ART
-  Vehicle.java        ← getCategory()=VEHICLE
-  AuctionStatus.java  ← OPEN → RUNNING → FINISHED → PAID / CANCELED
-  Auction.java        ← volatile fields; isActive(); embedded Item
-  BidTransaction.java ← append-only bid record; autoBid flag
-  AutoBid.java        ← maxBid + increment + registeredAt (tie-breaker)
-```
-
-### Step 3 — Infrastructure (database and utilities)
-
-```
-auction-server/db/
-  DatabaseManager.java   ← Singleton; SQLite connection; schema init; admin seed
-
-auction-server/util/
-  DateUtil.java          ← why LocalDateTime.parse() alone fails on SQLite dates
-  PasswordUtil.java      ← SHA-256 + random salt; legacy hash support for admin seed
-  DtoMapper.java         ← domain object → DTO (the translation layer)
-
-auction-server/exception/
-  AuthException.java     ← login/registration/ban violations
-  BidException.java      ← bidding rule violations
-  AuctionException.java  ← auction lifecycle violations
-```
-
-### Step 4 — Persistence (DAOs)
-
-Read the interface first, then the implementation.
-The interface is the contract; the implementation is how SQLite fulfils it.
-
-```
-auction-server/dao/
-  UserDAO.java        ← interface: save, findById, findByUsername, findAll, updateActive
-  ItemDAO.java        ← interface: save, findById, findBySellerId
-  AuctionDAO.java     ← interface: 9 methods including fine-grained updates
-  BidDAO.java         ← interface: save, findByAuctionId
-  AutoBidDAO.java     ← interface: save (UPSERT), findActiveByAuctionId, deactivate
-
-  impl/SQLiteUserDAO.java     ← synchronized; PreparedStatement; UserFactory.create()
-  impl/SQLiteItemDAO.java     ← JOIN for seller_name; ItemFactory.create()
-  impl/SQLiteAuctionDAO.java  ← 3-table JOIN; rs.wasNull() for nullable winner
-  impl/SQLiteBidDAO.java      ← append-only; ASC order for chart
-  impl/SQLiteAutoBidDAO.java  ← ON CONFLICT DO UPDATE (UPSERT)
-```
-
-### Step 5 — Factories and Observer (design patterns)
-
-```
-auction-server/factory/
-  ItemFactory.java    ← switch expression on ItemCategory → correct subclass
-  UserFactory.java    ← switch expression on UserRole → correct subclass
-
-auction-server/observer/
-  AuctionObserver.java   ← interface: onBidPlaced, onAuctionEnded, onAuctionExtended
-  AuctionEventBus.java   ← Singleton; ConcurrentHashMap of watcher sets; async fan-out
-```
-
-### Step 6 — Business Logic (services)
-
-This is where the rules of the auction system live.
-
-```
-auction-server/service/
-  UserService.java     ← register (validation + hashing), login, banUser
-  ItemService.java     ← createItem (seller-only, factory), getItem, getItemsBySeller
-  AuctionService.java  ← createAuction, scheduler (ScheduledFuture), anti-snipe, closeAuction
-  BidService.java      ← placeBid (ReentrantLock), resolveAutoBids (PriorityQueue), setAutoBid
-```
-
-Read `BidService.java` last in this group — it is the most complex class and
-builds on all the others.
-
-### Step 7 — Network Layer (server side)
-
-```
-auction-server/network/
-  AuctionServer.java   ← wires all DAOs+services; accept loop; thread pool
-  ClientHandler.java   ← one per client; dispatch table; implements AuctionObserver
-  ServerMain.java      ← entry point: parse port, init DB, start server
-```
-
-`ClientHandler` is the second most complex class. It is the bridge between the
-network (TCP sockets) and the business layer (services). Read the dispatch()
-method and then follow each handleXxx() method.
-
-### Step 8 — Client Network Layer
-
-```
-auction-client/network/
-  ServerConnection.java  ← CompletableFuture correlation + broadcast routing
-```
-
-Read the `route()` method to understand the two-path dispatch.
-Read `send()` + `readLoop()` to understand the async communication model.
-
-### Step 9 — Client Session and Navigation
-
-```
-auction-client/session/
-  ClientSession.java   ← Singleton: connection + logged-in UserDTO + role helpers
-
-auction-client/util/
-  SceneManager.java    ← FXML cache; switchTo(); showAuctionDetail(); Refreshable
-  AlertUtil.java       ← error(), info(), confirm() wrappers
-```
-
-### Step 10 — Client Entry Point and Controllers
-
-```
-auction-client/
-  ClientMain.java                           ← connect → store in session → show LOGIN
-
-  controller/LoginController.java           ← async LOGIN → navigate by role
-  controller/RegisterController.java        ← REGISTER → back to login
-  controller/AuctionListController.java     ← GET_AUCTIONS; FilteredList search
-  controller/AuctionDetailController.java   ← most complex: bidding + chart + timer + broadcasts
-  controller/SellerDashboardController.java ← create items/auctions; cancel; refresh
-  controller/AdminController.java           ← user list; ban user
-```
-
-Read `AuctionDetailController` last — it combines everything: network calls,
-broadcast handling, chart updates, and a countdown timer.
-
-### Step 11 — Tests
-
-```
-auction-server/test/
-  util/PasswordUtilTest.java      ← hash/verify round-trip; legacy hash format
-  service/UserServiceTest.java    ← Mockito mock DAO; validates registration rules
-  service/AuctionServiceTest.java ← Mockito mock DAO; anti-snipe window logic
-  service/BidServiceTest.java     ← real SQLite temp file; full bid + auto-bid flow
-```
-
-Read `BidServiceTest` last — it is an integration test (real DB) and exercises
-the most code paths of any test in the project.
-
----
-
-## Architecture Diagram
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    CLIENT PROCESS                        │
-│                                                          │
-│  JavaFX FX Thread          server-reader Thread          │
-│  ┌────────────────┐        ┌──────────────────────────┐  │
-│  │ Controller     │        │  ServerConnection         │  │
-│  │ (sends msg)    │──────▶ │  readLoop()               │  │
-│  │                │        │  ├─ route(msg)             │  │
-│  │ whenComplete   │◀──────-│  │  ├─ future.complete()  │  │
-│  │ (FX callback)  │        │  │  └─ dispatchBroadcast()│  │
-│  └────────────────┘        │  │     └─ Platform.runLater│  │
-│                            └──────────────────────────┘  │
-└───────────────────────────┬─────────────────────────────┘
-                            │ TCP (newline-delimited JSON)
-┌───────────────────────────▼─────────────────────────────┐
-│                    SERVER PROCESS                        │
-│                                                          │
-│  Per-client thread         notify-pool threads           │
-│  ┌────────────────┐        ┌──────────────────────────┐  │
-│  │ ClientHandler  │        │  AuctionEventBus          │  │
-│  │ dispatch()     │        │  fan() → observer.onXxx() │  │
-│  │ ├─ UserService │        └──────────────────────────┘  │
-│  │ ├─ ItemService │                    ▲                 │
-│  │ ├─ AuctionSvc  │──────publishes─────┘                 │
-│  │ └─ BidService  │                                      │
-│  │   (acquires    │                                      │
-│  │    auction     │     scheduler Thread                 │
-│  │    lock)       │   ┌────────────────────┐             │
-│  └────────────────┘   │ closeAuction()     │             │
-│                       │ (fires at endTime) │             │
-│                       └────────────────────┘             │
-│                                                          │
-│  ┌───────────────────────────────────────────────┐       │
-│  │              SQLite (auction.db)              │       │
-│  │  users  items  auctions  bid_transactions     │       │
-│  │  auto_bids                                    │       │
-│  └───────────────────────────────────────────────┘       │
-└─────────────────────────────────────────────────────────┘
-```
-
----
-
-## Build and Run
-
-```bash
-# Build and test
+```powershell
 mvn install
-
-# Start server (creates auction.db in current directory)
-java -jar auction-server/target/auction-server-1.0.0-fat.jar
-
-# Start client
-java -jar auction-client/target/auction-client-1.0.0-fat.jar
-
-# Start client against another server
-java -Dserver.host=192.168.1.10 -Dserver.port=9090 -jar auction-client/target/auction-client-1.0.0-fat.jar
-
-# Login: admin / admin
-
-# Run tests only (no display needed)
-mvn -pl auction-common,auction-server test
 ```
 
-## Use executable file:
+Hoặc dùng Maven đi kèm repo:
 
-### One machine: 
-1. Run AuctionServer.exe: ```./dist/AuctionServer/AuctionServer.exe```
-2. Run AuctionClient.exe: ```./dist/AuctionClient/AuctionClient.exe```
+```powershell
+.\apache-maven-3.9.15\bin\mvn.cmd install
+```
 
-### Multiple machine: (download the whole folder, not just the exe file)
-- On server machine, download the folder: AuctionServer 
-- On client machine, download the folder: AuctionClient
+Nếu chỉ chạy bản đóng gói:
 
-How to run:
-0. Allow port TCP 9090 through firewall if needed
-1. On server machine, find  its LAN IP:
-```ipconfig```
-Look for something like: IPv4 Address: 192.168.1.10
-2. Start the server (just click the exe file)
-3. Start client (replace 192.168.1.10 by the IPv4 Address above): 
-```.\AuctionClient.exe -Dserver.host=192.168.1.10 -Dserver.port=9090```
+- Không cần cài Maven.
+- Chạy nguyên thư mục `dist/AuctionServer/` và `dist/AuctionClient/`.
+- Không tách riêng file `.exe` khỏi thư mục `app/` và `runtime/` đi kèm.
+
+## 3. Cấu trúc thư mục và module chính
+
+```text
+.
+|-- auction-common/          # DTO, protocol, request/response dùng chung Client/Server
+|-- auction-server/          # Server: model, DAO, service, network, database, test
+|-- auction-client/          # Client JavaFX: controller, FXML, CSS, network, session
+|-- dist/
+|   |-- AuctionServer/       # Bản đóng gói chạy trực tiếp cho server
+|   |-- AuctionClient/       # Bản đóng gói chạy trực tiếp cho client
+|-- sqlite/                  # Công cụ SQLite cho Windows
+|-- apache-maven-3.9.15/     # Maven đi kèm repo
+|-- auction.db               # Database SQLite mẫu/dữ liệu hiện tại
+|-- Bao_cao_btl.docx
+|-- Video Demo.mp4
+|-- README.md
+|-- pom.xml                  
+```
+
+Các module chính:
+
+- `auction-common`: định nghĩa `Message`, `MessageType`, DTO và payload request/response để client và server serialize JSON thống nhất.
+- `auction-server`: xử lý nghiệp vụ, quản lý SQLite dâtbase, nhận kết nối TCP, gửi request và broadcast sự kiện realtime.
+- `auction-client`: giao diện JavaFX, kết nối server, quản lý phiên đăng nhập và các màn hình theo vai trò.
+
+## 4. Vị trí các file `.jar`
+
+File `.jar` sinh ra khi build Maven:
+
+- `auction-common/target/auction-common-1.0.0.jar`
+- `auction-server/target/auction-server-1.0.0.jar`
+- `auction-server/target/auction-server-1.0.0-fat.jar`
+- `auction-client/target/auction-client-1.0.0.jar`
+- `auction-client/target/auction-client-1.0.0-fat.jar`
+
+File `.jar` trong bản đóng gói `dist`:
+
+- `dist/AuctionServer/app/auction-server-1.0.0.jar`
+- `dist/AuctionServer/app/auction-server-1.0.0-fat.jar`
+- `dist/AuctionClient/app/auction-client-1.0.0.jar`
+- `dist/AuctionClient/app/auction-client-1.0.0-fat.jar`
+
+Ghi chú: khi chạy trực tiếp bằng `java -jar`, nên dùng file `*-fat.jar` vì đã đóng gói dependency cần thiết.
+
+## 5. Hướng dẫn chạy ứng dụng
+
+### Cách 1: Chạy từ source code hoặc file JAR
+
+1. Build toàn bộ project:
+
+```powershell
+mvn install
+```
+
+2. Chạy Server trước:
+
+```powershell
+java -jar auction-server/target/auction-server-1.0.0-fat.jar
+```
 
 
-### Allow one TCP port through firewall on Windows: (don't know Macos ye)
-1. Open start menu, go to Windows Defender Firewall with Advanced Security
-2. Click Inbound Rule -> New Rule
-3. Choose Port -> click Next
-4. Select TCP, enter ```9090```, click Next
-5. Click Allow the connection, click Next
-6. Choose when the rule applies. On Wifi, ensure Private is checked. (Uncheck Public for better security if you don't absolutely trust the network)
-7. Give the rule a name and Finish.
+3. Sau khi Server khởi động xong, chạy Client:
 
----
+```powershell
+java -jar auction-client/target/auction-client-1.0.0-fat.jar
+```
 
-## Default Admin Account
+4. Nếu Client kết nối tới Server trên máy khác trong LAN (sử dụng file exe):
 
-| Field    | Value   |
-|----------|---------|
-| Username | `admin` |
-| Password | `admin` |
+Điều kiện: các máy client và máy server cần ở trên một mạng LAN
 
-The hash stored in the database is SHA-256("admin") with no salt prefix.
-`PasswordUtil.verify()` detects the absence of a ":" separator and falls back
-to a bare SHA-256 comparison for this legacy format.
+#### Các bước:
+1. Giữ dist/AuctionServer trên máy server; Các máy client cần có dist/AuctionClient (lưu ý: copy cả thư mục, không chỉ mỗi file exe)
+2. Trên máy server, chạy terminal: ```ipconfig```, tìm mục IPv4
+3. Trên các máy client, vào trong AuctionClient/app/AuctionClient.cfg, thêm dòng sau đay vào cuối file: 
+```
+java-options=-Dserver.host=xx.xx.xx.xx        <-- Đây là IPv4 vừa tìm ở máy server
+java-options=-Dserver.port=9090 
+```
+4. Trên máy server, vào settings Firewall, mở Port TCP cho phép nhận tín hiệu trên cùng một mạng LAN.
+5. Lần lượt chạy file exe trên máy server trước rồi chạy trên (các) máy client.
 
+### Cách 2: Chạy bản đóng gói `.exe`
 
-## Folder tree:
+1. Chạy Server trước:
 
-Bash command:
+```powershell
+.\dist\AuctionServer\AuctionServer.exe
+```
+
+2. Sau khi Server sẵn sàng, chạy Client:
+
+```powershell
+.\dist\AuctionClient\AuctionClient.exe
+```
+
+## 6. Danh sách chức năng đã hoàn thành
+
+- Đăng ký tài khoản theo vai trò seller và bidder, không thể đăng kí admin. Tài khoản admin phải seed từ trong source code.
+- Đăng nhập và duy trì phiên người dùng.
+- Phân quyền Bidder/Seller/Admin.
+- Hiển thị danh sách phiên đấu giá.
+- Tìm kiếm/lọc phiên đấu giá trên Client.
+- Xem chi tiết phiên đấu giá.
+- Xem lịch sử đặt giá và biểu đồ giá realtime.
+- Đặt giá thủ công.
+- Auto-bidding với `maxBid` và `increment`.
+- Broadcast giá mới realtime cho các client đang theo dõi phiên đấu giá.
+- Tự động kết thúc phiên đấu giá theo `endTime`.
+- Anti-sniping: gia hạn phiên khi có bid trong 30 giây cuối.
+- Seller tạo sản phẩm theo danh mục `ELECTRONICS`, `ART`, `VEHICLE`.
+- Seller tạo phiên đấu giá cho sản phẩm.
+- Seller xem danh sách sản phẩm/phiên đấu giá của mình.
+- Seller hủy phiên đấu giá.
+- Seller đánh dấu phiên đấu giá đã thanh toán.
+- Upload/hiển thị ảnh sản phẩm.
+- Admin xem danh sách người dùng.
+- Admin khóa và mở khóa tài khoản người dùng.
+- Lưu trữ dữ liệu bằng SQLite.
+- Kiểm thử service/util bằng JUnit và Mockito.
+- Đóng gói Server/Client thành `.jar` và `.exe`.
+
+## 7. Link báo cáo PDF và video demo
+
+- Báo cáo PDF: [Bao_cao_bai_tap_lon_Auction_System.pdf](./Bao_cao_btl.pdf)
+- Video demo: [Video Demo.mp4](./Video%20Demo.mp4)
+
+## 8. Cây thư mục đầy đủ bổ sung cho mục 3 - cấu trúc thư mục
+
+Lệnh Bash (không phải Powershell):
 ```tree -I "node_modules|.git|build|dist|target|*.log|apache-maven-3.9.15|resources|sqlite|*.docx|*.pdf"```
 
 
@@ -490,3 +316,4 @@ Bash command:
 ├── auction.db
 └── pom.xml
 ```
+
